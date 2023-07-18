@@ -138,20 +138,28 @@ contract Marketplace is ERC721URIStorage {
         }
     }
 
+    // Fetch all my NFTs
     function fetchMyNFT() public view returns(MarketItem[] memory) {
         uint256 totalCount = _tokenIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
+        // Get total count of my NFTs
         for (uint256 i = 0; i < totalCount; i++) {
             if (idToMarketItem[i + 1].owner == msg.sender) {
                 itemCount += 1;  
             }
 
+            // Initialize array to store my NFTs for return
             MarketItem[] memory items = new MarketItem[](itemCount);
+
             for (uint256 i = 0; i < totalCount; i++) {
+
+                // Check all unsold items for ownership
                 if (idToMarketItem[i + 1].owner == msg.sender) {
                     uint256 currentId = i + 1;
+
+                    // Add all my NFTs to items array
                     MarketItem storage currentItem = idToMarketItem[currentId];
                     items[currentIndex] = currentItem;
                     currentIndex += 1;
@@ -160,4 +168,34 @@ contract Marketplace is ERC721URIStorage {
         return items;
         }
     }
+
+    // Fetch NFTs for individual user
+    function fetchItemsListed() public view returns (MarketItem[] memory) {
+        uint256 totalCount = _tokenIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        // Get total count for user's NFTs
+        for (uint256 i = 0; i < totalCount; i++) {
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        // Create array to store user's NFTs
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalCount; i++) {
+            // Check NFTs for ownership
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                uint256 currentId = i + 1;
+
+                // Extract NFTs and add to items array
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
 }
