@@ -64,15 +64,17 @@ contract Marketplace is ERC721URIStorage {
 
     function createMarketItem(uint256 tokenId, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
-        require(msg.value == price, "Price must be paid in full");
+        require(msg.value == listingPrice, "Price must be paid in full");
         
-        idToMarketItem[itemId] = MarketItem(
+        idToMarketItem[tokenId] = MarketItem(
             tokenId,
             payable(msg.sender),
-            payable(address(0)),
+            payable(address(this)),
             price,
             false
         );
+
+        _transfer(msg.sender, address(this), tokenId);
         
         emit MarketItemCreated(
             tokenId,
