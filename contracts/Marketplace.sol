@@ -120,7 +120,7 @@ contract Marketplace is ERC721URIStorage {
         return listingPrice;
     }
 
-    function fetchMarketItem() public view returns (MarketItem[] memory) {
+    function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint256 itemCount = _tokenIds.current();
         uint256 unsoldItemCount = _tokenIds.current() - _itemsSold.current();
         uint256 currentIndex = 0;
@@ -136,6 +136,7 @@ contract Marketplace is ERC721URIStorage {
                 currentIndex += 1;
             }
         }
+        return items;
     }
 
     // Fetch all my NFTs
@@ -149,6 +150,7 @@ contract Marketplace is ERC721URIStorage {
             if (idToMarketItem[i + 1].owner == msg.sender) {
                 itemCount += 1;  
             }
+        }
 
             // Initialize array to store my NFTs for return
             MarketItem[] memory items = new MarketItem[](itemCount);
@@ -166,7 +168,7 @@ contract Marketplace is ERC721URIStorage {
                 }
             }
         return items;
-        }
+        
     }
 
     // Fetch NFTs for individual user
