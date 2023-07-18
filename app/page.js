@@ -1,5 +1,7 @@
-import styles from './page.module.css';
+import React from 'react';
 
 export const Home = () => {
-	return;
+	return <div>Home</div>;
 };
+
+export default index;
