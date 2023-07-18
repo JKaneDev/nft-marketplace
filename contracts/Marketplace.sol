@@ -85,6 +85,37 @@ contract Marketplace is ERC721URIStorage {
         );
     }
 
+    function resellMarketItem(uint256 tokenId, uint256 price) public payable {
+        require(idToMarketItem[tokenId].owner == msg.sender, "token can only be resold by owner");
+        require(msg.value == listingPrice, "Price must be equal to listing price");
+
+        idToMarketItem[tokenId].sold = false;
+        idToMarketItem[tokenId].price = price;
+        idToMarketItem[tokenId].seller = payable(msg.sender);
+        idToMarketItem[tokenId].owner = payable(address(this));
+
+        _itemsSold.decrement();
+
+        _transfer(msg.sender, address(this), tokenId);
+    }
+
+    function createMarketSale(uint256 tokenId) public payable {
+        uint256 price = idToMarketItem[tokenId].price;
+
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+
+        idToMarketItem[tokenId].owner = payable(msg.sender);
+        idToMarketItem[tokenId].sold = true;
+
+        _itemsSold.increment();
+
+        _transfer(address(this), msg.sender, tokenId);
+
+        payable(owner).transfer(listingPrice);
+        payable(idToMarketItem[tokenId].seller).transfer(msg.value);
+
+    }
+
     function getListingPrice() public view returns (uint256) {
         return listingPrice;
     }
