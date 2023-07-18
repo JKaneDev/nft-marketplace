@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC&@!/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 
 import "hardhat/console.sol";
 
-contract Marketplace is ER721URIStorage {
+contract Marketplace is ERC721URIStorage {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
+
+    uint256 listingPrice = 0.0025 ether;
 
     address payable owner;
     
@@ -32,34 +36,41 @@ contract Marketplace is ER721URIStorage {
         bool sold
     );
 
+    modifier onlyOwner() {
+        require (msg.sender == owner, "only owner of the contract can update the listing price");
+        _;
+    }
+
     constructor() ERC721("NFT Metaverse Token", "MYNFT") {
         owner = payable(msg.sender);
     }
 
-    function createMarketItem( uint256 itemId, address nftContract, uint256 tokenId, uint256 price) public payable {
+    function updateListingPrice(uint256 _listingPrice) public payable onlyOwner {
+        listingPrice = _listingPrice;
+    }
+
+    function createMarketItem(uint256 itemId, address nftContract, uint256 tokenId, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == price, "Price must be paid in full");
         
         idToMarketItem[itemId] = MarketItem(
-            itemId,
-            nftContract,
             tokenId,
             payable(msg.sender),
             payable(address(0)),
-            price
+            price,
+            false
         );
         
         emit MarketItemCreated(
-            itemId,
-            nftContract,
             tokenId,
             msg.sender,
             address(0),
-            price
+            price,
+            false,
         );
     }
 
-    function resellMarketItem(uint256 itemId) public payable {
-        require ()
+    function getListingPrice(uint256 tokenId) public {
+
     }
 }
