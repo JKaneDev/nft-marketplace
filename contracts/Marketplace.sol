@@ -49,7 +49,20 @@ contract Marketplace is ERC721URIStorage {
         listingPrice = _listingPrice;
     }
 
-    function createMarketItem(uint256 itemId, address nftContract, uint256 tokenId, uint256 price) public payable {
+    function createToken(string memory tokenURI, uint256 price) public payable returns (uint256) {
+        _tokenIds.increment();
+
+        uint256 newTokenId = _tokenIds.current();
+
+        _mint(msg.sender, newTokenId);
+        _setTokenURI(newTokenId, tokenURI);
+
+        createMarketItem(newTokenId, price);
+
+        return newTokenId;
+    }
+
+    function createMarketItem(uint256 tokenId, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == price, "Price must be paid in full");
         
@@ -66,11 +79,11 @@ contract Marketplace is ERC721URIStorage {
             msg.sender,
             address(0),
             price,
-            false,
+            false
         );
     }
 
-    function getListingPrice(uint256 tokenId) public {
-
+    function getListingPrice() public view returns (uint256) {
+        return listingPrice;
     }
 }
