@@ -1,5 +1,5 @@
 import './globals.css';
 
-const RootLayout = ({ children }) => <Component {...children} />;
+const RootLayout = ({ children }) => <>{children}</>;
 
 export default RootLayout;

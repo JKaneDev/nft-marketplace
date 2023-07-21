@@ -12,7 +12,9 @@
     "@openzeppelin/contracts": "^4.9.2",
     "next": "13.4.10",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-icons": "^4.10.1",
+    "sass": "^1.64.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
