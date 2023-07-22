@@ -74,10 +74,13 @@ const Navbar = () => {
 	return (
 		<div className={Style.navbar}>
 			<div className={Style.navbar_container}>
+				{/* LOGO CONTAINER */}
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
 						<Image src={images.logo} alt='NFT Marketplace Logo' width={100} height={100} />
 					</div>
+
+					{/* SEARCH NFT INPUT BOX */}
 					<div className={Style.navbar_container_left_box_input}>
 						<div className={Style.navbar_container_left_box_input_box}>
 							<input type='text' placeholder='Search NFT' />
@@ -85,10 +88,12 @@ const Navbar = () => {
 						</div>
 					</div>
 				</div>
+
 				{/* END OF LEFT SECTION */}
+
 				<div className={Style.navbar_container_right}>
+					{/* DISCOVER MENU */}
 					<div className={Style.navbar_container_right_discover}>
-						{/* DISCOVER MENU */}
 						<p onClick={(e) => openMenu(e)}></p>
 						{discover && (
 							<div className={Style.navbar_container_right_discover_box}>
@@ -96,6 +101,8 @@ const Navbar = () => {
 							</div>
 						)}
 					</div>
+
+					{/* HELP CENTER */}
 					<div className={Style.navbar_container_right_help}>
 						<p onClick={(e) => openMenu(e)}>Help Center</p>
 						{help && (
