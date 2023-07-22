@@ -19,6 +19,12 @@ import userMutant from './user-mutant-ape.png';
 import userPunk from './user-punks.png';
 import userPudgy from './user-pudgy.png';
 import userAzuki from './user-azuki.png';
+import user1 from './user1.jpg';
+import user2 from './user2.jpg';
+import user3 from './user3.jpg';
+import user4 from './user4.jpg';
+import user5 from './user5.jpg';
+import logo from './logo.png';
 
 export default {
 	ape1,
@@ -42,4 +48,10 @@ export default {
 	userPudgy,
 	userAzuki,
 	userPunk,
+	user1,
+	user2,
+	user3,
+	user4,
+	user5,
+	logo,
 };

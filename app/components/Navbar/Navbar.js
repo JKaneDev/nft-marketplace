@@ -79,7 +79,7 @@ const Navbar = () => {
 				{/* LOGO CONTAINER */}
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
-						<Image src={images.logo} alt='NFT Marketplace Logo' width={100} height={100} />
+						<Image src={images.logo} alt='NFT Marketplace Logo' width={300} height={60} />
 					</div>
 
 					{/* SEARCH NFT INPUT BOX */}
@@ -129,7 +129,7 @@ const Navbar = () => {
 					<div className={Style.navbar_container_right_profile_box}>
 						<div className={Style.navbar_container_right_profile}>
 							<Image
-								src={images.userApe}
+								src={images.user1}
 								alt='Profile'
 								width={40}
 								height={40}
