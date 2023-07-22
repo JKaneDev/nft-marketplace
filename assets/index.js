@@ -14,6 +14,11 @@ import psych1 from './punk-1.png';
 import psych2 from './punk-2.png';
 import psych3 from './punk-3.png';
 import pudgy1 from './pudgy-1.png';
+import userApe from './user-bored-ape.png';
+import userMutant from './user-mutant-ape.png';
+import userPunk from './user-punks.png';
+import userPudgy from './user-pudgy.png';
+import userAzuki from './user-azuki.png';
 
 export default {
 	ape1,
@@ -32,4 +37,9 @@ export default {
 	psych2,
 	psych3,
 	pudgy1,
+	userApe,
+	userMutant,
+	userPudgy,
+	userAzuki,
+	userPunk,
 };

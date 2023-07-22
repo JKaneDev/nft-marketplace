@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // ICON IMPORTS
-import { MdNotifications, MdStickyNote2 } from 'react-icons/md';
+import { MdNotifications, MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
 import { BsSearch } from 'react-icons/bs';
 import { CgMenuLeft, CgMenuRight } from 'react-icons/cg';
 
@@ -41,12 +41,42 @@ const Navbar = () => {
 		}
 	};
 
+	const openNotification = () => {
+		if (!notification) {
+			setNotification(true);
+			setDiscover(false);
+			setHelp(false);
+			setProfile(false);
+		} else {
+			setNotification(false);
+		}
+	};
+
+	const openProfile = () => {
+		if (!profile) {
+			setProfile(true);
+			setHelp(false);
+			setDiscover(false);
+			setNotification(false);
+		} else {
+			setProfile(false);
+		}
+	};
+
+	const openSidebar = () => {
+		if (!openSideMenu) {
+			setOpenSideMenu(true);
+		} else {
+			setOpenSideMenu(false);
+		}
+	};
+
 	return (
 		<div className={Style.navbar}>
 			<div className={Style.navbar_container}>
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
-						<Image src={images.logo} alt='NFT Marketplace Logo' width={100} height={100}></Image>
+						<Image src={images.logo} alt='NFT Marketplace Logo' width={100} height={100} />
 					</div>
 					<div className={Style.navbar_container_left_box_input}>
 						<div className={Style.navbar_container_left_box_input_box}>
@@ -57,16 +87,64 @@ const Navbar = () => {
 				</div>
 				{/* END OF LEFT SECTION */}
 				<div className={Style.navbar_container_right}>
-					<div className={Style.navbar_container_right}>
-						<div className={Style.navbar_container_right_discover}>
-							<p onClick={(e) => {}}></p>
+					<div className={Style.navbar_container_right_discover}>
+						{/* DISCOVER MENU */}
+						<p onClick={(e) => openMenu(e)}></p>
+						{discover && (
 							<div className={Style.navbar_container_right_discover_box}>
 								<Discover />
 							</div>
+						)}
+					</div>
+					<div className={Style.navbar_container_right_help}>
+						<p onClick={(e) => openMenu(e)}>Help Center</p>
+						{help && (
+							<div className={Style.navbar_container_right_help_box}>
+								<HelpCenter />
+							</div>
+						)}
+					</div>
+
+					{/* NOTIFICATION */}
+					<div className={Style.navbar_container_right_notify}>
+						<MdNotifications className={Style.notify} onClick={() => openNotification()} />
+						{notification && <Notification />}
+					</div>
+
+					{/* CREATE BUTTON SECTION */}
+					<div className={Style.navbar_container_right_button}>
+						<Button btnText='Create' />
+					</div>
+
+					{/* USER PROFILE */}
+					<div className={Style.navbar_container_right_profile_box}>
+						<div className={Style.navbar_container_right_profile}>
+							<Image
+								src={images.userApe}
+								alt='Profile'
+								width={40}
+								height={40}
+								onClick={() => openProfile()}
+								className={Style.navbar_container_right_profile}
+							/>
+
+							{profile && <Profile />}
 						</div>
+					</div>
+
+					{/* MENU BUTTON */}
+					<div className={Style.navbar_container_right_menuBtn}>
+						<CgMenuRight className={Style.menuIcon} onClick={() => openSidebar()} />
 					</div>
 				</div>
 			</div>
+
+			{/* SIDEBAR COMPONENT */}
+			{openSideMenu && (
+				<div className={Style.SideBar}>
+					<Sidebar setOpenSideMenu={setOpenSideMenu} />
+				</div>
+			)}
 		</div>
 	);
 };
