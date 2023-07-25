@@ -1,13 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 // INTERNAL IMPORTS
 import Style from './Discover.module.scss';
 
 const Discover = () => {
-	const router = useRouter();
-
 	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
