@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,11 +16,35 @@ import { Discover, HelpCenter, Notification, Profile, Sidebar } from './index';
 import { Button } from '../componentindex';
 
 const Navbar = () => {
+	const discoverRef = useRef();
+	const helpRef = useRef();
+
 	const [discover, setDiscover] = useState(false);
 	const [notification, setNotification] = useState(false);
 	const [help, setHelp] = useState(false);
 	const [profile, setProfile] = useState(false);
 	const [openSideMenu, setOpenSideMenu] = useState(false);
+
+	useEffect(() => {
+		// closes sub menus if user clicks elsewhere on page
+		const handleClickOutside = (e) => {
+			if (discoverRef.current && !discoverRef.current.contains(e.target)) {
+				setDiscover(false);
+			}
+
+			if (helpRef.current && !helpRef.current.contains(e.target)) {
+				setHelp(false);
+			}
+		};
+
+		// attach listeners on mount
+		document.addEventListener('mousedown', handleClickOutside);
+
+		// detach listeners on component unmount
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
 
 	const openMenu = (e) => {
 		const btnText = e.target.innerText;
@@ -97,7 +121,7 @@ const Navbar = () => {
 
 				<div className={Style.navbar_container_right}>
 					{/* DISCOVER MENU */}
-					<div className={Style.navbar_container_right_discover}>
+					<div className={Style.navbar_container_right_discover} ref={discoverRef}>
 						<p onClick={(e) => openMenu(e)}>Discover</p>
 						{discover && (
 							<div className={Style.navbar_container_right_discover_box}>
@@ -107,7 +131,7 @@ const Navbar = () => {
 					</div>
 
 					{/* HELP CENTER */}
-					<div className={Style.navbar_container_right_help}>
+					<div className={Style.navbar_container_right_help} ref={helpRef}>
 						<p onClick={(e) => openMenu(e)}>Help Center</p>
 						{help && (
 							<div className={Style.navbar_container_right_help_box}>
