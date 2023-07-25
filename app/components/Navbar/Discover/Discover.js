@@ -1,8 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+// INTERNAL IMPORTS
+import Style from './Discover.module.scss';
 
 const Discover = () => {
-	// --- DISCOVER NAVIGATION MENU
+	const router = useRouter();
+
+	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
 			name: 'Collection',
@@ -21,12 +27,12 @@ const Discover = () => {
 			link: 'account-setting',
 		},
 		{
-			link: 'Connect Wallet',
-			name: 'connect-wallet',
+			name: 'Connect Wallet',
+			link: 'connect-wallet',
 		},
 		{
-			link: 'Blog',
-			name: 'blog',
+			name: 'Blog',
+			link: 'blog',
 		},
 	];
 

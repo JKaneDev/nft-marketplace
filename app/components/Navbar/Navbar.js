@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // ICON IMPORTS
 import { MdNotifications, MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
@@ -16,6 +17,8 @@ import { Discover, HelpCenter, Notification, Profile, Sidebar } from './index';
 import { Button } from '../componentindex';
 
 const Navbar = () => {
+	const router = useRouter();
+
 	const [discover, setDiscover] = useState(false);
 	const [notification, setNotification] = useState(false);
 	const [help, setHelp] = useState(false);
@@ -24,6 +27,8 @@ const Navbar = () => {
 
 	const openMenu = (e) => {
 		const btnText = e.target.innerText;
+
+		console.log('Button:', btnText);
 
 		if (btnText == 'Discover') {
 			setDiscover(true);
