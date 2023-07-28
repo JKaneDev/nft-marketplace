@@ -6,6 +6,7 @@ import { TbDownloadOff, TbDownload } from 'react-icons/tb';
 
 // INTERNAL IMPORTS
 import Style from './Profile.module.scss';
+import images from '../../../../assets/index';
 
 const Profile = () => {
 	return (
