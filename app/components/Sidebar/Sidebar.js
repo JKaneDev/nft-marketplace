@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { GrClose } from 'react-icons/gr';
 import {
 	TiSocialFacebook,
-	TiSocialLinkedIn,
+	TiSocialLinkedin,
 	TiSocialTwitter,
 	TiSocialYoutube,
 	TiSocialInstagram,
@@ -15,7 +15,7 @@ import {
 // INTERNAL IMPORT
 import Style from './Sidebar.module.scss';
 import images from '../../../assets/index';
-import { Button } from '../Button/Button';
+import { Button } from '../componentindex';
 import { FaStaylinked } from 'react-icons/fa';
 
 const Sidebar = ({ setOpenSideMenu }) => {
@@ -51,7 +51,7 @@ const Sidebar = ({ setOpenSideMenu }) => {
 		},
 	];
 
-	// --------- HELP CENTER NAV MENU
+	// ---------HELP CENTER NAV MENU
 	const helpCenter = [
 		{
 			name: 'About',
@@ -75,6 +75,7 @@ const Sidebar = ({ setOpenSideMenu }) => {
 		},
 	];
 
+	// ---------TOGGLE SUB COMPONENT RENDERING
 	const openDiscoverMenu = () => {
 		if (!openDiscover) {
 			setOpenDiscover(true);
@@ -107,7 +108,7 @@ const Sidebar = ({ setOpenSideMenu }) => {
 						<TiSocialFacebook />
 					</a>
 					<a href='#'>
-						<TiSocialLinkedIn />
+						<TiSocialLinkedin />
 					</a>
 					<a href='#'>
 						<TiSocialTwitter />
