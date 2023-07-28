@@ -75,6 +75,26 @@ const Sidebar = ({ setOpenSideMenu }) => {
 		},
 	];
 
+	const openDiscoverMenu = () => {
+		if (!openDiscover) {
+			setOpenDiscover(true);
+		} else {
+			setOpenDiscover(false);
+		}
+	};
+
+	const openHelpMenu = () => {
+		if (!openHelp) {
+			setOpenHelp(true);
+		} else {
+			setOpenHelp(false);
+		}
+	};
+
+	const closeSidebar = () => {
+		setOpenSideMenu(false);
+	};
+
 	return (
 		<div className={Style.sideBar}>
 			<GrClose className={Style.sideBar_closeBtn} onClick={() => closeSidebar()} />
