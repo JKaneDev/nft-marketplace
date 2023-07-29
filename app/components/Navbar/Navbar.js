@@ -105,7 +105,7 @@ const Navbar = () => {
 				{/* LOGO CONTAINER */}
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
-						<Image src={images.logo} alt='NFT Marketplace Logo' width={300} height={60} />
+						<Image src={images.logo} alt='NFT Marketplace Logo' width={300} height={50} />
 					</div>
 
 					{/* SEARCH NFT INPUT BOX */}
@@ -166,20 +166,8 @@ const Navbar = () => {
 							{profile && <Profile />}
 						</div>
 					</div>
-
-					{/* MENU BUTTON */}
-					<div className={Style.navbar_container_right_menuBtn}>
-						<CgMenuRight className={Style.menuIcon} onClick={() => openSidebar()} />
-					</div>
 				</div>
 			</div>
-
-			{/* SIDEBAR COMPONENT */}
-			{openSideMenu && (
-				<div className={Style.SideBar}>
-					<Sidebar setOpenSideMenu={setOpenSideMenu} />
-				</div>
-			)}
 		</div>
 	);
 };

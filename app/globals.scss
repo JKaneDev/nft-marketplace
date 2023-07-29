@@ -8,15 +8,6 @@
 
 	--elem-border-main: 1px solid #303030;
 	--elem-border-alt: 2px solid #303030;
-
-	--transition-main: all 0.35s ease-in-out;
-	--transition-alt: all 0.7s ease-in-out;
-
-	--enlarge: scale(1.1);
-	--translate: translateY(-2.5%);
-
-	--highlight-border-main: 1px solid var(var(--main-icon-color));
-	--highlight-border-alt: 2px solid var(var(--alt-icon-color));
 }
 
 * {
@@ -53,6 +44,7 @@ body {
 	background: var(--main-bg-color);
 	color: var(--font-color);
 	letter-spacing: 0.025rem;
+	width: 100%;
 }
 
 a {

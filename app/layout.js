@@ -1,4 +1,4 @@
-import './globals.css';
+import './globals.scss';
 
 // INTERNAL IMPORTS
 import { Navbar } from './components/componentindex';
