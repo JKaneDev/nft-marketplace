@@ -16,87 +16,27 @@ import { Discover, HelpCenter, Notification, Profile, Sidebar } from './index';
 import { Button } from '../componentindex';
 
 const Navbar = () => {
-	const discoverRef = useRef();
-	const helpRef = useRef();
-
 	const [discover, setDiscover] = useState(false);
 	const [notification, setNotification] = useState(false);
 	const [help, setHelp] = useState(false);
 	const [profile, setProfile] = useState(false);
-	const [openSideMenu, setOpenSideMenu] = useState(false);
+
+	const timeoutId = useRef(null);
 
 	useEffect(() => {
-		// closes sub menus if user clicks elsewhere on page
-		const handleClickOutside = (e) => {
-			if (discoverRef.current && !discoverRef.current.contains(e.target)) {
-				setDiscover(false);
-			}
+		console.log('Discover status:', discover);
+	}, [discover]);
 
-			if (helpRef.current && !helpRef.current.contains(e.target)) {
-				setHelp(false);
-			}
-		};
-
-		// attach listeners on mount
-		document.addEventListener('mousedown', handleClickOutside);
-
-		// detach listeners on component unmount
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, []);
-
-	const openMenu = (e) => {
-		const btnText = e.target.innerText;
-
-		console.log('Button:', btnText);
-
-		if (btnText == 'Discover') {
-			setDiscover(true);
-			setHelp(false);
-			setNotification(false);
-			setProfile(false);
-		} else if (btnText == 'Help Center') {
-			setDiscover(false);
-			setHelp(true);
-			setNotification(false);
-			setProfile(false);
-		} else {
-			setDiscover(false);
-			setHelp(false);
-			setNotification(false);
-			setProfile(false);
+	const handleDiscoverEnter = () => {
+		// Clear existing timeout
+		if (timeoutId.current) {
+			clearTimeout(timeoutId.current);
 		}
+		setDiscover(true);
 	};
 
-	const openNotification = () => {
-		if (!notification) {
-			setNotification(true);
-			setDiscover(false);
-			setHelp(false);
-			setProfile(false);
-		} else {
-			setNotification(false);
-		}
-	};
-
-	const openProfile = () => {
-		if (!profile) {
-			setProfile(true);
-			setHelp(false);
-			setDiscover(false);
-			setNotification(false);
-		} else {
-			setProfile(false);
-		}
-	};
-
-	const openSidebar = () => {
-		if (!openSideMenu) {
-			setOpenSideMenu(true);
-		} else {
-			setOpenSideMenu(false);
-		}
+	const handleDiscoverLeave = () => {
+		timeoutId.current = setTimeout(() => setDiscover(false), 100);
 	};
 
 	return (
@@ -105,7 +45,7 @@ const Navbar = () => {
 				{/* LOGO CONTAINER */}
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
-						<Image src={images.logo} alt='NFT Marketplace Logo' width={300} height={50} />
+						{/* <Image src={images.OpenSea} alt='NFT Marketplace Logo' width={300} height={100} /> */}
 					</div>
 
 					{/* SEARCH NFT INPUT BOX */}
@@ -121,17 +61,21 @@ const Navbar = () => {
 
 				<div className={Style.navbar_container_right}>
 					{/* DISCOVER MENU */}
-					<div className={Style.navbar_container_right_discover} ref={discoverRef}>
-						<p onClick={(e) => openMenu(e)}>Discover</p>
+					<div
+						className={Style.navbar_container_right_discover}
+						onMouseEnter={handleDiscoverEnter}
+						onMouseLeave={handleDiscoverLeave}
+					>
+						<p>Discover</p>
 						{discover && (
 							<div className={Style.navbar_container_right_discover_box}>
-								<Discover />
+								<Discover onHideDiscover={() => setDiscover(false)} />
 							</div>
 						)}
 					</div>
 
 					{/* HELP CENTER */}
-					<div className={Style.navbar_container_right_help} ref={helpRef}>
+					<div className={Style.navbar_container_right_help}>
 						<p onClick={(e) => openMenu(e)}>Help Center</p>
 						{help && (
 							<div className={Style.navbar_container_right_help_box}>

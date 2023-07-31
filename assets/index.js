@@ -25,6 +25,7 @@ import user3 from './user3.jpg';
 import user4 from './user4.jpg';
 import user5 from './user5.jpg';
 import logo from './logo.png';
+import OpenSea from './OpenSea.svg';
 
 export default {
 	ape1,
@@ -54,4 +55,5 @@ export default {
 	user4,
 	user5,
 	logo,
+	OpenSea,
 };
