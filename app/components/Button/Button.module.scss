@@ -1,0 +1,37 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+
+.btn {
+	background-color: $alt-bg-color;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.375rem 1rem;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: 0.15s all ease-in-out;
+
+	&:hover {
+		background-color: $main-bg-color;
+	}
+
+	.icon {
+		height: 28px;
+		width: 28px;
+		margin-right: 0.5rem;
+		filter: invert(100%) sepia(1%) saturate(796%) hue-rotate(62deg) brightness(115%) contrast(82%);
+	}
+
+	@media (max-width: 1038px) {
+		span {
+			display: none;
+		}
+
+		.icon {
+			margin-right: 0rem;
+		}
+	}
+}

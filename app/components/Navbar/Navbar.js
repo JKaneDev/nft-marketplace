@@ -99,7 +99,7 @@ const Navbar = () => {
 
 					{/* CREATE BUTTON SECTION */}
 					<div className={Style.navbar_container_right_button}>
-						<Button btnText='Create' />
+						<Button icon={images.addIcon} btnText='Create' />
 					</div>
 
 					{/* USER PROFILE */}
@@ -108,8 +108,6 @@ const Navbar = () => {
 							<Image
 								src={images.user1}
 								alt='Profile'
-								width={40}
-								height={40}
 								onClick={() => openProfile()}
 								className={Style.navbar_container_right_profile}
 							/>

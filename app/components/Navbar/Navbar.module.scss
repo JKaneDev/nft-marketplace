@@ -121,3 +121,20 @@ $elem-border-alt: 2px solid #303030;
 		cursor: pointer;
 	}
 }
+
+.navbar_container_right_profile_box {
+	border: 1px solid $icon-bg-color;
+	border-radius: 5rem;
+	height: 50px;
+	width: 50px;
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	.navbar_container_right_profile {
+		border-radius: 5rem;
+		height: 100%;
+		width: 100%;
+	}
+}
