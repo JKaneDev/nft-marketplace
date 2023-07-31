@@ -5,25 +5,24 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // ICON IMPORTS
-import { MdNotifications, MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
+import { MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
 import { BsSearch } from 'react-icons/bs';
 import { CgMenuLeft, CgMenuRight } from 'react-icons/cg';
 
 // INTERNAL IMPORTS
 import Style from './Navbar.module.scss';
 import images from '../../../assets/index.js';
-import { Discover, HelpCenter, Notification, Profile, Sidebar } from './index';
+import { Discover, HelpCenter, Profile } from './index';
 import { Button } from '../componentindex';
 
 const Navbar = () => {
 	const [discover, setDiscover] = useState(false);
-	const [notification, setNotification] = useState(false);
 	const [help, setHelp] = useState(false);
 	const [profile, setProfile] = useState(false);
 
 	const discoverTimeout = useRef(null);
-
 	const helpTimeout = useRef(null);
+	const notificationTimeout = useRef(null);
 
 	const handleDiscoverEnter = () => {
 		// Clear existing timeout
@@ -96,12 +95,6 @@ const Navbar = () => {
 								<HelpCenter onHideHelp={() => setHelp(false)} />
 							</div>
 						)}
-					</div>
-
-					{/* NOTIFICATION */}
-					<div className={Style.navbar_container_right_notify}>
-						<MdNotifications className={Style.notify} onClick={() => openNotification()} />
-						{notification && <Notification />}
 					</div>
 
 					{/* CREATE BUTTON SECTION */}

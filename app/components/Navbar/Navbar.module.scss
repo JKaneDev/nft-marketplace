@@ -108,3 +108,16 @@ $elem-border-alt: 2px solid #303030;
 .navbar_container_right_discover_box {
 	background-color: $alt-bg-color;
 }
+
+.navbar_container_right_notify {
+	position: relative;
+}
+
+.notify {
+	height: 22px;
+	width: 22px;
+
+	&:hover {
+		cursor: pointer;
+	}
+}
