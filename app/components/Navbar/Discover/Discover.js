@@ -33,10 +33,6 @@ const Discover = ({ onHideSubMenu }) => {
 		},
 	];
 
-	useEffect(() => {
-		console.log('Discover Mounted');
-	}, []);
-
 	return (
 		<div className={Style.discover} onMouseLeave={onHideSubMenu}>
 			{discover.map((el, i) => (

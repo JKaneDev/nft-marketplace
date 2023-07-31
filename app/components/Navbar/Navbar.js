@@ -21,22 +21,32 @@ const Navbar = () => {
 	const [help, setHelp] = useState(false);
 	const [profile, setProfile] = useState(false);
 
-	const timeoutId = useRef(null);
+	const discoverTimeout = useRef(null);
 
-	useEffect(() => {
-		console.log('Discover status:', discover);
-	}, [discover]);
+	const helpTimeout = useRef(null);
 
 	const handleDiscoverEnter = () => {
 		// Clear existing timeout
-		if (timeoutId.current) {
-			clearTimeout(timeoutId.current);
+		if (discoverTimeout.current) {
+			clearTimeout(discoverTimeout.current);
 		}
 		setDiscover(true);
 	};
 
 	const handleDiscoverLeave = () => {
-		timeoutId.current = setTimeout(() => setDiscover(false), 100);
+		discoverTimeout.current = setTimeout(() => setDiscover(false), 100);
+	};
+
+	const handleHelpEnter = () => {
+		// Clear existing timeout
+		if (helpTimeout.current) {
+			clearTimeout(helpTimeout.current);
+		}
+		setHelp(true);
+	};
+
+	const handleHelpLeave = () => {
+		helpTimeout.current = setTimeout(() => setHelp(false), 100);
 	};
 
 	return (
@@ -75,11 +85,15 @@ const Navbar = () => {
 					</div>
 
 					{/* HELP CENTER */}
-					<div className={Style.navbar_container_right_help}>
+					<div
+						className={Style.navbar_container_right_help}
+						onMouseEnter={handleHelpEnter}
+						onMouseLeave={handleHelpLeave}
+					>
 						<p onClick={(e) => openMenu(e)}>Help Center</p>
 						{help && (
 							<div className={Style.navbar_container_right_help_box}>
-								<HelpCenter />
+								<HelpCenter onHideHelp={() => setHelp(false)} />
 							</div>
 						)}
 					</div>
