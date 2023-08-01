@@ -23,9 +23,18 @@ $elem-border-alt: 2px solid #303030;
 }
 
 .helpCenter_links {
-	padding: 1rem 1.75rem;
+	padding: 0.75rem 1.5rem;
 	border-radius: 8px;
 	transition: 0.15s all ease-in-out;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+
+	.icons {
+		height: 26px;
+		width: 26px;
+		padding-top: 0.25rem;
+	}
 
 	&:hover {
 		background-color: $btn-color;
