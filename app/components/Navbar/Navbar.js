@@ -7,7 +7,7 @@ import Link from 'next/link';
 // ICON IMPORTS
 import { MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
 import { BsSearch } from 'react-icons/bs';
-import { CgMenuLeft, CgMenuRight } from 'react-icons/cg';
+import { IoMenu } from 'react-icons/io5';
 
 // INTERNAL IMPORTS
 import Style from './Navbar.module.scss';
@@ -48,6 +48,8 @@ const Navbar = () => {
 		helpTimeout.current = setTimeout(() => setHelp(false), 100);
 	};
 
+	const handleOpenSidebar = () => {};
+
 	return (
 		<div className={Style.navbar}>
 			<div className={Style.navbar_container}>
@@ -55,6 +57,11 @@ const Navbar = () => {
 				<div className={Style.navbar_container_left}>
 					<div className={Style.logo}>
 						{/* <Image src={images.OpenSea} alt='NFT Marketplace Logo' width={300} height={100} /> */}
+					</div>
+					<div className={Style.navbar_container_left_sidebar}>
+						<div className={Style.navbar_container_left_sidebar_box}>
+							<IoMenu className={Style.sidebarIcon} onClick={handleOpenSidebar} />
+						</div>
 					</div>
 
 					{/* SEARCH NFT INPUT BOX */}

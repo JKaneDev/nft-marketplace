@@ -34,4 +34,14 @@ $icon-color: #e8e8e8;
 			margin-right: 0rem;
 		}
 	}
+
+	@media (max-width: 929px) {
+		span {
+			display: flex;
+		}
+
+		.icon {
+			margin-right: 0.5rem;
+		}
+	}
 }
