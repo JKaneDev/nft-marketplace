@@ -18,11 +18,11 @@ import { Button } from '../componentindex';
 const Navbar = () => {
 	const [discover, setDiscover] = useState(false);
 	const [help, setHelp] = useState(false);
-	const [profile, setProfile] = useState(false);
+	const [sidebar, setSidebar] = useState(false);
 
 	const discoverTimeout = useRef(null);
 	const helpTimeout = useRef(null);
-	const notificationTimeout = useRef(null);
+	const sidebarTimeout = useRef(null);
 
 	const handleDiscoverEnter = () => {
 		// Clear existing timeout
@@ -48,32 +48,40 @@ const Navbar = () => {
 		helpTimeout.current = setTimeout(() => setHelp(false), 100);
 	};
 
-	const handleOpenSidebar = () => {};
+	const handleSidebarEnter = () => {
+		if (sidebarTimeout.current) {
+			clearTimeout(sidebarTimeout.current);
+		}
+		setSidebar(true);
+	};
+
+	const handleSidebarLeave = () => {
+		sidebarTimeout.current = setTimeout(() => setSidebar(false), 100);
+	};
 
 	return (
 		<div className={Style.navbar}>
 			<div className={Style.navbar_container}>
 				{/* LOGO CONTAINER */}
 				<div className={Style.navbar_container_left}>
-					<div className={Style.logo}>
-						{/* <Image src={images.OpenSea} alt='NFT Marketplace Logo' width={300} height={100} /> */}
-					</div>
-					<div className={Style.navbar_container_left_sidebar}>
-						<div className={Style.navbar_container_left_sidebar_box}>
-							<IoMenu className={Style.sidebarIcon} onClick={handleOpenSidebar} />
-						</div>
-					</div>
+					<p className={Style.logo}>
+						Multi<span className={Style.logo_colored}>verse</span>
+					</p>
+				</div>
+				{/* END OF LEFT SECTION */}
 
+				{/* MIDDLE SEARCH BAR SECTION */}
+				<div className={Style.navbar_container_middle}>
 					{/* SEARCH NFT INPUT BOX */}
-					<div className={Style.navbar_container_left_box_input}>
-						<div className={Style.navbar_container_left_box_input_box}>
-							<input type='text' placeholder='Search NFT' />
+					<div className={Style.navbar_container_middle_box_input}>
+						<div className={Style.navbar_container_middle_box_input_box}>
 							<BsSearch onClick={() => {}} className={Style.search_icon} />
+							<input type='text' placeholder='Search NFT' />
 						</div>
 					</div>
 				</div>
 
-				{/* END OF LEFT SECTION */}
+				{/* END OF MIDDLE SECTION */}
 
 				<div className={Style.navbar_container_right}>
 					{/* DISCOVER MENU */}
@@ -96,7 +104,7 @@ const Navbar = () => {
 						onMouseEnter={handleHelpEnter}
 						onMouseLeave={handleHelpLeave}
 					>
-						<p onClick={(e) => openMenu(e)}>Help Center</p>
+						<p>Help Center</p>
 						{help && (
 							<div className={Style.navbar_container_right_help_box}>
 								<HelpCenter onHideHelp={() => setHelp(false)} />
@@ -109,17 +117,18 @@ const Navbar = () => {
 						<Button icon={images.addIcon} btnText='Create' />
 					</div>
 
-					{/* USER PROFILE */}
-					<div className={Style.navbar_container_right_profile_box}>
-						<div className={Style.navbar_container_right_profile}>
-							<Image
-								src={images.user1}
-								alt='Profile'
-								onClick={() => openProfile()}
-								className={Style.navbar_container_right_profile}
-							/>
-
-							{profile && <Profile />}
+					<div className={Style.navbar_container_right_sidebar}>
+						<div
+							className={Style.navbar_container_right_sidebar_box}
+							onMouseEnter={handleSidebarEnter}
+							onMouseLeave={handleSidebarLeave}
+						>
+							<IoMenu className={Style.sidebarIcon} />
+							{sidebar && (
+								<div className={Style.navbar_container_right_sidebar_menu}>
+									<Sidebar onHideSidebar={() => setSidebar(false)} />
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

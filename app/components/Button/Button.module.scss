@@ -25,23 +25,28 @@ $icon-color: #e8e8e8;
 		filter: invert(100%) sepia(1%) saturate(796%) hue-rotate(62deg) brightness(115%) contrast(82%);
 	}
 
-	@media (max-width: 1038px) {
-		span {
+	@media (max-width: 929px) {
+		height: 32px;
+
+		.icon {
+			height: 24px;
+			width: 24px;
+		}
+
+		.text {
+			font-size: 16px;
+		}
+	}
+
+	@media (max-width: 1200px) {
+		.text {
 			display: none;
 		}
 
 		.icon {
 			margin-right: 0rem;
-		}
-	}
-
-	@media (max-width: 929px) {
-		span {
-			display: flex;
-		}
-
-		.icon {
-			margin-right: 0.5rem;
+			height: 26px;
+			width: 26px;
 		}
 	}
 }

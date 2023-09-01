@@ -8,7 +8,7 @@ const Button = ({ btnText, icon }) => {
 	return (
 		<div className={Style.btn}>
 			<Image src={icon} alt='Create NFT' className={Style.icon} width={50} height={50} />
-			<span>{btnText}</span>
+			<span className={Style.text}>{btnText}</span>
 		</div>
 	);
 };
