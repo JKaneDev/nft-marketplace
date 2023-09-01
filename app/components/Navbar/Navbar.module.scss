@@ -43,6 +43,18 @@ $elem-border-alt: 2px solid #303030;
 			display: none;
 		}
 	}
+
+	@media (min-width: 1850px) {
+		grid-template-columns: 1fr 1.5fr 1fr;
+
+		.logo {
+			justify-content: flex-start;
+		}
+
+		.search_icon {
+			margin-right: auto;
+		}
+	}
 }
 
 .logo {
@@ -83,6 +95,7 @@ $elem-border-alt: 2px solid #303030;
 
 .navbar_container_middle_box_input_box {
 	display: flex;
+	justify-content: center;
 	align-items: center;
 	height: 100%;
 	width: 100%;
@@ -102,8 +115,6 @@ $elem-border-alt: 2px solid #303030;
 		letter-spacing: 0.025rem;
 		caret-color: white;
 		transition: all 0.15s ease-in-out;
-		min-width: 280px;
-		max-width: 1000px;
 
 		&:hover {
 			background-color: $main-bg-color;
@@ -115,14 +126,21 @@ $elem-border-alt: 2px solid #303030;
 	}
 
 	.search_icon {
-		position: fixed;
+		position: absolute;
 		stroke-width: 1;
 		width: 16px;
 		height: 16px;
 		color: $btn-color;
 		z-index: 1000;
-		margin-left: 1rem;
-		justify-self: flex-start;
+		left: 15px;
+		top: 50%;
+		transform: translateY(-50%);
+
+		// 	position: absolute;
+		// left: 10px;  /* Adjust this to position the icon as desired */
+		// top: 50%;
+		// transform: translateY(-50%);  /* This vertically centers the icon in the input field */
+		// pointer-events: none;  /* Ensures the icon doesn't interfere with interactions on the input */
 	}
 }
 
@@ -131,6 +149,11 @@ $elem-border-alt: 2px solid #303030;
 	align-items: center;
 	justify-content: center;
 	gap: 2rem;
+
+	@media (min-width: 1650px) {
+		justify-content: flex-end;
+		margin-right: 2rem;
+	}
 }
 
 .navbar_container_right_discover,
