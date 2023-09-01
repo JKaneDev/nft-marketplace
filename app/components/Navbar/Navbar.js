@@ -5,14 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // ICON IMPORTS
-import { MdStayCurrentLandscape, MdStickyNote2 } from 'react-icons/md';
 import { BsSearch } from 'react-icons/bs';
 import { IoMenu } from 'react-icons/io5';
 
 // INTERNAL IMPORTS
 import Style from './Navbar.module.scss';
 import images from '../../../assets/index.js';
-import { Discover, HelpCenter, Profile } from './index';
+import { Discover, HelpCenter, Sidebar } from './index';
 import { Button } from '../componentindex';
 
 const Navbar = () => {
@@ -117,12 +116,12 @@ const Navbar = () => {
 						<Button icon={images.addIcon} btnText='Create' />
 					</div>
 
-					<div className={Style.navbar_container_right_sidebar}>
-						<div
-							className={Style.navbar_container_right_sidebar_box}
-							onMouseEnter={handleSidebarEnter}
-							onMouseLeave={handleSidebarLeave}
-						>
+					<div
+						className={Style.navbar_container_right_sidebar}
+						onMouseEnter={handleSidebarEnter}
+						onMouseLeave={handleSidebarLeave}
+					>
+						<div className={Style.navbar_container_right_sidebar_box}>
 							<IoMenu className={Style.sidebarIcon} />
 							{sidebar && (
 								<div className={Style.navbar_container_right_sidebar_menu}>

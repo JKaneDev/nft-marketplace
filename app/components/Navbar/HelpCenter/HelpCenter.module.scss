@@ -20,6 +20,10 @@ $elem-border-alt: 2px solid #303030;
 	padding: 0.75rem;
 	border-radius: 8px;
 	gap: 0.75rem;
+
+	@media (max-width: 1200px) {
+		transform: translateX(-165%) translateY(-32%);
+	}
 }
 
 .helpCenter_links {
