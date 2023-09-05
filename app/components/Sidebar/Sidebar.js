@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Style from './Sidebar.module.scss';
 import images from '../../../assets/index';
 import { Discover, HelpCenter } from '../Navbar/index';
+import { Button } from '../componentindex';
 
 const Sidebar = ({ onHideSidebar }) => {
 	const [discover, setDiscover] = useState(false);
@@ -40,6 +41,11 @@ const Sidebar = ({ onHideSidebar }) => {
 
 	return (
 		<div className={Style.sidebar}>
+			{/* CREATE BUTTON SECTION */}
+			<div className={Style.sidebar_create}>
+				<p>Create</p>
+			</div>
+
 			{/* DISCOVER */}
 			<div className={Style.sidebar_discover} onMouseEnter={handleDiscoverEnter} onMouseLeave={handleDiscoverLeave}>
 				<p>Discover</p>

@@ -27,6 +27,7 @@ import user5 from './user5.jpg';
 import logo from './logo.png';
 import OpenSea from './OpenSea.svg';
 import addIcon from './add-icon.svg';
+import hero from './marketplace-hero.png';
 
 export default {
 	ape1,
@@ -58,4 +59,5 @@ export default {
 	logo,
 	OpenSea,
 	addIcon,
+	hero,
 };

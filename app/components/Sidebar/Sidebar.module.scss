@@ -22,7 +22,8 @@ $elem-border-alt: 2px solid #303030;
 	gap: 0.5rem;
 
 	.sidebar_help,
-	.sidebar_discover {
+	.sidebar_discover,
+	.sidebar_create {
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -33,5 +34,12 @@ $elem-border-alt: 2px solid #303030;
 		&:hover {
 			background-color: $btn-color;
 		}
+	}
+
+	.sidebar_create_icon {
+		height: 28px;
+		width: 28px;
+		margin-right: 0.5rem;
+		filter: invert(100%) sepia(1%) saturate(796%) hue-rotate(62deg) brightness(115%) contrast(82%);
 	}
 }

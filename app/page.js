@@ -1,12 +1,13 @@
 import React from 'react';
 import nft from '../assets/punk-1.png';
 import Image from 'next/image';
-import { Navbar } from './components/componentindex';
+import { Navbar, Hero } from './components/componentindex';
 
 export const Page = () => {
 	return (
 		<main>
 			<Navbar />
+			<Hero />
 		</main>
 	);
 };

@@ -39,7 +39,8 @@ $elem-border-alt: 2px solid #303030;
 		}
 
 		.navbar_container_right_discover,
-		.navbar_container_right_help {
+		.navbar_container_right_help,
+		.navbar_container_right_button {
 			display: none;
 		}
 	}
@@ -135,12 +136,6 @@ $elem-border-alt: 2px solid #303030;
 		left: 15px;
 		top: 50%;
 		transform: translateY(-50%);
-
-		// 	position: absolute;
-		// left: 10px;  /* Adjust this to position the icon as desired */
-		// top: 50%;
-		// transform: translateY(-50%);  /* This vertically centers the icon in the input field */
-		// pointer-events: none;  /* Ensures the icon doesn't interfere with interactions on the input */
 	}
 }
 
@@ -152,7 +147,6 @@ $elem-border-alt: 2px solid #303030;
 
 	@media (min-width: 1650px) {
 		justify-content: flex-end;
-		margin-right: 2rem;
 	}
 }
 
@@ -191,6 +185,11 @@ $elem-border-alt: 2px solid #303030;
 	padding: 0.9rem 1rem;
 	cursor: pointer;
 	transition: 0.15s all ease-in-out;
+
+	@media (max-width: 1200px) {
+		margin-left: auto;
+		margin-right: 1rem;
+	}
 
 	.navbar_container_right_sidebar_box {
 		height: 100%;
