@@ -28,6 +28,10 @@ import logo from './logo.png';
 import OpenSea from './OpenSea.svg';
 import addIcon from './add-icon.svg';
 import hero from './marketplace-hero.png';
+import metamask from './metamask.png';
+import buy from './cart.png';
+import sell from './money.png';
+import filter from './filter.png';
 
 export default {
 	ape1,
@@ -60,4 +64,8 @@ export default {
 	OpenSea,
 	addIcon,
 	hero,
+	metamask,
+	filter,
+	buy,
+	sell,
 };
