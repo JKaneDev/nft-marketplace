@@ -3,7 +3,6 @@ import Style from './Hero.module.scss';
 import Image from 'next/image';
 
 // INTERNAL IMPORTS
-import { Button } from '../componentindex';
 import images from '../../../assets/index';
 
 const Hero = () => {
@@ -13,8 +12,8 @@ const Hero = () => {
 				<h1>Discover, Collect & Sell NFTs</h1>
 				<p>
 					Discover trending NFTs of all styles and flavours, including classics like Bored Ape Yacht Club, Azuki, Pudgy
-					Penguins and more! Just connect your wallet and gain access a universe of digital collectible treasure. Create
-					your own NFTs and sell them on the open market!
+					Penguins and more! Just connect your wallet and gain access to a universe of digital collectible treasure.
+					Create your own NFTs and sell them on the open market.
 				</p>
 				<button className={Style.hero_container_button}>Search Marketplace</button>
 			</div>

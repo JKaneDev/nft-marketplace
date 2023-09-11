@@ -22,7 +22,7 @@ const Connect = () => {
 				<p className={Style.connect_container_instruction}>Filter & Discover</p>
 				<p className={Style.connect_container_info}>
 					Filter through the top trending NFTs. Discover classics like bored ape and pudgy penguins as well as new kids
-					on the block
+					on the block.
 				</p>
 			</div>
 			<div className={Style.connect_container}>
@@ -30,16 +30,14 @@ const Connect = () => {
 				<p className={Style.connect_container_steps}>Step 3</p>
 				<p className={Style.connect_container_instruction}>Purchase NFTs</p>
 				<p className={Style.connect_container_info}>
-					Make the trade of your life and purchase one of these awesome collectibles to HODL.
+					Make the trade of your life and purchase one of these awesome collectibles.
 				</p>
 			</div>
 			<div className={Style.connect_container}>
 				<Image src={images.sell} alt='Step image' className={Style.connect_container_image} />
 				<p className={Style.connect_container_steps}>Step 4</p>
-				<p className={Style.connect_container_instruction}>Sell NFTs</p>
-				<p className={Style.connect_container_info}>
-					Sell your purchased NFTs on the open market and make life-changing money.
-				</p>
+				<p className={Style.connect_container_instruction}>Sell Your NFTs</p>
+				<p className={Style.connect_container_info}>Sell your purchased NFTs on the open market and stack some ETH.</p>
 			</div>
 		</div>
 	);
