@@ -66,7 +66,9 @@ const CurrentAuction = () => {
 					</div>
 				</div>
 			</div>
-			<div className={Style.auction_nft}></div>
+			<div className={Style.auction_nft_wrapper}>
+				<Image src={images.mape2} alt='current auction nft image' className={Style.auction_nft_wrapper_image}></Image>
+			</div>
 		</div>
 	);
 };

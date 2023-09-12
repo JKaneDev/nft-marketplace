@@ -4,7 +4,9 @@
 	padding: clamp(3rem, 5rem, 10rem);
 	display: flex;
 	align-items: center;
-	margin: 0;
+	justify-content: center;
+	gap: 1rem;
+	position: relative;
 }
 
 .auction_container {
@@ -16,6 +18,7 @@
 	flex: 1;
 	border-radius: 8px;
 	background-color: #1a1a1a;
+	z-index: 1000;
 
 	.auction_container_title {
 		display: flex;
@@ -187,5 +190,24 @@
 				transform: translateY(-2.5%);
 			}
 		}
+	}
+
+	// END OF BUTTON WRAPPER
+}
+.auction_nft_wrapper {
+	z-index: 999;
+	height: 60%;
+	min-width: 600px;
+	max-width: 700px;
+	flex: 1;
+	border-radius: 22px;
+	background-color: #1a1a1a;
+	border: 1px solid #0cc0df;
+	transform: translateX(-10%);
+
+	.auction_nft_wrapper_image {
+		width: 100%;
+		height: 100%;
+		padding: 1rem;
 	}
 }

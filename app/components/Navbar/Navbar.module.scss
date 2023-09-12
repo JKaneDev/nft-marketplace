@@ -121,6 +121,16 @@ $elem-border-alt: 2px solid #303030;
 			background-color: $main-bg-color;
 		}
 
+		&:active,
+		&:focus {
+			background-color: $alt-bg-color;
+			border: 1px solid #0cc0df;
+
+			&:hover {
+				background-color: $alt-bg-color;
+			}
+		}
+
 		&::placeholder {
 			color: $btn-color;
 		}
