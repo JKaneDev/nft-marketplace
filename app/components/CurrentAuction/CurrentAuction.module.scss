@@ -23,10 +23,10 @@
 	.auction_container_title {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
+		gap: 2rem;
 
 		h1 {
-			font-size: 32px;
+			font-size: 28px;
 		}
 
 		.auction_container_title_container {
@@ -196,7 +196,7 @@
 }
 .auction_nft_wrapper {
 	z-index: 999;
-	height: 60%;
+	height: 65%;
 	min-width: 600px;
 	max-width: 700px;
 	flex: 1;

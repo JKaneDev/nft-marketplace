@@ -1,9 +1,13 @@
 .connect {
 	width: 100%;
-	padding: 0rem 5rem;
+	padding: clamp(0rem, 0rem, 5rem) 6rem;
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	gap: 3rem;
+
+	@media (min-width: 1530px) {
+		padding: 3rem 6rem;
+	}
 }
 
 .connect_container {
@@ -11,8 +15,7 @@
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	padding: 3rem;
-	gap: 1rem;
+	gap: 0.5rem;
 
 	@media (min-width: 1530px) {
 		gap: 1.5rem;

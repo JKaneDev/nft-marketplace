@@ -12,12 +12,17 @@ const Discover = ({ onHideSubMenu }) => {
 	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
+			name: 'Connect Wallet',
+			link: 'connect-wallet',
+			icon: 'FaWallet',
+		},
+		{
 			name: 'Collection',
 			link: 'collection',
 			icon: 'BsGrid3X3GapFill',
 		},
 		{
-			name: 'Author Profile',
+			name: 'Profile',
 			link: 'author-profile',
 			icon: 'BsFillPersonFill',
 		},
@@ -26,11 +31,7 @@ const Discover = ({ onHideSubMenu }) => {
 			link: 'watchlist',
 			icon: 'BsFillEyeFill',
 		},
-		{
-			name: 'Connect Wallet',
-			link: 'connect-wallet',
-			icon: 'FaWallet',
-		},
+
 		{
 			name: 'Blog',
 			link: 'blog',

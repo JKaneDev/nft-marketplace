@@ -32,6 +32,7 @@ import metamask from './metamask.png';
 import buy from './cart.png';
 import sell from './money.png';
 import filter from './filter.png';
+import multiverse from './multiverse.jpg';
 
 export default {
 	ape1,
@@ -68,4 +69,5 @@ export default {
 	filter,
 	buy,
 	sell,
+	multiverse,
 };
