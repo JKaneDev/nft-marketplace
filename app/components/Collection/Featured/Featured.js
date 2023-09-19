@@ -6,7 +6,7 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/f
 
 // INTERNAL IMPORTS
 import Style from './Featured.module.scss';
-import images from '../../../assets/index';
+import images from '../../../../assets/index';
 
 const Featured = () => {
 	return (
@@ -37,11 +37,11 @@ const Featured = () => {
 					release, they've not only become symbols of status and camaraderie but have also fostered a strong, supportive
 					community. Owners flaunt their Pudgy Penguins across social media, celebrating the rarity of specific traits.
 				</p>
-				<div className={Style.featured_info_floor}>
-					<p>Floor Price:</p>
-					<p>15 ETH</p>
-					<p>+3.55%</p>
-				</div>
+			</div>
+			<div className={Style.featured_floor}>
+				<p>Floor Price:</p>
+				<p>15 ETH</p>
+				<p>+3.55%</p>
 			</div>
 		</div>
 	);

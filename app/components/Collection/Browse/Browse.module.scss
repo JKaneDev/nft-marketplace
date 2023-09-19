@@ -1,0 +1,49 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+$icon-bg-color: #1da1f2;
+$font-color: #fefefe;
+
+$elem-border-main: 1px solid #303030;
+$elem-border-alt: 2px solid #303030;
+
+.browse {
+	display: flex;
+	flex-direction: column;
+
+	.browse_wrapper {
+		display: flex;
+		align-items: center;
+		justify-items: space-around;
+		gap: 3rem;
+		border-bottom: 0.5px solid #0cc0df;
+		padding-bottom: 2rem;
+
+		.browse_wrapper_genre {
+			color: white;
+			font-size: 16px;
+			font-weight: 100;
+			letter-spacing: 0.1rem;
+			border: 2px solid $alt-bg-color;
+			outline: none;
+			padding: 1rem 1.75rem;
+			border-radius: 16px;
+			background-color: $alt-bg-color;
+			transition: all 0.35s ease;
+
+			&:hover {
+				border: 2px solid #0cc0df;
+				background-color: $main-bg-color;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.browse_auctions {
+		margin: 2rem auto;
+		display: grid;
+		grid-template-rows: repeat(auto-fill, minmax(200px, 300px));
+	}
+}
