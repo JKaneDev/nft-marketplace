@@ -12,6 +12,8 @@ $font-color: #fefefe;
 	gap: 1rem;
 	border: 2px solid $main-bg-color;
 	border-radius: 8px;
+	border-top-left-radius: 14px;
+	border-top-right-radius: 14px;
 	height: 425px;
 	transition: border 0.35s ease;
 

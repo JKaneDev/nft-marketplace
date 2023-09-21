@@ -11,7 +11,7 @@ $elem-border-alt: 2px solid #303030;
 
 .navbar {
 	width: 100%;
-	padding: 0.75rem 1.5rem;
+	padding: 1rem 2rem;
 	position: relative;
 }
 
@@ -107,15 +107,14 @@ $elem-border-alt: 2px solid #303030;
 		background-color: $alt-bg-color;
 		outline: none;
 		border: 1px solid $main-bg-color;
-		height: 100%;
 		width: 100%;
-		padding: 0.25rem 1rem 0.25rem 3rem;
+		padding: 0.5rem 1.5rem 0.5rem 2.5rem;
 		border-radius: 8px;
 		color: $font-color;
 		font-size: 16px;
-		letter-spacing: 0.025rem;
 		caret-color: white;
 		transition: all 0.15s ease-in-out;
+		font-weight: 200;
 
 		&:hover {
 			background-color: $main-bg-color;
@@ -163,12 +162,12 @@ $elem-border-alt: 2px solid #303030;
 .navbar_container_right_discover,
 .navbar_container_right_help,
 .navbar_container_right_sidebar {
-	height: 70%;
+	font-weight: 200;
 	background-color: $alt-bg-color;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0 1.25rem;
+	padding: 0.5rem 1.25rem;
 	border-radius: 8px;
 	cursor: pointer;
 	transition: 0.15s all ease-in-out;
