@@ -37,11 +37,6 @@ const HelpCenter = ({ onHideHelp }) => {
 			link: 'settings',
 			icon: 'IoMdSettings',
 		},
-		{
-			name: 'Subscription',
-			link: 'subscription',
-			icon: 'BsFillEnvelopeFill',
-		},
 	];
 
 	const iconMap = {
@@ -50,7 +45,6 @@ const HelpCenter = ({ onHideHelp }) => {
 		RiLoginBoxFill: <RiLoginBoxFill className={Style.icons} />,
 		BsFillTelephoneFill: <BsFillTelephoneFill className={Style.icons} />,
 		IoMdSettings: <IoMdSettings className={Style.icons} />,
-		BsFillEnvelopeFill: <BsFillEnvelopeFill className={Style.icons} />,
 	};
 
 	return (
