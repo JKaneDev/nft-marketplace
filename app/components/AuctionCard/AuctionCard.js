@@ -32,8 +32,8 @@ const AuctionCard = () => {
 			<div className={Style.card_wrapper}>
 				{isBidding ? (
 					<div className={Style.card_wrapper_interface}>
-						<span className={Style.card_wrapper_interface_exit}>
-							<FaTimes onClick={() => setIsBidding(!isBidding)} className={Style.card_wrapper_interface_exit_icon} />
+						<span className={Style.card_wrapper_interface_exit} onClick={() => setIsBidding(!isBidding)}>
+							<FaTimes className={Style.card_wrapper_interface_exit_icon} />
 						</span>
 						<input type='text' className={Style.card_wrapper_interface_bid} />
 						<button className={Style.card_wrapper_interface_place}>Bid</button>

@@ -53,6 +53,8 @@ import photography2 from './photography2.jpg';
 import photography3 from './photography3.jpg';
 import photography4 from './photography4.jpg';
 import photography5 from './photography5.jpg';
+import tiktok from './tik-tok.svg';
+import placeholder from './placeholder.png';
 
 export default {
 	ape1,
@@ -110,4 +112,6 @@ export default {
 	car3,
 	dog1,
 	dog2,
+	tiktok,
+	placeholder,
 };

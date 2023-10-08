@@ -18,16 +18,6 @@ const HelpCenter = ({ onHideHelp }) => {
 			icon: 'BiSolidInfoSquare',
 		},
 		{
-			name: 'Sign Up',
-			link: 'sign-up',
-			icon: 'IoPersonAddSharp',
-		},
-		{
-			name: 'Sign In',
-			link: 'sign-in',
-			icon: 'RiLoginBoxFill',
-		},
-		{
 			name: 'Contact Us',
 			link: 'contact-us',
 			icon: 'BsFillTelephoneFill',
@@ -41,8 +31,6 @@ const HelpCenter = ({ onHideHelp }) => {
 
 	const iconMap = {
 		BiSolidInfoSquare: <BiSolidInfoSquare className={Style.icons} />,
-		IoPersonAddSharp: <IoPersonAddSharp className={Style.icons} />,
-		RiLoginBoxFill: <RiLoginBoxFill className={Style.icons} />,
 		BsFillTelephoneFill: <BsFillTelephoneFill className={Style.icons} />,
 		IoMdSettings: <IoMdSettings className={Style.icons} />,
 	};
