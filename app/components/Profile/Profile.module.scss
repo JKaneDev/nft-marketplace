@@ -12,13 +12,13 @@ $elem-border-alt: 2px solid #303030;
 .profile {
 	margin: 0 auto;
 	width: 60%;
+	max-width: 750px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: 2rem;
-	padding: 4rem 3rem;
-	border: 1px solid white;
+	padding: 2.5rem 3rem;
 
 	@media (max-width: 1050px) {
 		width: 80%;
@@ -68,7 +68,7 @@ $elem-border-alt: 2px solid #303030;
 		align-items: center;
 		justify-content: center;
 		padding: 1.25rem 2rem;
-		width: 350px;
+		width: 400px;
 		border-radius: 32px;
 		background-color: $alt-bg-color;
 		color: white;
@@ -90,6 +90,8 @@ $elem-border-alt: 2px solid #303030;
 	flex-direction: column;
 	justify-content: center;
 	gap: 0.5rem;
+	border-bottom: 1px solid #262626;
+	padding-bottom: 2rem;
 
 	h1 {
 		font-size: 44px;
@@ -105,10 +107,15 @@ $elem-border-alt: 2px solid #303030;
 }
 
 .profile_edit_wrapper {
-	width: 125px;
-	height: 125px;
+	width: 135px;
+	height: 135px;
 	border-radius: 5rem;
 	border: 2px solid #0cc0df;
+	margin: 0 auto;
+
+	&:hover {
+		cursor: pointer;
+	}
 
 	.profile_edit_wrapper_image {
 		border-radius: 5rem;
@@ -119,6 +126,7 @@ $elem-border-alt: 2px solid #303030;
 
 .profile_edit_info {
 	gap: 5rem;
+	margin: 0 auto;
 }
 
 .profile_edit_info,
@@ -154,7 +162,7 @@ $elem-border-alt: 2px solid #303030;
 .profile_edit_info_wrapper,
 .profile_edit_info_socials,
 .profile_edit_info_wallet {
-	width: 350px;
+	width: 400px;
 	border-bottom: 1px solid #262626;
 	padding-bottom: 2rem;
 }
@@ -199,8 +207,9 @@ $elem-border-alt: 2px solid #303030;
 	align-items: center;
 	gap: 0.5rem;
 	margin-top: 1rem;
+	width: 400px;
 
 	input {
-		width: 350px;
+		width: 100%;
 	}
 }
