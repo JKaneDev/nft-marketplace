@@ -62,11 +62,11 @@ const Navbar = () => {
 		<div className={Style.navbar}>
 			<div className={Style.navbar_container}>
 				{/* LOGO CONTAINER */}
-				<div className={Style.navbar_container_left}>
+				<Link href={{ pathname: '/' }} className={Style.navbar_container_left}>
 					<p className={Style.logo}>
-						Multi<span className={Style.logo_colored}>verse</span>
+						Nifty<span className={Style.logo_colored}>verse</span>
 					</p>
-				</div>
+				</Link>
 				{/* END OF LEFT SECTION */}
 
 				{/* MIDDLE SEARCH BAR SECTION */}

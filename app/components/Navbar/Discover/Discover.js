@@ -17,12 +17,12 @@ const Discover = ({ onHideSubMenu }) => {
 			icon: 'FaWallet',
 		},
 		{
-			name: 'Collection',
-			link: 'collection',
+			name: 'My Collection',
+			link: 'my-collection',
 			icon: 'BsGrid3X3GapFill',
 		},
 		{
-			name: 'Profile',
+			name: 'Edit Profile',
 			link: 'author-profile',
 			icon: 'BsFillPersonFill',
 		},

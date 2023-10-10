@@ -1,6 +1,7 @@
 import React from 'react';
 import Style from './Hero.module.scss';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
@@ -15,7 +16,9 @@ const Hero = () => {
 					Penguins and more! Just connect your wallet and gain access to a universe of digital collectible treasure.
 					Create your own NFTs and sell them on the open market.
 				</p>
-				<button className={Style.hero_container_button}>Search Marketplace</button>
+				<Link href={{ pathname: 'collection' }} className={Style.hero_container_button}>
+					Search Marketplace
+				</Link>
 			</div>
 			<div className={Style.hero_image}>
 				<Image src={images.hero} alt='hero image' className={Style.hero_image_images} />
