@@ -3,12 +3,12 @@ import Image from 'next/image';
 
 // INTERNAL IMPORTS
 import '../app/globals.scss';
-import Style from '../styles/collection.module.scss';
+import Style from '../styles/search-marketplace.module.scss';
 import { Navbar, Featured, Browse } from '@/app/components/componentindex';
 
-const Collection = () => {
+const SearchMarketplace = () => {
 	return (
-		<div className={Style.collection}>
+		<div className={Style.search}>
 			<Navbar />
 			<Featured />
 			<Browse />
@@ -16,4 +16,4 @@ const Collection = () => {
 	);
 };
 
-export default Collection;
+export default SearchMarketplace;

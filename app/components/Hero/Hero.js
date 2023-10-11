@@ -16,7 +16,7 @@ const Hero = () => {
 					Penguins and more! Just connect your wallet and gain access to a universe of digital collectible treasure.
 					Create your own NFTs and sell them on the open market.
 				</p>
-				<Link href={{ pathname: 'collection' }} className={Style.hero_container_button}>
+				<Link href={{ pathname: 'search-marketplace' }} className={Style.hero_container_button}>
 					Search Marketplace
 				</Link>
 			</div>
