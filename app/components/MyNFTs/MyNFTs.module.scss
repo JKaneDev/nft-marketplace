@@ -15,7 +15,7 @@ $elem-border-alt: 2px solid #303030;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 2rem;
+	gap: 1rem;
 }
 
 .main_profile {
@@ -136,4 +136,132 @@ $elem-border-alt: 2px solid #303030;
 	.main_profile_info_socials_wrapper_icons {
 		color: #0cc0df;
 	}
+}
+
+.main_profile_search {
+	position: relative;
+	border-bottom: 0.5px solid #0cc0df;
+	padding: 2rem 0;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: stretch;
+	gap: 1rem;
+
+	.main_profile_search_input {
+		flex: 1;
+	}
+
+	.main_profile_search_input_icon {
+		position: absolute;
+		color: #505050;
+		left: 15px;
+		top: 47.5px;
+	}
+
+	input {
+		width: 100%;
+		flex: 1;
+		background-color: $alt-bg-color;
+		outline: none;
+		border: 2px solid $main-bg-color;
+		padding: 0.75rem 2.5rem;
+		border-radius: 8px;
+		color: $font-color;
+		font-size: 16px;
+		caret-color: white;
+		transition: all 0.15s ease-in-out;
+		font-weight: 200;
+		letter-spacing: 0.05rem;
+
+		&:hover {
+			background-color: $main-bg-color;
+			border: 2px solid #0cc0df;
+		}
+
+		&:active,
+		&:focus {
+			background-color: $main-bg-color;
+			border: 2px solid #0cc0df;
+		}
+
+		&::placeholder {
+			color: $btn-color;
+		}
+	}
+
+	.main_profile_search_btn {
+		margin-left: auto;
+		font-weight: 200;
+		font-size: 16px;
+		letter-spacing: 0.1rem;
+		background-color: $alt-bg-color;
+		border: 2px solid $alt-bg-color;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: 0.15s all ease-in-out;
+
+		&:hover {
+			background-color: $main-bg-color;
+			border: 2px solid #0cc0df;
+		}
+	}
+
+	.main_profile_search_btns {
+		color: white;
+		font-size: 12px;
+		font-weight: 100;
+		letter-spacing: 0.1rem;
+		border: 2px solid $alt-bg-color;
+		outline: none;
+		border-radius: 16px;
+		background-color: $alt-bg-color;
+		transition: all 0.35s ease;
+
+		&:hover {
+			cursor: pointer;
+		}
+	}
+
+	.dropdown_content {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		transform: translateY(60%);
+		right: 0;
+		gap: 0.5rem;
+		border-radius: 8px;
+		padding: 0.75rem;
+		background-color: $alt-bg-color;
+		z-index: 1000;
+
+		.main_profile_search_btns {
+			width: 100%;
+			font-size: 16px;
+			text-align: left;
+			border-radius: 8px;
+			background-color: $alt-bg-color;
+			padding: 0.75rem 1.5rem;
+
+			&:hover {
+				background-color: #383838;
+			}
+		}
+	}
+}
+
+.rotate_down {
+	transform: rotate(0deg);
+	transition: transform 0.3s ease-in-out;
+}
+
+.rotate_up {
+	transform: rotate(180deg);
+	transition: transform 0.3s ease-in-out;
 }

@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 
 // INTERNAL IMPORTS
@@ -7,9 +9,30 @@ import { AuctionCard } from '../componentindex';
 import images from '../../../assets/index';
 
 // EXTERNAL IMPORTS
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown, FaSearch } from 'react-icons/fa';
 
 const MyNFTs = () => {
+	const [isOpen, setIsOpen] = useState(false);
+	const dropdownRef = useRef(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+				setIsOpen(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
+	const handleDropdownToggle = () => {
+		setIsOpen(!isOpen);
+	};
+
+	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
+
 	return (
 		<div className={Style.main}>
 			<div className={Style.main_profile}>
@@ -41,7 +64,30 @@ const MyNFTs = () => {
 					</div>
 				</div>
 			</div>
-			<div className={Style.main_collection}>
+			<div className={Style.main_profile_search} ref={dropdownRef}>
+				<div className={Style.main_profile_search_input}>
+					<FaSearch className={Style.main_profile_search_input_icon} />
+					<input type='text' />
+				</div>
+				<button onClick={handleDropdownToggle} className={Style.main_profile_search_btn}>
+					<p>Select Category</p>
+					<FaCaretDown className={isOpen ? Style.rotate_up : Style.rotate_down} />
+				</button>
+				{isOpen && (
+					<div className={Style.dropdown_content}>
+						{categories.map((category, index) => (
+							<button
+								key={index}
+								onClick={() => console.log(`${category} selected`)}
+								className={Style.main_profile_search_btns}
+							>
+								{category}
+							</button>
+						))}
+					</div>
+				)}
+			</div>
+			<div className={Style.main_profile_view}>
 				<AuctionCard />
 			</div>
 		</div>
