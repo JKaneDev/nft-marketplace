@@ -161,7 +161,8 @@ $elem-border-alt: 2px solid #303030;
 
 .navbar_container_right_discover,
 .navbar_container_right_help,
-.navbar_container_right_sidebar {
+.navbar_container_right_sidebar,
+.navbar_container_right_button {
 	font-weight: 200;
 	background-color: $alt-bg-color;
 	display: flex;
@@ -175,6 +176,10 @@ $elem-border-alt: 2px solid #303030;
 	&:hover {
 		background-color: $main-bg-color;
 	}
+}
+
+.navbar_container_right_button {
+	gap: 0.5rem;
 }
 
 .navbar_container_right_discover_box {

@@ -55,8 +55,14 @@ import photography4 from './photography4.jpg';
 import photography5 from './photography5.jpg';
 import tiktok from './tik-tok.svg';
 import placeholder from './placeholder.png';
+import upload from './upload.svg';
+import eth from './ethereum.svg';
+import percentage from './percentage.svg';
 
 export default {
+	percentage,
+	eth,
+	upload,
 	ape1,
 	ape2,
 	ape3,

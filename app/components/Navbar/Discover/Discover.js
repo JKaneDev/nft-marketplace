@@ -1,20 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 import { BsGrid3X3GapFill, BsFillPersonFill, BsFillEyeFill } from 'react-icons/bs';
-import { FaWallet, FaBlog } from 'react-icons/fa';
+import { FaWallet, FaBlog, FaPlug } from 'react-icons/fa';
 
 // INTERNAL IMPORTS
 import Style from './Discover.module.scss';
 import { Button } from '../../componentindex';
 
 const Discover = ({ onHideSubMenu }) => {
+	const [isConnected, setIsConnected] = useState(false);
+
 	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
-			name: 'Connect Wallet',
+			name: isConnected ? 'Connected' : 'Connect Wallet',
 			link: 'connect-wallet',
-			icon: 'FaWallet',
+			icon: isConnected ? 'FaPlug' : 'FaWallet',
 		},
 		{
 			name: 'My Collection',
@@ -45,6 +47,7 @@ const Discover = ({ onHideSubMenu }) => {
 		BsFillEyeFill: <BsFillEyeFill className={Style.icons} />,
 		FaWallet: <FaWallet className={Style.icons} />,
 		FaBlog: <FaBlog className={Style.icons} />,
+		FaPlug: <FaPlug className={Style.icons} color='green' />,
 	};
 
 	return (

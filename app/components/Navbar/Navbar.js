@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
 import { IoMenu } from 'react-icons/io5';
+import { FaPlus } from 'react-icons/fa';
 
 // INTERNAL IMPORTS
 import Style from './Navbar.module.scss';
 import images from '../../../assets/index.js';
 import { Discover, HelpCenter, Sidebar } from './index';
-import { Button } from '../componentindex';
 
 const Navbar = () => {
 	const [discover, setDiscover] = useState(false);
@@ -112,9 +111,10 @@ const Navbar = () => {
 					</div>
 
 					{/* CREATE BUTTON SECTION */}
-					<div className={Style.navbar_container_right_button}>
-						<Button icon={images.addIcon} btnText='Create' />
-					</div>
+					<Link href={{ pathname: 'create-nft' }} className={Style.navbar_container_right_button}>
+						<FaPlus className={Style.navbar_container_right_button_icon} />
+						<span>Create</span>
+					</Link>
 
 					<div
 						className={Style.navbar_container_right_sidebar}

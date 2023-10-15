@@ -10,15 +10,18 @@ import images from '../../../assets/index';
 
 // EXTERNAL IMPORTS
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown, FaSearch } from 'react-icons/fa';
+import { RiFilterLine } from 'react-icons/ri';
 
 const MyNFTs = () => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const dropdownRef = useRef(null);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-				setIsOpen(false);
+				setIsCategoriesOpen(false);
+				setIsFilterOpen(false);
 			}
 		};
 		document.addEventListener('mousedown', handleClickOutside);
@@ -27,11 +30,19 @@ const MyNFTs = () => {
 		};
 	}, []);
 
-	const handleDropdownToggle = () => {
-		setIsOpen(!isOpen);
+	const handleCategoriesDropdownToggle = () => {
+		setIsCategoriesOpen(!isCategoriesOpen);
+		setIsFilterOpen(false);
+	};
+
+	const handleFilterDropdownToggle = () => {
+		setIsFilterOpen(!isFilterOpen);
+		setIsCategoriesOpen(false);
 	};
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
+
+	const filterOptions = ['Currently Owned', 'Previously Owned', 'Watchlist'];
 
 	return (
 		<div className={Style.main}>
@@ -59,7 +70,6 @@ const MyNFTs = () => {
 					</div>
 
 					<div className={Style.main_profile_info_actions}>
-						<button>Follow</button>
 						<FaShare className={Style.main_profile_info_actions_icons} />
 					</div>
 				</div>
@@ -69,12 +79,12 @@ const MyNFTs = () => {
 					<FaSearch className={Style.main_profile_search_input_icon} />
 					<input type='text' />
 				</div>
-				<button onClick={handleDropdownToggle} className={Style.main_profile_search_btn}>
+				<button onClick={handleCategoriesDropdownToggle} className={Style.main_profile_search_btn}>
 					<p>Select Category</p>
-					<FaCaretDown className={isOpen ? Style.rotate_up : Style.rotate_down} />
+					<FaCaretDown className={isCategoriesOpen ? Style.rotate_up : Style.rotate_down} />
 				</button>
-				{isOpen && (
-					<div className={Style.dropdown_content}>
+				{isCategoriesOpen && (
+					<div className={Style.dropdown_content_category}>
 						{categories.map((category, index) => (
 							<button
 								key={index}
@@ -82,6 +92,22 @@ const MyNFTs = () => {
 								className={Style.main_profile_search_btns}
 							>
 								{category}
+							</button>
+						))}
+					</div>
+				)}
+				<button onClick={handleFilterDropdownToggle} className={Style.main_profile_search_btn}>
+					<RiFilterLine size={20.5} />
+				</button>
+				{isFilterOpen && (
+					<div className={Style.dropdown_content_filter}>
+						{filterOptions.map((option, index) => (
+							<button
+								key={index}
+								onClick={() => console.log(`${option} selected`)}
+								className={Style.main_profile_search_btns}
+							>
+								{option}
 							</button>
 						))}
 					</div>

@@ -229,7 +229,8 @@ $elem-border-alt: 2px solid #303030;
 		}
 	}
 
-	.dropdown_content {
+	.dropdown_content_category,
+	.dropdown_content_filter {
 		display: flex;
 		flex-direction: column;
 		position: absolute;
@@ -253,6 +254,14 @@ $elem-border-alt: 2px solid #303030;
 				background-color: #383838;
 			}
 		}
+	}
+
+	.dropdown_content_category {
+		transform: translateY(60%);
+	}
+
+	.dropdown_content_filter {
+		transform: translateY(70%);
 	}
 }
 

@@ -1,0 +1,264 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+$icon-bg-color: #1da1f2;
+$font-color: #fefefe;
+
+$elem-border-main: 1px solid #303030;
+$elem-border-alt: 2px solid #303030;
+
+.main {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5rem;
+	min-height: calc(100vh - 75px);
+}
+
+.main_upload {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.25rem;
+
+	h1 {
+		font-weight: 700;
+		font-size: 32px;
+		letter-spacing: 0.05rem;
+	}
+
+	p {
+		font-weight: 200;
+		font-size: 16px;
+	}
+}
+
+.main_upload_container {
+	display: flex;
+	justify-content: center;
+	align-self: center;
+	align-items: center;
+	border: 1px dashed #606060;
+	height: clamp(500px, 600px, 800px);
+	width: 100%;
+	margin-top: 1rem;
+	transition: all 0.35s ease-in-out;
+
+	&:hover {
+		cursor: pointer;
+		background-color: #1a1a1a;
+	}
+}
+
+.main_upload_container_params {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 0.25rem;
+	height: 100%;
+
+	p:nth-of-type(1) {
+		font-weight: 800;
+		font-size: 18px;
+		letter-spacing: 0.05rem;
+		margin-top: 0.5rem;
+	}
+
+	p:nth-of-type(2) {
+		font-weight: 600;
+		font-size: 16px;
+		color: #0cc0df;
+	}
+
+	p:nth-of-type(3),
+	p:nth-of-type(4) {
+		color: #606060;
+		font-size: 14px;
+		font-weight: 300;
+	}
+
+	img {
+		height: 35px;
+		width: 35px;
+		filter: invert(98%) sepia(4%) saturate(146%) hue-rotate(220deg) brightness(122%) contrast(100%);
+	}
+}
+
+.main_info {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 1rem;
+	min-width: 300px;
+	margin: auto 0;
+
+	.main_info_wrapper:nth-of-type(7) {
+		margin-top: 1rem;
+	}
+
+	p {
+		font-weight: 200;
+	}
+
+	input,
+	textarea {
+		background-color: inherit;
+		outline: none;
+		border: 1px solid $alt-bg-color;
+		width: 100%;
+		height: 24px;
+		padding: 1rem 1.25rem;
+		border-radius: 8px;
+		color: $font-color;
+		caret-color: white;
+		transition: all 0.15s ease-in-out;
+		font-weight: 200;
+
+		&:hover {
+			border: 1px solid $alt-bg-color;
+		}
+
+		&:active,
+		&:focus {
+			border: 1px solid #0cc0df;
+		}
+
+		&::placeholder {
+			color: $btn-color;
+		}
+	}
+
+	textarea {
+		height: 80px;
+	}
+}
+
+.main_info_wrapper {
+	position: relative;
+
+	.main_info_wrapper_title {
+		position: absolute;
+		top: -11px;
+		left: 12.5px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		background-color: #0cc0df;
+		width: 100px;
+		padding: 0.15rem 0.25rem;
+		border-radius: 8px;
+		z-index: 1000;
+	}
+
+	.main_info_wrapper_eth,
+	.main_info_wrapper_percentage {
+		filter: invert(14%) sepia(82%) saturate(9%) hue-rotate(18deg) brightness(95%) contrast(95%);
+		position: absolute;
+		height: 16px;
+		width: 16px;
+		right: 12px;
+		top: 32.5px;
+	}
+
+	.main_info_wrapper_percentage {
+		height: 25px;
+		width: 25px;
+		top: 29px;
+		right: 7px;
+	}
+}
+
+.main_info_wrapper_categories {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	border: 1px solid $alt-bg-color;
+	border-radius: 8px;
+	padding: 0.5rem 0.75rem;
+
+	.main_info_wrapper_categories_select {
+		display: flex;
+		align-items: center;
+		transition: all 0.35s ease-in-out;
+		padding: 0.75rem 1.25rem;
+		border-radius: 8px;
+		position: relative;
+
+		&:hover {
+			background-color: #1a1a1a;
+		}
+
+		p {
+			min-width: 200px;
+		}
+
+		input {
+			justify-self: flex-end;
+			margin-left: auto;
+			height: 14px;
+			width: 14px;
+			background-color: #0cc0df;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		// BEGINNING OF RADIO INPUT STYLING
+
+		input[type='radio'] {
+			z-index: 1;
+			opacity: 0;
+			position: absolute;
+			top: 17px;
+			right: 40px;
+			transition: all 0.35s ease-in-out;
+
+			&:checked + label::before {
+				content: ''; // add content for pseudo-element
+				display: inline-block;
+				height: 14px; // adjust to your desired size
+				width: 14px; // adjust to your desired size
+				border-radius: 50%;
+				border: 2px solid #0cc0df;
+				background-color: #2b2b2b;
+				position: relative;
+			}
+			&:checked + label::after {
+				content: ''; // add content for pseudo-element
+				display: inline-block;
+				height: 6px; // adjust to your desired size
+				width: 6px; // adjust to your desired size
+				border-radius: 50%;
+				background-color: #0cc0df;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
+			&:not(:checked) + label::before {
+				content: ''; // add content for pseudo-element
+				display: inline-block;
+				height: 14px; // adjust to your desired size
+				width: 14px; // adjust to your desired size
+				border-radius: 50%;
+				background-color: #2b2b2b;
+				position: relative;
+			}
+		}
+
+		label {
+			cursor: pointer;
+			position: relative;
+		}
+	}
+
+	label {
+		display: flex;
+		align-items: center;
+	}
+}

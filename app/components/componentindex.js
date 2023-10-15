@@ -1,4 +1,3 @@
-import Button from './Button/Button';
 import Footer from './Footer/Footer';
 import Navbar from './Navbar/Navbar';
 import Hero from './Hero/Hero';
@@ -9,5 +8,6 @@ import Browse from './Search/Browse/Browse';
 import AuctionCard from './AuctionCard/AuctionCard';
 import Profile from './Profile/Profile';
 import MyNFTs from './MyNFTs/MyNFTs';
+import CreateNFT from './CreateNFT/CreateNFT';
 
-export { Button, Footer, Navbar, Hero, Connect, CurrentAuction, Featured, Browse, AuctionCard, Profile, MyNFTs };
+export { Footer, Navbar, Hero, Connect, CurrentAuction, Featured, Browse, AuctionCard, Profile, MyNFTs, CreateNFT };
