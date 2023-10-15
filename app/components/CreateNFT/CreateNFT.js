@@ -14,6 +14,7 @@ const CreateNFT = () => {
 	const [royalties, setRoyalties] = useState('');
 	const [price, setPrice] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState(null);
+	const [selectedImage, setSelectedImage] = useState(null);
 
 	const handleCategoryChange = (category) => {
 		setSelectedCategory(category);
@@ -22,19 +23,41 @@ const CreateNFT = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
+	const handleImageUpload = (e) => {
+		const file = e.target.files[0];
+		if (!file) {
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			setSelectedImage(reader.result);
+		};
+		reader.readAsDataURL(file);
+	};
+
+	const triggerFileInput = () => {
+		document.getElementById('fileInput').click();
+	};
+
 	return (
 		<div className={Style.main}>
 			<div className={Style.main_upload}>
 				<h1>Create an NFT</h1>
 				<p>Once your item is minted you won't be able to change any of it's information</p>
-				<div className={Style.main_upload_container}>
-					<div className={Style.main_upload_container_params}>
-						<Image src={images.upload}></Image>
-						<p>Upload Image</p>
-						<p>Browse Files</p>
-						<p>Max Size: 10mb</p>
-						<p>JPG, JPEG, SVG, PNG</p>
-					</div>
+				<div className={Style.main_upload_container} onClick={triggerFileInput}>
+					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={handleImageUpload} />
+					{selectedImage ? (
+						<img src={selectedImage} alt='Uploaded Preview' />
+					) : (
+						<div className={Style.main_upload_container_params}>
+							<Image src={images.upload}></Image>
+							<p>Upload Image</p>
+							<p>Browse Files</p>
+							<p>Max Size: 10mb</p>
+							<p>JPG, JPEG, SVG, PNG</p>
+						</div>
+					)}
 				</div>
 			</div>
 			<div className={Style.main_info}>
