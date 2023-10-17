@@ -1,7 +1,7 @@
 import React from 'react';
 import nft from '../assets/punk-1.png';
 import Image from 'next/image';
-import { Navbar, Hero, Connect, CurrentAuction } from './components/componentindex';
+import { Navbar, Hero, Connect, CurrentAuction, Footer } from './components/componentindex';
 
 export const Page = () => {
 	return (
@@ -10,6 +10,7 @@ export const Page = () => {
 			<Hero />
 			<Connect />
 			<CurrentAuction />
+			<Footer />
 		</main>
 	);
 };

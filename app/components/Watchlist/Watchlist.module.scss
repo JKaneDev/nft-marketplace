@@ -1,0 +1,110 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+
+.main {
+	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+	padding: 3rem;
+	height: calc(100vh - 74.8px);
+
+	h1 {
+		font-size: 44px;
+		letter-spacing: 0.05rem;
+		font-weight: 500;
+	}
+}
+
+.main_select {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem 0;
+	border-bottom: 1px solid #202020;
+	position: relative;
+
+	.main_select_options {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 0.75rem 1.5rem;
+		border: 2px solid $main-bg-color;
+		border-radius: 8px;
+		background-color: $main-bg-color;
+		color: white;
+		transition: all 0.35s ease-in-out;
+		font-size: 16px;
+		letter-spacing: 0.05rem;
+		font-weight: 100;
+
+		&:hover {
+			background-color: #202020;
+			cursor: pointer;
+		}
+	}
+
+	.main_select_filter {
+		margin-left: auto;
+		font-weight: 200;
+		font-size: 16px;
+		letter-spacing: 0.05rem;
+		background-color: $main-bg-color;
+		border: 2px solid $main-bg-color;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		border-radius: 8px;
+		transition: 0.15s all ease-in-out;
+
+		&:hover {
+			border: 2px solid #0cc0df;
+			cursor: pointer;
+		}
+	}
+
+	.main_select_dropdown {
+		position: absolute;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		border-radius: 8px;
+		padding: 0.75rem;
+		background-color: $alt-bg-color;
+		z-index: 1000;
+		transform: translateY(60%);
+
+		.main_select_dropdown_options {
+			width: 100%;
+			font-size: 16px;
+			text-align: left;
+			border-radius: 8px;
+			background-color: $alt-bg-color;
+			padding: 0.75rem 1.5rem;
+			color: white;
+			border: none;
+			font-weight: 100;
+			letter-spacing: 0.1rem;
+			font-size: 16px;
+			transform: all 0.35s ease-in-out;
+
+			&:hover {
+				background-color: #383838;
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+.rotate_down {
+	transform: rotate(0deg);
+	transition: transform 0.3s ease-in-out;
+}
+
+.rotate_up {
+	transform: rotate(180deg);
+	transition: transform 0.3s ease-in-out;
+}

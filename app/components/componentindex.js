@@ -9,5 +9,19 @@ import AuctionCard from './AuctionCard/AuctionCard';
 import Profile from './Profile/Profile';
 import MyNFTs from './MyNFTs/MyNFTs';
 import CreateNFT from './CreateNFT/CreateNFT';
+import Watchlist from './Watchlist/Watchlist';
 
-export { Footer, Navbar, Hero, Connect, CurrentAuction, Featured, Browse, AuctionCard, Profile, MyNFTs, CreateNFT };
+export {
+	Footer,
+	Navbar,
+	Hero,
+	Connect,
+	CurrentAuction,
+	Featured,
+	Browse,
+	AuctionCard,
+	Profile,
+	MyNFTs,
+	CreateNFT,
+	Watchlist,
+};
