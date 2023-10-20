@@ -1,0 +1,165 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$font-color: #fefefe;
+
+.main {
+	min-height: calc(100vh - 75px - 324.2px);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2rem;
+	padding: clamp(2rem, 4rem, 5rem) clamp(4rem, 5rem, 8rem);
+
+	h1 {
+		font-size: 44px;
+		font-weight: 600;
+		letter-spacing: 0.05rem;
+	}
+}
+
+.main_container {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 3rem;
+	padding: clamp(2rem, 3rem, 4rem);
+	width: clamp(650px, 900px, 1100px);
+}
+
+.main_container_info,
+.main_container_action {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 1rem;
+
+	p {
+		font-weight: 100;
+		letter-spacing: 0.05rem;
+		font-size: 16px;
+	}
+
+	h3 {
+		font-size: 18px;
+		font-weight: 700;
+		letter-spacing: 0.05rem;
+	}
+
+	.main_container_info_wrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 0.5rem;
+		text-align: left;
+		padding: 0.5rem 0;
+	}
+
+	.main_container_info_wrapper_socials {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+
+		.main_container_info_wrapper_socials_icons {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 38px;
+			width: 38px;
+			background-color: $alt-bg-color;
+			border-radius: 5rem;
+			padding: 0.25rem;
+			transition: all 0.35s ease;
+			border: 2px solid $alt-bg-color;
+
+			@media (min-width: 1640px) {
+				height: 44px;
+				width: 44px;
+			}
+
+			&:hover {
+				cursor: pointer;
+				border: 2px solid #0cc0df;
+				background-color: $main-bg-color;
+			}
+
+			.main_container_info_wrapper_socials_icons_icon {
+				color: #0cc0df;
+			}
+		}
+	}
+}
+
+.main_container_action {
+	gap: 1rem;
+	justify-content: flex-start;
+	margin-bottom: auto;
+
+	button {
+		margin-top: 0.75rem;
+		outline: none;
+		border: 2px solid $main-bg-color;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.75rem 1.25rem;
+		border-radius: 8px;
+		background-color: $alt-bg-color;
+		color: white;
+		transition: 0.35s all ease-in-out;
+		font-weight: 200;
+		font-size: 14px;
+		letter-spacing: 0.05rem;
+
+		&:hover {
+			border: 2px solid #0cc0df;
+			background-color: $main-bg-color;
+			cursor: pointer;
+		}
+	}
+
+	.main_container_action_wrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 0.25rem;
+
+		h3 {
+			font-size: 18px;
+			font-weight: 700;
+			letter-spacing: 0.05rem;
+			padding-left: 0.25rem;
+		}
+
+		input,
+		textarea {
+			background-color: $alt-bg-color;
+			outline: none;
+			border: 2px solid $main-bg-color;
+			width: 100%;
+			padding: 0.75rem 1.25rem;
+			border-radius: 8px;
+			color: $font-color;
+			caret-color: white;
+			transition: all 0.15s ease-in-out;
+			font-weight: 200;
+
+			&:hover {
+				border: 2px solid $alt-bg-color;
+			}
+
+			&:active,
+			&:focus {
+				background-color: $alt-bg-color;
+				border: 2px solid #0cc0df;
+			}
+
+			&::placeholder {
+				color: $btn-color;
+			}
+		}
+
+		textarea {
+			height: 100px;
+		}
+	}
+}
