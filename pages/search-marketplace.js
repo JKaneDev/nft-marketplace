@@ -4,7 +4,7 @@ import Image from 'next/image';
 // INTERNAL IMPORTS
 import '../app/globals.scss';
 import Style from '../styles/search-marketplace.module.scss';
-import { Navbar, Featured, Browse } from '@/app/components/componentindex';
+import { Navbar, Featured, Browse, Footer } from '@/app/components/componentindex';
 
 const SearchMarketplace = () => {
 	return (
@@ -12,6 +12,7 @@ const SearchMarketplace = () => {
 			<Navbar />
 			<Featured />
 			<Browse />
+			<Footer />
 		</div>
 	);
 };

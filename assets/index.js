@@ -58,8 +58,16 @@ import placeholder from './placeholder.png';
 import upload from './upload.svg';
 import eth from './ethereum.svg';
 import percentage from './percentage.svg';
+import founder1 from './model-1.jpg';
+import founder2 from './model-2.jpg';
+import founder3 from './model-3.jpg';
+import founder4 from './model-4.jpg';
 
 export default {
+	founder1,
+	founder2,
+	founder3,
+	founder4,
 	percentage,
 	eth,
 	upload,

@@ -24,7 +24,7 @@ const HelpCenter = ({ onHideHelp }) => {
 		},
 		{
 			name: 'Settings',
-			link: 'settings',
+			link: '/',
 			icon: 'IoMdSettings',
 		},
 	];

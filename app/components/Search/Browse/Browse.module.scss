@@ -12,6 +12,7 @@ $elem-border-alt: 2px solid #303030;
 .browse {
 	display: flex;
 	flex-direction: column;
+	padding-bottom: 2rem;
 
 	.browse_search {
 		display: flex;
@@ -95,6 +96,6 @@ $elem-border-alt: 2px solid #303030;
 	.browse_auctions {
 		margin: 2rem auto;
 		display: grid;
-		grid-template-rows: repeat(auto-fill, minmax(200px, 300px));
+		grid-template-columns: repeat(auto-fill, minmax(200px, 300px));
 	}
 }
