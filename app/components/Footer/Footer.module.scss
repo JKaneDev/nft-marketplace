@@ -129,6 +129,11 @@ $alt-bg-color: #2b2b2b;
 }
 
 .main_columns_discover,
+.main_columns_help {
+	min-width: 153px;
+}
+
+.main_columns_discover,
 .main_columns_help,
 .main_columns_newsletter {
 	display: flex;
