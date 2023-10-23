@@ -28,8 +28,8 @@ const CurrentAuction = () => {
 					<br className={Style.br} />
 					<div className={Style.auction_container_wrapper_collection}>
 						<FaUserCircle size={38} className={Style.auction_container_wrapper_creator_img} />
-						<p>Collection</p>
-						<p>Miscellaneous</p>
+						<p>Category</p>
+						<p>Digital Art</p>
 					</div>
 				</div>
 				<div className={Style.auction_container_bid}>
@@ -62,7 +62,6 @@ const CurrentAuction = () => {
 					<br />
 					<div className={Style.auction_container_interact}>
 						<button className={Style.auction_container_interact_btn}>Bid</button>
-						<button className={Style.auction_container_interact_btn}>Info</button>
 					</div>
 				</div>
 			</div>

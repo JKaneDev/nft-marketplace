@@ -1,3 +1,6 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+
 .auction {
 	height: 100vh;
 	width: 100%;
@@ -12,7 +15,7 @@
 .auction_container {
 	height: 100%;
 	padding: 2rem 3rem;
-	border: 1px solid #0cc0df;
+	border: 2px solid #0cc0df;
 	gap: 2rem;
 	min-width: 600px;
 	max-width: 700px;
@@ -20,6 +23,9 @@
 	border-radius: 8px;
 	background-color: #0f0f0f;
 	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 
 	.auction_container_title {
 		display: flex;
@@ -27,7 +33,9 @@
 		gap: 2rem;
 
 		h1 {
-			font-size: 28px;
+			font-size: 26px;
+			font-weight: 500;
+			letter-spacing: 0.05rem;
 		}
 
 		.auction_container_title_container {
@@ -66,7 +74,7 @@
 		grid-template-rows: 1fr 1fr;
 		max-height: 60px;
 		max-width: 200px;
-		column-gap: 0.5rem;
+		column-gap: 0.75rem;
 
 		.auction_container_wrapper_creator_img {
 			grid-column: 1 / 2;
@@ -78,13 +86,16 @@
 			grid-column: 2/-1;
 			grid-row: 1/2;
 			margin: 0;
+			font-weight: 400;
+			letter-spacing: 0.05rem;
+			font-size: 16px;
 		}
 
 		p:nth-of-type(2) {
 			grid-column: 2/-1;
 			grid-row: 2/-1;
 			margin: 0;
-			font-weight: 700;
+			font-weight: 100;
 			letter-spacing: 0.05rem;
 		}
 	}
@@ -100,6 +111,7 @@
 		border-radius: 8px;
 		margin: 2rem auto;
 		position: relative;
+		width: 100%;
 
 		p:nth-of-type(1) {
 			background-color: #0cc0df;
@@ -112,7 +124,7 @@
 		}
 
 		p:nth-of-type(2) {
-			letter-spacing: 0.05rem;
+			letter-spacing: 0.15rem;
 			font-weight: 200;
 			font-size: 18px;
 			margin-left: 1rem;
@@ -128,7 +140,7 @@
 		flex-direction: column;
 		justify-content: center;
 		gap: 1rem;
-		border-bottom: 1px solid #606060;
+		border-bottom: 1px solid #202020;
 		padding-bottom: 3rem;
 
 		.auction_container_time_duration {
@@ -136,6 +148,10 @@
 			display: flex;
 			align-items: center;
 			gap: 1rem;
+
+			p {
+				font-weight: 200;
+			}
 		}
 
 		.auction_container_time_remaining {
@@ -144,7 +160,7 @@
 			align-items: center;
 			margin: 0 auto;
 			gap: 3rem;
-			border: 2px solid #606060;
+			border: 1px solid #202020;
 			padding: 2rem 3rem;
 			border-radius: 8px;
 		}
@@ -158,8 +174,12 @@
 
 			p:nth-of-type(1) {
 				margin: 0;
-				font-weight: 900;
+				font-weight: 700;
 				font-size: 32px;
+			}
+
+			p:nth-of-type(2) {
+				font-weight: 200;
 			}
 		}
 	}
@@ -181,16 +201,19 @@
 			border-radius: 8px;
 			outline: none;
 			border: none;
-			background-color: #0cc0df;
+			background-color: $alt-bg-color;
+			border: 2px solid $main-bg-color;
 			color: white;
 			letter-spacing: 0.05rem;
-			transition: all 0.35s ease;
-			font-size: 18px;
+			transition: all 0.35s ease-in-out;
+			font-size: 16px;
+			font-weight: 200;
+			letter-spacing: 0.1rem;
 
 			&:hover {
 				cursor: pointer;
-				background-color: #0badc9;
-				transform: translateY(-2.5%);
+				background-color: $main-bg-color;
+				border: 2px solid #0cc0df;
 			}
 		}
 	}
@@ -199,14 +222,14 @@
 }
 .auction_nft_wrapper {
 	z-index: 999;
-	height: 65%;
-	min-width: 600px;
-	max-width: 700px;
+	height: 60%;
+	min-width: 550px;
+	max-width: 625px;
 	flex: 1;
 	border-radius: 22px;
-	background-color: #1a1a1a;
-	border: 1px solid #0cc0df;
-	transform: translateX(-10%);
+	background-color: #0f0f0f;
+	border: 2px solid #0cc0df;
+	transform: translateX(-9%);
 
 	.auction_nft_wrapper_image {
 		width: 100%;
