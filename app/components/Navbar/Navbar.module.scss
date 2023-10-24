@@ -24,18 +24,21 @@ $elem-border-alt: 2px solid #303030;
 	@media (max-width: 1200px) {
 		height: 50px;
 
+		.navbar_container_right {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 1rem;
+			margin-left: auto;
+		}
+
+		.navbar_container_middle {
+			justify-content: center;
+			max-width: 750px;
+		}
+
 		.navbar_container_right_sidebar {
 			display: flex;
-		}
-
-		.navbar_container_middle_box_input {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
-		.navbar_container_middle_box_input_box {
-			width: 75%;
 		}
 
 		.navbar_container_right_discover,
@@ -86,6 +89,7 @@ $elem-border-alt: 2px solid #303030;
 	align-items: center;
 	flex: 1;
 	max-width: 1000px;
+	min-width: 115px;
 }
 
 .navbar_container_middle_box_input {
@@ -105,10 +109,10 @@ $elem-border-alt: 2px solid #303030;
 		position: relative;
 		background-color: $alt-bg-color;
 		outline: none;
-		border: 1px solid $main-bg-color;
 		width: 100%;
 		padding: 0.5rem 1.5rem 0.5rem 2.5rem;
 		border-radius: 8px;
+		border: 2px solid $main-bg-color;
 		color: $font-color;
 		font-size: 16px;
 		caret-color: white;
@@ -122,7 +126,7 @@ $elem-border-alt: 2px solid #303030;
 		&:active,
 		&:focus {
 			background-color: $alt-bg-color;
-			border: 1px solid #0cc0df;
+			border: 2px solid #0cc0df;
 
 			&:hover {
 				background-color: $alt-bg-color;
@@ -195,11 +199,6 @@ $elem-border-alt: 2px solid #303030;
 	cursor: pointer;
 	transition: 0.15s all ease-in-out;
 
-	@media (max-width: 1200px) {
-		margin-left: auto;
-		margin-right: 1rem;
-	}
-
 	.navbar_container_right_sidebar_box {
 		height: 100%;
 		width: 100%;
@@ -225,7 +224,7 @@ $elem-border-alt: 2px solid #303030;
 	border: none;
 	background: $alt-bg-color;
 	border-radius: 8px;
-	padding: 0.75rem 0.85rem;
+	padding: 0.7rem 0.85rem;
 	border: 2px solid $main-bg-color;
 	transition: all 0.35s ease-in-out;
 
