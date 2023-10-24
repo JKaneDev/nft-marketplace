@@ -1,19 +1,34 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+
+// BLOCKCHAIN IMPORTS
+import { ethers } from 'ethers';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
 import { IoMenu } from 'react-icons/io5';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaPlug } from 'react-icons/fa';
 
 // INTERNAL IMPORTS
 import Style from './Navbar.module.scss';
-import images from '../../../assets/index.js';
 import { Discover, HelpCenter, Sidebar } from './index';
 
 const Navbar = () => {
+	const [walletConnected, setWalletConnected] = useState(false);
+
+	const connectWallet = async () => {
+		try {
+			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+			const signer = await provider.getSigner();
+			console.log('Signer: ', signer);
+			setWalletConnected(true);
+		} catch (error) {
+			console.error('Failed to connect:', error);
+		}
+	};
+
 	const [discover, setDiscover] = useState(false);
 	const [help, setHelp] = useState(false);
 	const [sidebar, setSidebar] = useState(false);
@@ -130,6 +145,17 @@ const Navbar = () => {
 							)}
 						</div>
 					</div>
+					{/* Connect Wallet */}
+					<button
+						className={`${Style.navbar_container_right_connect} ${walletConnected ? Style.walletConnectedWrapper : ''}`}
+						onClick={connectWallet}
+					>
+						<FaPlug
+							className={`${Style.navbar_container_right_connect_icon} ${
+								walletConnected ? Style.walletConnectedIcon : ''
+							}`}
+						/>
+					</button>
 				</div>
 			</div>
 		</div>

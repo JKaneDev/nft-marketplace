@@ -14,11 +14,6 @@ const Discover = ({ onHideSubMenu }) => {
 	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
-			name: isConnected ? 'Connected' : 'Connect Wallet',
-			link: 'connect-wallet',
-			icon: isConnected ? 'FaPlug' : 'FaWallet',
-		},
-		{
 			name: 'My Collection',
 			link: 'my-collection',
 			icon: 'BsGrid3X3GapFill',

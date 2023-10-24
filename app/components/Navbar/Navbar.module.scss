@@ -16,12 +16,12 @@ $elem-border-alt: 2px solid #303030;
 }
 
 .navbar_container {
-	display: grid;
-	grid-template-columns: 210px 1fr 1fr;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	gap: 1rem;
 
 	@media (max-width: 1200px) {
-		grid-template-columns: 210px 1fr 0.25fr;
 		height: 50px;
 
 		.navbar_container_right_sidebar {
@@ -46,8 +46,6 @@ $elem-border-alt: 2px solid #303030;
 	}
 
 	@media (min-width: 1850px) {
-		grid-template-columns: 1fr 1.5fr 1fr;
-
 		.logo {
 			justify-content: flex-start;
 		}
@@ -80,17 +78,18 @@ $elem-border-alt: 2px solid #303030;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-right: auto;
 }
 
 .navbar_container_middle {
 	display: flex;
-	align-items: center;
 	justify-content: center;
+	align-items: center;
+	flex: 1;
+	max-width: 1000px;
 }
 
 .navbar_container_middle_box_input {
-	height: 70%;
+	height: 100%;
 	width: 100%;
 }
 
@@ -152,7 +151,7 @@ $elem-border-alt: 2px solid #303030;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 2rem;
+	gap: 1rem;
 
 	@media (min-width: 1650px) {
 		justify-content: flex-end;
@@ -217,4 +216,35 @@ $elem-border-alt: 2px solid #303030;
 		height: 25px;
 		width: 25px;
 	}
+}
+
+.navbar_container_right_connect {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: $alt-bg-color;
+	border-radius: 8px;
+	padding: 0.75rem 0.85rem;
+	border: 2px solid $main-bg-color;
+	transition: all 0.35s ease-in-out;
+
+	&:hover {
+		cursor: pointer;
+		background-color: $main-bg-color;
+		border: 2px solid #0cc0df;
+	}
+
+	.navbar_container_right_connect_icon {
+		color: white;
+		height: 16px;
+		width: 16px;
+	}
+	.navbar_container_right_connect_icon.walletConnectedIcon {
+		color: #0cc0df;
+	}
+}
+
+.navbar_container_right_connect.walletConnectedWrapper {
+	border: 2px solid #0cc0df;
 }
