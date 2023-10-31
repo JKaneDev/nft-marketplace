@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 
-// BLOCKCHAIN IMPORTS
+// BLOCKCHAIN + BACKEND IMPORTS
 import { ethers } from 'ethers';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../../../firebaseConfig.js';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
@@ -22,10 +24,44 @@ const Navbar = () => {
 		try {
 			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
 			const signer = await provider.getSigner();
-			console.log('Signer: ', signer);
+			const address = await signer.getAddress();
 			setWalletConnected(true);
+			loadOrCreateAccount(address);
+			setWalletAddress(address);
 		} catch (error) {
 			console.error('Failed to connect:', error);
+		}
+	};
+
+	const loadOrCreateAccount = async (walletAddress) => {
+		const userRef = doc(db, 'users', walletAddress);
+		const docSnap = await getDoc(userRef);
+
+		if (!docSnap.exists()) {
+			return docSnap.data();
+		} else {
+			const newUser = {
+				walletAddress: walletAddress,
+				profilePicture: '',
+				displayName: '',
+				emailAddress: '',
+				description: '',
+				website: '',
+				twitterHandle: '',
+				facebookHandle: '',
+				instagramHandle: '',
+				linkedInHandle: '',
+				ownedNFTs: [],
+				watchlist: [],
+				activeBids: [],
+			};
+
+			try {
+				await setDoc(userRef, newUser);
+				console.log('Account created for: ', walletAddress);
+			} catch (error) {
+				console.error('Error creating user: ', error);
+			}
 		}
 	};
 
