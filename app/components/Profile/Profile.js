@@ -10,7 +10,9 @@ import images from '../../../assets/index';
 // BLOCKCHAIN & BACKEND IMPORTS
 import { ethers } from 'ethers';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../firebaseConfig.js';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../../firebaseConfig.js';
+import dataURLtoBlob from 'dataurl-to-blob';
 
 import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
 
@@ -28,8 +30,14 @@ const Profile = () => {
 		walletAddress: '',
 	});
 
+	const [selectedImage, setSelectedImage] = useState(null);
+
 	useEffect(() => {
-		// fetch user data when component mounts and set it to state
+		console.log('Selected Image: ', selectedImage);
+	}, [selectedImage]);
+
+	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
+	useEffect(() => {
 		const getWalletAddress = async () => {
 			if (window.ethereum) {
 				const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -41,8 +49,6 @@ const Profile = () => {
 		};
 
 		const fetchUserData = async () => {
-			console.log('walletAddress:', await getWalletAddress());
-
 			const userRef = doc(db, 'users', await getWalletAddress());
 			const docSnap = await getDoc(userRef);
 			if (docSnap.exists()) {
@@ -53,16 +59,7 @@ const Profile = () => {
 		fetchUserData();
 	}, []);
 
-	const getWalletAddress = async () => {
-		if (window.ethereum) {
-			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-			// const provider = new ethers.provider.Web3Provider(window.ethereum);
-			const signer = await provider.getSigner();
-			return await signer.getAddress();
-		}
-		return null;
-	};
-
+	// HANDLE INFO EDITS IN INPUT FIELD
 	const handleDataChange = (e) => {
 		const { name, value } = e.target;
 		setProfileData((prevData) => ({
@@ -71,8 +68,13 @@ const Profile = () => {
 		}));
 	};
 
+	// CONFIRM EDITS AND SAVE TO FIRESTORE
 	const handleEditProfile = async () => {
 		try {
+			if (selectedImage) {
+				await uploadImageToStorage(selectedImage);
+			}
+
 			const userRef = doc(db, 'users', profileData.walletAddress);
 			await updateDoc(userRef, profileData);
 			alert('Profile updated');
@@ -81,18 +83,63 @@ const Profile = () => {
 		}
 	};
 
+	// UPLOAD IMAGE TO FIREBASE STORAGE
 	const handleImageUpload = (e) => {
+		// RETRIEVE IMAGE
 		const file = e.target.files[0];
 		if (!file) {
 			return;
 		}
 
+		// INITIALIZE IMAGE READER
 		const reader = new FileReader();
 		reader.onloadend = () => {
-			setImage(reader.result);
+			setSelectedImage(reader.result);
 		};
+
 		reader.readAsDataURL(file);
 	};
+
+	const checkUserExistence = async (walletAddress) => {
+		const userRef = doc(db, 'users', walletAddress);
+		const docSnap = await getDoc(userRef);
+		return docSnap.exists();
+	};
+
+	const uploadImageToStorage = (imageData) => {
+		const blob = dataURLtoBlob(selectedImage);
+		const storageRef = ref(storage, 'profilePictures/' + profileData.walletAddress);
+		const uploadTask = uploadBytesResumable(storageRef, blob);
+
+		uploadTask.on(
+			'state_changed',
+			(snapshot) => {},
+			(error) => {
+				console.error('Upload failed:', error);
+			},
+			() => {
+				console.log('Image uploaded successfully');
+				getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+					console.log('Successfully retrieved download URL', downloadURL);
+					saveProfilePictureURLToFirestore(downloadURL);
+				});
+			},
+		);
+	};
+
+	// SAVE URL TO FIRESTORE FOR USE IN OTHER COMPONENTS AND PAGES
+	function saveProfilePictureURLToFirestore(downloadURL) {
+		try {
+			const userRef = doc(db, 'users', profileData.walletAddress);
+			updateDoc(userRef, {
+				profilePicture: downloadURL,
+			}).then(() => {
+				console.log('Profile picture URL saved to Firestore');
+			});
+		} catch (error) {
+			console.error('Error updating document:', error);
+		}
+	}
 
 	const triggerFileInput = () => {
 		document.getElementById('fileInput').click();
@@ -110,9 +157,14 @@ const Profile = () => {
 			<div className={Style.profile_edit}>
 				<div className={Style.profile_edit_wrapper} onClick={triggerFileInput}>
 					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={handleImageUpload} />
-					{profileData.profilePicture ? (
+					{/* SHOW SELECTED IMAGE IF AVAILABLE */}
+					{selectedImage ? (
+						<img src={selectedImage} alt='selected profile pic' />
+					) : // SHOW STORED PROFILE PICTURE IF AVAILABLE
+					profileData.profilePicture ? (
 						<img src={profileData.profilePicture} alt='selected profile pic' />
 					) : (
+						// SHOW PLACEHOLDER IMAGE IF NO OTHER IMAGES AVAILABLE
 						<Image src={images.placeholder} alt='user profile picture' className={Style.profile_edit_wrapper_image} />
 					)}
 				</div>
