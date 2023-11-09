@@ -33,6 +33,28 @@ $elem-border-alt: 2px solid #303030;
 		font-weight: 200;
 		font-size: 16px;
 	}
+
+	.main_upload_mint {
+		border: 2px solid $main-bg-color;
+		background-color: $alt-bg-color;
+		border-radius: 8px;
+		padding: 0.75rem 2rem;
+		font-size: 14px;
+		font-weight: 200;
+		letter-spacing: 0.1rem;
+		color: white;
+		width: 100%;
+		margin-top: 0.5rem;
+		transition: all 0.35s ease-in-out;
+		align-self: center;
+
+		&:hover,
+		&:focus {
+			background-color: $main-bg-color;
+			border: 2px solid #0cc0df;
+			cursor: pointer;
+		}
+	}
 }
 
 .main_upload_container {

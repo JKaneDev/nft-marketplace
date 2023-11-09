@@ -1,8 +1,5 @@
 import './globals.scss';
 
-// INTERNAL IMPORTS
-import { Navbar } from './components/componentindex';
-
 const RootLayout = ({ children }) => {
 	return (
 		<html lang='en'>

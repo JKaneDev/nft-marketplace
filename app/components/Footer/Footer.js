@@ -1,11 +1,33 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Style from './Footer.module.scss';
 import Link from 'next/link';
-
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
-import { MdSend } from 'react-icons/md';
+import dynamic from 'next/dynamic';
 
 const Footer = () => {
+	const [email, setEmail] = useState('');
+
+	const FaFacebookF = dynamic(() => import('react-icons/fa').then((mod) => mod.FaFacebookF), {
+		ssr: false,
+	});
+
+	const FaInstagram = dynamic(() => import('react-icons/fa').then((mod) => mod.FaInstagram), {
+		ssr: false,
+	});
+
+	const FaLinkedinIn = dynamic(() => import('react-icons/fa').then((mod) => mod.FaLinkedinIn), {
+		ssr: false,
+	});
+
+	const FaTwitter = dynamic(() => import('react-icons/fa').then((mod) => mod.FaTwitter), {
+		ssr: false,
+	});
+
+	const MdSend = dynamic(() => import('react-icons/md').then((mod) => mod.MdSend), {
+		ssr: false,
+	});
+
 	return (
 		<div className={Style.main}>
 			<div className={Style.main_columns}>
@@ -31,27 +53,31 @@ const Footer = () => {
 			<div className={Style.main_columns}>
 				<p>Discover</p>
 				<div className={Style.main_columns_discover}>
-					<Link href='./'>Connect Wallet</Link>
-					<Link href='./'>Search Marketplace</Link>
-					<Link href='./'>My Collection</Link>
-					<Link href='./'>Watchlist</Link>
-					<Link href='./'>Edit Profile</Link>
-					<Link href='./'>Blog</Link>
+					<Link href={{ pathname: 'search-marketplace' }}>Search Marketplace</Link>
+					<Link href={{ pathname: 'my-collection' }}>My Collection</Link>
+					<Link href={{ pathname: 'watchlist' }}>Watchlist</Link>
+					<Link href={{ pathname: 'author-profile' }}>Edit Profile</Link>
+					<Link href='/'>Blog</Link>
 				</div>
 			</div>
 			<div className={Style.main_columns}>
 				<p>Help Centre</p>
 				<div className={Style.main_columns_help}>
-					<Link href='./'>About</Link>
-					<Link href='./'>Contact Us</Link>
-					<Link href='./'>Settings</Link>
+					<Link href={{ pathname: 'about' }}>About</Link>
+					<Link href={{ pathname: 'contact-us' }}>Contact Us</Link>
+					<Link href={{ pathname: '/' }}>Settings</Link>
 				</div>
 			</div>
 			<div className={Style.main_columns}>
 				<p>Subscribe</p>
 				<div className={Style.main_columns_newsletter}>
 					<MdSend className={Style.main_columns_newsletter_icon} />
-					<input type='text' placeholder='Enter your email' />
+					<input
+						type='text'
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className={Style.main_columns_newsletter_input}
+					/>
 					<p>
 						Get the the most up-to-date information on upcoming NFT products, exclusive access to creator interviews and
 						early-bird access to upcoming mints.

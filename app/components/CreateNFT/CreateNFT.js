@@ -59,6 +59,7 @@ const CreateNFT = () => {
 						</div>
 					)}
 				</div>
+				<button className={Style.main_upload_mint}>Mint</button>
 			</div>
 			<div className={Style.main_info}>
 				<div className={Style.main_info_wrapper}>
