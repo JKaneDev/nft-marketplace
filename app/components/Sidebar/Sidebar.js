@@ -42,9 +42,9 @@ const Sidebar = ({ onHideSidebar }) => {
 	return (
 		<div className={Style.sidebar}>
 			{/* CREATE BUTTON SECTION */}
-			<div className={Style.sidebar_create}>
-				<p>Create</p>
-			</div>
+			<Link href={{ pathname: 'create-nft' }} className={Style.sidebar_create}>
+				Create
+			</Link>
 
 			{/* DISCOVER */}
 			<div className={Style.sidebar_discover} onMouseEnter={handleDiscoverEnter} onMouseLeave={handleDiscoverLeave}>

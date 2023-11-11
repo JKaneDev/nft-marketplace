@@ -224,7 +224,7 @@ $elem-border-alt: 2px solid #303030;
 	border: none;
 	background: $alt-bg-color;
 	border-radius: 8px;
-	padding: 0.7rem 0.85rem;
+	padding: 0.725rem 0.85rem;
 	border: 2px solid $main-bg-color;
 	transition: all 0.35s ease-in-out;
 
@@ -236,8 +236,8 @@ $elem-border-alt: 2px solid #303030;
 
 	.navbar_container_right_connect_icon {
 		color: white;
-		height: 16px;
-		width: 16px;
+		height: 18px;
+		width: 18px;
 	}
 	.navbar_container_right_connect_icon.walletConnectedIcon {
 		color: #0cc0df;

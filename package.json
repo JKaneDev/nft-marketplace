@@ -12,9 +12,11 @@
     "@openzeppelin/contracts": "^4.9.2",
     "bufferutil": "^4.0.8",
     "dataurl-to-blob": "^0.0.1",
+    "dotenv": "^16.3.1",
     "encoding": "^0.1.13",
-    "ethers": "^6.8.0",
+    "ethers": "^6.8.1",
     "firebase": "^10.5.0",
+    "ipfs-http-client": "^60.0.1",
     "next": "13.4.10",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -24,6 +26,6 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "hardhat": "^2.17.0"
+    "hardhat": "^2.19.0"
   }
 }

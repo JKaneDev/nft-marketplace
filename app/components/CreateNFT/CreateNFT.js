@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
+// BLOCKCHAIN AND STORAGE IMPORTS
+import { create } from 'ipfs-http-client';
+
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
 import images from '../../../assets/index';
@@ -16,6 +19,7 @@ const CreateNFT = () => {
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [selectedImage, setSelectedImage] = useState(null);
 
+	// Set categories by clicking radio buttons
 	const handleCategoryChange = (category) => {
 		setSelectedCategory(category);
 		console.log('Category: ', category);
@@ -23,7 +27,7 @@ const CreateNFT = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
-	const handleImageUpload = (e) => {
+	const setImageToState = (e) => {
 		const file = e.target.files[0];
 		if (!file) {
 			return;
@@ -36,6 +40,51 @@ const CreateNFT = () => {
 		reader.readAsDataURL(file);
 	};
 
+	const handleImageUpload = async () => {
+		const image = selectedImage;
+		if (!selectedImage) return;
+
+		try {
+			const imageURL = await uploadToIpfs(image);
+			return imageURL;
+		} catch (error) {
+			console.error('Failed Image Upload To IPFS');
+		}
+	};
+
+	const uploadMetadata = async () => {
+		const ipfsUrl = await handleImageUpload();
+
+		// Create metadata object
+		const metadata = {
+			displayName: displayName,
+			description: description,
+			royalties: royalties,
+			floorPrice: price,
+			category: category,
+			imageURL: ipfsUrl,
+		};
+
+		// Convert metadata to JSON
+		const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+		const metadataUrl = await uploadToIpfs(metadataBlob);
+
+		return metadataUrl;
+	};
+
+	const uploadToIpfs = async (data) => {
+		try {
+			const added = await client.add(data);
+
+			// Path to metadata
+			return `https://ipfs.infura.io/ipfs/${added.path}`;
+		} catch (error) {
+			console.error('Error uploading to IPFS: ', error);
+		}
+	};
+
+	const createNft = async (metadataUrl) => {};
+
 	const triggerFileInput = () => {
 		document.getElementById('fileInput').click();
 	};
@@ -46,7 +95,7 @@ const CreateNFT = () => {
 				<h1>Create an NFT</h1>
 				<p>Once your item is minted you won't be able to change any of it's information</p>
 				<div className={Style.main_upload_container} onClick={triggerFileInput}>
-					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={handleImageUpload} />
+					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={setImageToState} />
 					{selectedImage ? (
 						<img src={selectedImage} alt='Uploaded Preview' />
 					) : (
@@ -60,6 +109,7 @@ const CreateNFT = () => {
 					)}
 				</div>
 				<button className={Style.main_upload_mint}>Mint</button>
+				<p>Listing Fee: 0.0025 ETH</p>
 			</div>
 			<div className={Style.main_info}>
 				<div className={Style.main_info_wrapper}>
