@@ -1,48 +1,4 @@
-export const handleImageUpload = async (image, client) => {
-	if (!image) return;
-
-	try {
-		const imageUrl = await uploadToIpfs(image, client);
-		return imageUrl;
-	} catch (error) {
-		console.error('Failed Image Upload To IPFS');
-	}
-};
-
-export const uploadToIpfs = async (data, client) => {
-	try {
-		const added = await client.add(data);
-		return `https://ipfs.infura.io/ipfs/${added.path}`;
-	} catch (error) {
-		console.error('Error uploading to IPFS: ', error);
-	}
-};
-
-export const uploadMetadata = async (nftData, client) => {
-	const validateMetadataBeforeUpload = validateInput(nftData);
-
-	if (Object.keys(validateMetadataBeforeUpload).length === 0) {
-		const ipfsUrl = await handleImageUpload(nftData.selectedImage, client);
-
-		if (!ipfsUrl) return;
-
-		const metadata = {
-			...nftData,
-			imageURL: ipfsUrl,
-		};
-
-		const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
-		const metadataUrl = await uploadToIpfs(metadataBlob, client);
-
-		return metadataUrl;
-	} else {
-		console.log('Errors: ', validateMetadataBeforeUpload);
-	}
-};
-
 export const validateInput = (data) => {
-	console.log('Input data: ', data);
-
 	const errors = {};
 
 	// Validate displayName
@@ -84,8 +40,6 @@ export const validateInput = (data) => {
 			errors.price = 'ETH value from 0.001 - 9999';
 		}
 	}
-
-	console.log('Errors: ', errors);
 
 	return errors;
 };

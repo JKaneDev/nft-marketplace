@@ -9,9 +9,6 @@ import Style from './Discover.module.scss';
 import { Button } from '../../componentindex';
 
 const Discover = ({ onHideSubMenu }) => {
-	const [isConnected, setIsConnected] = useState(false);
-
-	// DISCOVER NAVIGATION MENU
 	const discover = [
 		{
 			name: 'My Collection',

@@ -4,27 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 // BLOCKCHAIN AND STORAGE IMPORTS
-require('dotenv').config();
-import { create } from 'ipfs-http-client';
-import { validateInput, uploadMetadata } from './utils';
+import { ethers } from 'ethers';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
 import images from '../../../assets/index';
+import { validateInput } from './utils';
+import { uploadMetadata, uploadImageToIpfs } from '../../../pages/api/ipfs';
+import Marketplace from '../../../artifacts/contracts/contracts/Marketplace.sol/Marketplace.json';
 
 const CreateNFT = () => {
-	const auth =
-		'Basic ' + Buffer.from(process.env.INFURA_PROJECT_ID + ':' + process.env.INFURA_PROJECT_SECRET).toString('base64');
-
-	const client = create({
-		host: 'ipfs.infura.io',
-		port: 5001,
-		protocol: 'https',
-		headers: {
-			authorization: auth,
-		},
-	});
-
 	const [nftData, setNftData] = useState({
 		displayName: '',
 		siteLink: '',
@@ -32,17 +21,13 @@ const CreateNFT = () => {
 		royalties: '',
 		properties: '',
 		price: '',
-		selectedCategory: null,
-		selectedImage: null,
+		category: null,
+		image: null,
 	});
 
 	const [validationErrors, setValidationErrors] = useState({});
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
-
-	useEffect(() => {
-		console.log('Validation errors: ', validationErrors);
-	}, [validationErrors]);
 
 	// Update metadata object
 	const handleInputChange = (field, value) => {
@@ -59,36 +44,57 @@ const CreateNFT = () => {
 		document.getElementById('fileInput').click();
 	};
 
-	// Loads image to <Image />
+	// Loads image to state and to <Image />
 	const setImageToState = (e) => {
 		const file = e.target.files[0];
-		if (!file) {
-			return;
-		}
+		const fileUrl = URL.createObjectURL(file);
 
-		const reader = new FileReader();
-		reader.onloadend = () => {
-			setNftData((prevState) => ({
-				...prevState,
-				selectedImage: reader.result,
-			}));
-		};
-		reader.readAsDataURL(file);
+		setNftData((prevState) => ({
+			...prevState,
+			imagePreview: fileUrl,
+			image: file,
+		}));
 	};
 
-	const createNft = async (metadata, client) => {
+	// Create marketplace contract instance
+	const createContractInstance = async () => {
+		const abi = Marketplace.abi;
+		const address = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
+		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+		const signer = await provider.getSigner();
+		const marketplace = new ethers.Contract(address, abi, signer);
+
+		return marketplace;
+	};
+
+	const createNft = async (metadata) => {
 		try {
-			// Upload metadata to IPFS and get URL
-			const metadataUrl = await uploadMetadata(metadata, client);
+			// Get ipfs image url
+			const imageCID = await uploadImageToIpfs(metadata.image);
 
-			if (!metadataUrl) throw new Error('Failed to upload metadata');
+			// Remove siteLink + add imageUrl before upload
+			const { siteLink, imagePreview, ...metadataToUpload } = metadata;
+			metadataToUpload.image = imageCID;
 
-			// Call smart contract to mint NFT
-			const newTokenId = await createToken(metadataUrl, metadata.price);
+			// Validate metadata before upload
+			const validationErrors = validateInput(metadataToUpload);
 
-			if (!newTokenId) throw new Error('Failed to create NFT token');
+			if (Object.keys(validationErrors).length === 0) {
+				// Upload metadata to IPFS and get URL
+				const metadataCID = await uploadMetadata(metadataToUpload);
 
-			return newTokenId;
+				if (!metadataCID) throw new Error('Failed to upload metadata');
+
+				// Call smart contract to mint NFT
+				// const marketplace = await createContractInstance();
+				// const newTokenId = await marketplace.methods.createToken(metadataCID, metadata.price);
+
+				// if (!newTokenId) throw new Error('Failed to create NFT token');
+
+				// return newTokenId;
+			} else {
+				console.error('Validation Errors: ', validationErrors);
+			}
 		} catch (error) {
 			console.error('Error in createNFT: ', error);
 		}
@@ -101,8 +107,8 @@ const CreateNFT = () => {
 				<p>Once your item is minted you won't be able to change any of it's information</p>
 				<div className={Style.main_upload_container} onClick={triggerFileInput}>
 					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={setImageToState} />
-					{nftData.selectedImage ? (
-						<img src={nftData.selectedImage} alt='Uploaded Preview' />
+					{nftData.imagePreview ? (
+						<img src={nftData.imagePreview} alt='Uploaded Preview' />
 					) : (
 						<div className={Style.main_upload_container_params}>
 							<Image src={images.upload}></Image>
@@ -113,7 +119,9 @@ const CreateNFT = () => {
 						</div>
 					)}
 				</div>
-				<button className={Style.main_upload_mint}>Mint</button>
+				<button className={Style.main_upload_mint} onClick={() => createNft(nftData)}>
+					Mint
+				</button>
 				<p>Listing Fee: 0.0025 ETH</p>
 			</div>
 			<div className={Style.main_info}>
@@ -151,7 +159,7 @@ const CreateNFT = () => {
 				</div>
 
 				<div className={Style.main_info_wrapper}>
-					<Image src={images.percentage} className={Style.main_info_wrapper_percentage} />
+					<Image src={images.percentage} className={Style.main_info_wrapper_percentage} alt='% Symbol' />
 					<p>Royalties</p>
 					<input type='text' placeholder='MAX: 10%' onChange={(e) => handleInputChange('royalties', e.target.value)} />
 					{validationErrors.royalties && (
@@ -170,7 +178,7 @@ const CreateNFT = () => {
 					)}
 				</div>
 				<div className={Style.main_info_wrapper}>
-					<Image src={images.eth} className={Style.main_info_wrapper_eth} />
+					<Image src={images.eth} className={Style.main_info_wrapper_eth} alt='ETH symbol' />
 					<p>Price*</p>
 					<input
 						type='text'
@@ -189,8 +197,8 @@ const CreateNFT = () => {
 									type='radio'
 									name='category'
 									value={category}
-									checked={nftData.selectedCategory === category}
-									onChange={(e) => handleInputChange('selectedCategory', e.target.value)}
+									checked={nftData.category === category}
+									onChange={(e) => handleInputChange('category', e.target.value)}
 								/>
 								<label htmlFor={`radio-${category}`} />
 							</div>
