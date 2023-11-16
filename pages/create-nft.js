@@ -1,16 +1,16 @@
 import React from 'react';
 
 // INTERNAL IMPORTS
-import '../app/globals.scss';
-import { Navbar, CreateNFT, Footer } from '@/app/components/componentindex';
+import { CreateNFT } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const CreatePage = () => {
 	return (
-		<div>
-			<Navbar />
-			<CreateNFT />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<CreateNFT />
+			</Layout>
+		</>
 	);
 };
 

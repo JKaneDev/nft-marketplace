@@ -2,15 +2,16 @@ import React from 'react';
 
 // INTERNAL IMPORTS
 import '../app/globals.scss';
-import { Navbar, Watchlist, Footer } from '@/app/components/componentindex';
+import { Watchlist } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const WatchlistPage = () => {
 	return (
-		<div>
-			<Navbar />
-			<Watchlist />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<Watchlist />
+			</Layout>
+		</>
 	);
 };
 

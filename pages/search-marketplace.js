@@ -4,16 +4,17 @@ import Image from 'next/image';
 // INTERNAL IMPORTS
 import '../app/globals.scss';
 import Style from '../styles/search-marketplace.module.scss';
-import { Navbar, Featured, Browse, Footer } from '@/app/components/componentindex';
+import { Featured, Browse } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const SearchMarketplace = () => {
 	return (
-		<div className={Style.search}>
-			<Navbar />
-			<Featured />
-			<Browse />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<Featured />
+				<Browse />
+			</Layout>
+		</>
 	);
 };
 

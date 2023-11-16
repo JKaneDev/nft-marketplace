@@ -2,14 +2,15 @@ import React from 'react';
 
 // INTERNAL IMPORTS
 import '../app/globals.scss';
-import { Navbar, About, Footer } from '@/app/components/componentindex';
+import { About } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const AboutPage = () => {
 	return (
 		<>
-			<Navbar />
-			<About />
-			<Footer />
+			<Layout>
+				<About />
+			</Layout>
 		</>
 	);
 };

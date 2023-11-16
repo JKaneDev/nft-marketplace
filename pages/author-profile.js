@@ -1,18 +1,17 @@
 import React from 'react';
-import Image from 'next/image';
 
 // INTERNAL IMPORTS
 import '../app/globals.scss';
-import Style from '../styles/author-profile.module.scss';
-import { Navbar, Profile, Footer } from '@/app/components/componentindex';
+import { Profile } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const profile = () => {
 	return (
-		<div className={Style.profile}>
-			<Navbar />
-			<Profile />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<Profile />
+			</Layout>
+		</>
 	);
 };
 

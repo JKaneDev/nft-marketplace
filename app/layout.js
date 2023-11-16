@@ -1,13 +1,14 @@
-import './globals.scss';
+import '../pages/globals.scss';
+import { Navbar, Footer } from './components/componentindex';
 
-const RootLayout = ({ children }) => {
+const Layout = ({ children }) => {
 	return (
-		<html lang='en'>
-			<head>
-				<body>{children}</body>
-			</head>
-		</html>
+		<div>
+			<Navbar />
+			{children}
+			<Footer />
+		</div>
 	);
 };
 
-export default RootLayout;
+export default Layout;

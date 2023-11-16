@@ -3,17 +3,23 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-// BLOCKCHAIN AND STORAGE IMPORTS
+// BLOCKCHAIN + STORAGE + STATE IMPORTS
 import { ethers } from 'ethers';
+import { uploadMetadata, uploadImageToIpfs } from '../../../pages/api/ipfs';
+import { loadMarketplaceContract, connectToEthereum } from '@/store/blockchainInteractions';
+import { useSelector, useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
 import images from '../../../assets/index';
 import { validateInput } from './utils';
-import { uploadMetadata, uploadImageToIpfs } from '../../../pages/api/ipfs';
-import Marketplace from '../../../artifacts/contracts/contracts/Marketplace.sol/Marketplace.json';
 
 const CreateNFT = () => {
+	const dispatch = useDispatch();
+	const account = useSelector((state) => state.connection.account);
+	const isConnected = useSelector((state) => state.connection.isConnected);
+	const [contractDetails, setContractDetails] = useState({ address: null, abi: null });
+
 	const [nftData, setNftData] = useState({
 		displayName: '',
 		siteLink: '',
@@ -29,7 +35,6 @@ const CreateNFT = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
-	// Update metadata object
 	const handleInputChange = (field, value) => {
 		const errors = validateInput({ ...nftData, [field]: value });
 		setValidationErrors(errors);
@@ -44,7 +49,6 @@ const CreateNFT = () => {
 		document.getElementById('fileInput').click();
 	};
 
-	// Loads image to state and to <Image />
 	const setImageToState = (e) => {
 		const file = e.target.files[0];
 		const fileUrl = URL.createObjectURL(file);
@@ -56,47 +60,36 @@ const CreateNFT = () => {
 		}));
 	};
 
-	// Create marketplace contract instance
-	const createContractInstance = async () => {
-		const abi = Marketplace.abi;
-		const address = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
-		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-		const signer = await provider.getSigner();
-		const marketplace = new ethers.Contract(address, abi, signer);
-
-		return marketplace;
-	};
-
 	const createNft = async (metadata) => {
-		try {
-			// Get ipfs image url
-			const imageCID = await uploadImageToIpfs(metadata.image);
+		if (isConnected) {
+			try {
+				const marketplace = await loadMarketplaceContract(dispatch);
 
-			// Remove siteLink + add imageUrl before upload
-			const { siteLink, imagePreview, ...metadataToUpload } = metadata;
-			metadataToUpload.image = imageCID;
+				const imageCID = await uploadImageToIpfs(metadata.image);
 
-			// Validate metadata before upload
-			const validationErrors = validateInput(metadataToUpload);
+				// Remove siteLink and image preview URL - add imageUrl before upload
+				const { siteLink, imagePreview, ...metadataToUpload } = metadata;
+				metadataToUpload.image = imageCID;
 
-			if (Object.keys(validationErrors).length === 0) {
-				// Upload metadata to IPFS and get URL
-				const metadataCID = await uploadMetadata(metadataToUpload);
+				const validationErrors = validateInput(metadataToUpload);
 
-				if (!metadataCID) throw new Error('Failed to upload metadata');
+				if (Object.keys(validationErrors).length === 0) {
+					const metadataCID = await uploadMetadata(metadataToUpload);
 
-				// Call smart contract to mint NFT
-				// const marketplace = await createContractInstance();
-				// const newTokenId = await marketplace.methods.createToken(metadataCID, metadata.price);
+					const newTokenId = await marketplace.createToken(metadataCID, metadata.price);
 
-				// if (!newTokenId) throw new Error('Failed to create NFT token');
+					if (!newTokenId) throw new Error('Failed to create NFT token');
 
-				// return newTokenId;
-			} else {
-				console.error('Validation Errors: ', validationErrors);
+					return newTokenId;
+				} else {
+					console.error('Validation Errors: ', validationErrors);
+				}
+			} catch (error) {
+				console.error('Error in createNFT: ', error);
 			}
-		} catch (error) {
-			console.error('Error in createNFT: ', error);
+		} else {
+			await connectToEthereum(dispatch);
+			window.alert('Check MetaMask connection and call Mint again.');
 		}
 	};
 
@@ -111,7 +104,7 @@ const CreateNFT = () => {
 						<img src={nftData.imagePreview} alt='Uploaded Preview' />
 					) : (
 						<div className={Style.main_upload_container_params}>
-							<Image src={images.upload}></Image>
+							<Image src={images.upload} alt='upload placeholder'></Image>
 							<p>Upload Image</p>
 							<p>Browse Files</p>
 							<p>Max Size: 10mb</p>

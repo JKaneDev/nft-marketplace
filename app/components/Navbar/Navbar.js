@@ -3,10 +3,11 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 
-// BLOCKCHAIN + BACKEND IMPORTS
-import { ethers } from 'ethers';
+// BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig.js';
+import { connectToEthereum } from '@/store/blockchainInteractions';
+import { useSelector, useDispatch } from 'react-redux';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
@@ -18,16 +19,21 @@ import Style from './Navbar.module.scss';
 import { Discover, HelpCenter, Sidebar } from './index';
 
 const Navbar = () => {
-	const [walletConnected, setWalletConnected] = useState(false);
+	const dispatch = useDispatch();
+	const isConnected = useSelector((state) => state.connection.isConnected);
 
-	const connectWallet = async () => {
+	const [discover, setDiscover] = useState(false);
+	const [help, setHelp] = useState(false);
+	const [sidebar, setSidebar] = useState(false);
+
+	const discoverTimeout = useRef(null);
+	const helpTimeout = useRef(null);
+	const sidebarTimeout = useRef(null);
+
+	const handleConnect = async () => {
 		try {
-			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-			const signer = await provider.getSigner();
-			const address = await signer.getAddress();
-			setWalletConnected(true);
+			connectToEthereum(dispatch);
 			loadOrCreateAccount(address);
-			setWalletAddress(address);
 		} catch (error) {
 			console.error('Failed to connect:', error);
 		}
@@ -64,14 +70,6 @@ const Navbar = () => {
 			}
 		}
 	};
-
-	const [discover, setDiscover] = useState(false);
-	const [help, setHelp] = useState(false);
-	const [sidebar, setSidebar] = useState(false);
-
-	const discoverTimeout = useRef(null);
-	const helpTimeout = useRef(null);
-	const sidebarTimeout = useRef(null);
 
 	const handleDiscoverEnter = () => {
 		// Clear existing timeout
@@ -183,13 +181,11 @@ const Navbar = () => {
 					</div>
 					{/* Connect Wallet */}
 					<button
-						className={`${Style.navbar_container_right_connect} ${walletConnected ? Style.walletConnectedWrapper : ''}`}
-						onClick={connectWallet}
+						className={`${Style.navbar_container_right_connect} ${isConnected ? Style.walletConnectedWrapper : ''}`}
+						onClick={handleConnect}
 					>
 						<FaPlug
-							className={`${Style.navbar_container_right_connect_icon} ${
-								walletConnected ? Style.walletConnectedIcon : ''
-							}`}
+							className={`${Style.navbar_container_right_connect_icon} ${isConnected ? Style.walletConnectedIcon : ''}`}
 						/>
 					</button>
 				</div>

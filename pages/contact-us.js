@@ -2,15 +2,16 @@ import React from 'react';
 
 // INTERNAL IMPORTS
 import '../app/globals.scss';
-import { Navbar, Contact, Footer } from '@/app/components/componentindex';
+import { Contact } from '@/app/components/componentindex';
+import Layout from '@/app/layout';
 
 const ContactPage = () => {
 	return (
-		<div>
-			<Navbar />
-			<Contact />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<Contact />
+			</Layout>
+		</>
 	);
 };
 

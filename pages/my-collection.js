@@ -1,17 +1,18 @@
 import React from 'react';
 
 // INTERNAL IMPORTS
-import { Navbar, MyNFTs, Footer } from '@/app/components/componentindex';
-import '../app/globals.scss';
+import { MyNFTs } from '@/app/components/componentindex';
 import Style from '../styles/my-collection.module.scss';
+import '../app/globals.scss';
+import Layout from '@/app/layout';
 
 const MyCollection = () => {
 	return (
-		<div className={Style.collection}>
-			<Navbar />
-			<MyNFTs />
-			<Footer />
-		</div>
+		<>
+			<Layout>
+				<MyNFTs />
+			</Layout>
+		</>
 	);
 };
 
