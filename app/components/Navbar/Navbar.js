@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
-import { IoMenu } from 'react-icons/io5';
+import { IoMenu, IoReturnUpBack } from 'react-icons/io5';
 import { FaPlus, FaPlug } from 'react-icons/fa';
 
 // INTERNAL IMPORTS
@@ -21,6 +21,7 @@ import { Discover, HelpCenter, Sidebar } from './index';
 const Navbar = () => {
 	const dispatch = useDispatch();
 	const isConnected = useSelector((state) => state.connection.isConnected);
+	const account = useSelector((state) => state.connection.account);
 
 	const [discover, setDiscover] = useState(false);
 	const [help, setHelp] = useState(false);
@@ -32,8 +33,13 @@ const Navbar = () => {
 
 	const handleConnect = async () => {
 		try {
-			connectToEthereum(dispatch);
-			loadOrCreateAccount(address);
+			if (!isConnected) {
+				const account = await connectToEthereum(dispatch);
+				loadOrCreateAccount(account);
+			} else {
+				window.alert('Already connected');
+				return;
+			}
 		} catch (error) {
 			console.error('Failed to connect:', error);
 		}

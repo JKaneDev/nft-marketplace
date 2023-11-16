@@ -6,19 +6,23 @@ import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 export const connectToEthereum = async (dispatch) => {
 	try {
 		if (typeof window.ethereum !== 'undefined') {
-			// Connect to Hardhat Local Network + Fetch 1st account
-			const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-			const signer = provider.getSigner();
-			const accounts = await provider.listAccounts();
-			const account = accounts[0];
-
 			// Request account access
-			// const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-			// const provider = new ethers.providers.Web3Provider(window.ethereum);
-			// const signer = provider.getSigner();
+			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+			console.log('Accounts: ', accounts);
+
+			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+
+			console.log('Provider instantiated: ', provider);
+
+			const signer = await provider.getSigner();
+
+			console.log('Hardhat network connection success: ', signer);
 
 			// Dispatch successful connect to redux
-			dispatch(connectSuccess({ account, provider, signer }));
+			dispatch(connectSuccess({ account: accounts[0] }));
+
+			return signer.getAddress();
 		} else {
 			// Prompt metamask installation
 			window.alert('Please install MetaMask');

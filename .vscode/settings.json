@@ -4,6 +4,7 @@
 		"firestore",
 		"Firestore",
 		"ipfs",
+		"persistor",
 		"reduxjs",
 		"Watchlist",
 		"yourdomainname",
