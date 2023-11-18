@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const Marketplace = require('../artifacts/contracts/contracts/Marketplace.sol/Marketplace.json');
+const Marketplace = require('../abis/contracts/Marketplace.sol/Marketplace.json');
 
 async function main() {
 	const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');

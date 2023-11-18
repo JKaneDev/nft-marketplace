@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { RingLoader } from 'react-spinners';
 
 // BLOCKCHAIN + STORAGE + STATE IMPORTS
-import { ethers } from 'ethers';
-import { uploadMetadata, uploadImageToIpfs } from '../../../pages/api/ipfs';
-import { loadMarketplaceContract, connectToEthereum } from '@/store/blockchainInteractions';
 import { useSelector, useDispatch } from 'react-redux';
+import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
+import { loadMarketplaceContract, connectToEthereum, initiateMintSequence } from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
@@ -16,9 +16,12 @@ import { validateInput } from './utils';
 
 const CreateNFT = () => {
 	const dispatch = useDispatch();
-	const account = useSelector((state) => state.connection.account);
 	const isConnected = useSelector((state) => state.connection.isConnected);
-	const [contractDetails, setContractDetails] = useState({ address: null, abi: null });
+	const [loading, setLoading] = useState(false);
+	const [marketplace, setMarketplace] = useState(null);
+	const [tokenId, setTokenId] = useState(null);
+	const [seller, setSeller] = useState(null);
+	const [validationErrors, setValidationErrors] = useState({});
 
 	const [nftData, setNftData] = useState({
 		displayName: '',
@@ -31,7 +34,30 @@ const CreateNFT = () => {
 		image: null,
 	});
 
-	const [validationErrors, setValidationErrors] = useState({});
+	// Loads marketplace contract on mount
+	useEffect(() => {
+		const loadContract = async () => {
+			const marketplace = await loadMarketplaceContract(dispatch);
+			setMarketplace(marketplace);
+		};
+
+		loadContract();
+	}, [dispatch]);
+
+	useEffect(() => {
+		if (marketplace) {
+			const handleMarketItemCreated = (tokenId, seller) => {
+				setTokenId(tokenId.toString());
+				setSeller(seller);
+			};
+
+			marketplace.on('MarketItemCreated', handleMarketItemCreated);
+
+			return () => {
+				marketplace.off('MarketItemCreated', handleMarketItemCreated);
+			};
+		}
+	}, [marketplace]);
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
@@ -61,40 +87,43 @@ const CreateNFT = () => {
 	};
 
 	const createNft = async (metadata) => {
-		if (isConnected) {
-			try {
-				const marketplace = await loadMarketplaceContract(dispatch);
-
-				const imageCID = await uploadImageToIpfs(metadata.image);
-
-				// Remove siteLink and image preview URL - add imageUrl before upload
-				const { siteLink, imagePreview, ...metadataToUpload } = metadata;
-				metadataToUpload.image = imageCID;
-
-				const validationErrors = validateInput(metadataToUpload);
-
-				if (Object.keys(validationErrors).length === 0) {
-					const metadataCID = await uploadMetadata(metadataToUpload);
-
-					const newTokenId = await marketplace.createToken(metadataCID, metadata.price);
-
-					if (!newTokenId) throw new Error('Failed to create NFT token');
-
-					return newTokenId;
-				} else {
-					console.error('Validation Errors: ', validationErrors);
-				}
-			} catch (error) {
-				console.error('Error in createNFT: ', error);
-			}
-		} else {
+		setLoading(true);
+		// Call disallowed unless valid MetaMask connection
+		if (!isConnected) {
 			await connectToEthereum(dispatch);
 			window.alert('Check MetaMask connection and call Mint again.');
+			return;
+		}
+
+		// Disallow function call if smart contract is not loaded
+		if (!marketplace) {
+			window.alert('Smart contract not loaded');
+			return;
+		}
+
+		// Disallow multiple function calls
+		if (loading) {
+			window.alert('Mint already called. Please wait');
+			return;
+		}
+
+		try {
+			await initiateMintSequence(metadata, marketplace, tokenId, seller);
+			setLoading(false);
+		} catch (error) {
+			console.error('Error in createNFT: ', error);
 		}
 	};
 
 	return (
 		<div className={Style.main}>
+			{loading ? (
+				<div className={Style.main_loading_overlay}>
+					<RingLoader />
+				</div>
+			) : (
+				<></>
+			)}
 			<div className={Style.main_upload}>
 				<h1>Create an NFT</h1>
 				<p>Once your item is minted you won't be able to change any of it's information</p>

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig.js';
 import { connectToEthereum } from '@/store/blockchainInteractions';
+import { disconnect } from '@/store/connectSlices.js';
 import { useSelector, useDispatch } from 'react-redux';
 
 // ICON IMPORTS
@@ -21,7 +22,6 @@ import { Discover, HelpCenter, Sidebar } from './index';
 const Navbar = () => {
 	const dispatch = useDispatch();
 	const isConnected = useSelector((state) => state.connection.isConnected);
-	const account = useSelector((state) => state.connection.account);
 
 	const [discover, setDiscover] = useState(false);
 	const [help, setHelp] = useState(false);
@@ -31,14 +31,15 @@ const Navbar = () => {
 	const helpTimeout = useRef(null);
 	const sidebarTimeout = useRef(null);
 
+	useEffect(() => {}, []);
+
 	const handleConnect = async () => {
 		try {
 			if (!isConnected) {
 				const account = await connectToEthereum(dispatch);
 				loadOrCreateAccount(account);
 			} else {
-				window.alert('Already connected');
-				return;
+				dispatch(disconnect());
 			}
 		} catch (error) {
 			console.error('Failed to connect:', error);

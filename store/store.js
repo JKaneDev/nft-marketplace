@@ -13,11 +13,14 @@ const rootReducer = combineReducers({
 const persistConfig = {
 	key: 'root',
 	storage,
-	whitelist: ['connection', 'marketplace'],
+	whitelist: ['connection'],
+	blacklist: ['marketplace'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store = configureStore({ reducer: persistedReducer });
+export const store = configureStore({
+	reducer: persistedReducer,
+});
 
 export const persistor = persistStore(store);

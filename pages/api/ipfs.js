@@ -47,7 +47,6 @@ export const uploadMetadata = async (nftData) => {
 		});
 
 		const data = await response.json();
-		console.log('Response from call: ', data);
 		return data.cid;
 	} catch (error) {
 		console.error('Error in uploadMetadata:', error);
@@ -60,11 +59,8 @@ const uploadToIpfs = async (data) => {
 		const isObject = typeof data === 'object' && data !== null;
 		const dataToUpload = isObject ? JSON.stringify(data) : data;
 
-		console.log('Data before upload: ', dataToUpload);
-
 		const added = await client.add(dataToUpload);
 		const cid = added.path;
-		console.log('uploadToIpfs successful - CID:', cid);
 		return cid;
 	} catch (error) {
 		console.error('Error uploading to IPFS: ', error);

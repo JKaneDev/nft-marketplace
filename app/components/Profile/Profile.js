@@ -32,10 +32,6 @@ const Profile = () => {
 
 	const [selectedImage, setSelectedImage] = useState(null);
 
-	useEffect(() => {
-		console.log('Selected Image: ', selectedImage);
-	}, [selectedImage]);
-
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
 		const getWalletAddress = async () => {
@@ -118,9 +114,7 @@ const Profile = () => {
 				console.error('Upload failed:', error);
 			},
 			() => {
-				console.log('Image uploaded successfully');
 				getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-					console.log('Successfully retrieved download URL', downloadURL);
 					saveProfilePictureURLToFirestore(downloadURL);
 				});
 			},

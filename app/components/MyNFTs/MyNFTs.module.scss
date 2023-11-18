@@ -16,6 +16,7 @@ $elem-border-alt: 2px solid #303030;
 	flex-direction: column;
 	align-items: center;
 	gap: 1rem;
+	min-height: calc(100vh - 77.2px);
 }
 
 .main_profile {
@@ -26,8 +27,11 @@ $elem-border-alt: 2px solid #303030;
 	display: flex;
 	align-items: center;
 	gap: 2.5rem;
-	min-width: 75%;
-	max-width: 1000px;
+	width: 1000px;
+
+	@media (min-width: 1626px) {
+		width: 1250px;
+	}
 
 	h1 {
 		font-size: 42px;
@@ -138,11 +142,15 @@ $elem-border-alt: 2px solid #303030;
 	position: relative;
 	border-bottom: 0.5px solid #0cc0df;
 	padding: 2rem 0;
-	width: 100%;
+	width: 1000px;
 	display: flex;
 	align-items: center;
 	justify-content: stretch;
 	gap: 1rem;
+
+	@media (min-width: 1626px) {
+		width: 1250px;
+	}
 
 	.main_profile_search_input {
 		flex: 1;
@@ -269,4 +277,15 @@ $elem-border-alt: 2px solid #303030;
 .rotate_up {
 	transform: rotate(180deg);
 	transition: transform 0.3s ease-in-out;
+}
+
+.main_profile_view {
+	width: 1000px;
+	margin: 0;
+	padding: 1rem;
+	display: grid;
+
+	@media (min-width: 1626px) {
+		width: 1250px;
+	}
 }
