@@ -1,6 +1,11 @@
 export const validateInput = (data) => {
 	const errors = {};
 
+	// Check image is rendered
+	if (!data.image) {
+		errors.image = 'Please select an image';
+	}
+
 	// Validate displayName
 	if (data.displayName) {
 		const validNamePattern = /^[a-zA-Z\s]{1,20}$/; // Adjust regex as needed

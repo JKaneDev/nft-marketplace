@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { connectSuccess, connectFailure, disconnect } from './connectSlices';
-import { setContract, unsetContract, setError } from './marketplaceSlices';
+import { connectSuccess, connectFailure } from './connectSlices';
+import { setContract } from './marketplaceSlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
@@ -48,34 +48,54 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const subscribeToMarketplaceEvents = async (dispatch, marketplace) => {};
 
+const pinToIpfs = async (cid) => {
+	try {
+		const response = await fetch('/api/pinata', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ cid }),
+		});
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error pinning with pinata', error);
+	}
+};
+
 export const initiateMintSequence = async (metadata, marketplace, tokenId, seller) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
-	// Step 2: Upload Image to IPFS and get CID
-	const imageCID = await uploadImageToIpfs(metadata.image);
-
-	// Step 3: Destructure unnecessary data & update metadata with IPFS image CID
-	const { siteLink, imagePreview, ...metadataToUpload } = metadata;
-	metadataToUpload.image = imageCID;
-
 	if (Object.keys(validationErrors).length === 0) {
+		// Step 2: Upload Image to IPFS and get CID
+		const imageCID = await uploadImageToIpfs(metadata.image);
+
+		// Step 3: Destructure unnecessary data & update metadata with IPFS image CID
+		const { siteLink, imagePreview, ...metadataToUpload } = metadata;
+		metadataToUpload.image = imageCID;
+
 		// Step 4: Upload metadata to IPFS
 		const metadataCID = await uploadMetadata(metadataToUpload);
 
 		console.log('Metadata upload to IPFS successful');
 
-		// Step 5: Mint NFT and get Token ID
+		// Step 5: Mint NFT and emit event
 		await marketplace.createToken(metadataCID, ethers.parseEther(metadata.price), {
 			value: ethers.parseEther('0.0025'),
 		});
 
+		// Step 6: Pin data to IPFS and create duplicate in firebase for fast retrieval
+		await pinToIpfs(imageCID);
+		await pinToIpfs(metadataCID);
 		const firebaseImageUrl = await uploadImageToFirebase(metadata.image, metadata.displayName, tokenId, seller);
 		await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
 		console.log('Metadata uploaded to firebase!');
 
 		console.log('Smart contract call successful');
 	} else {
+		window.alert('Invalid data - Please see console and try again');
 		console.error('Validation Errors: ', validationErrors);
 	}
 };
