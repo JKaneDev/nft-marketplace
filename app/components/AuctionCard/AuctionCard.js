@@ -12,10 +12,6 @@ import images from '../../../assets/index';
 const AuctionCard = () => {
 	const [isBidding, setIsBidding] = useState(false);
 
-	useEffect(() => {
-		console.log(isBidding);
-	}, [isBidding]);
-
 	return (
 		<div className={Style.card}>
 			<div className={Style.card_img}>

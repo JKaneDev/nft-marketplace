@@ -1,9 +1,7 @@
 import React from 'react';
-import Image from 'next/image';
 
 // INTERNAL IMPORTS
-import '../app/globals.scss';
-import Style from '../styles/search-marketplace.module.scss';
+import './globals.scss';
 import { Featured, Browse } from '@/app/components/componentindex';
 import Layout from '@/app/layout';
 

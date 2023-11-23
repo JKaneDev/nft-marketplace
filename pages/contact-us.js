@@ -1,7 +1,7 @@
 import React from 'react';
 
 // INTERNAL IMPORTS
-import '../app/globals.scss';
+import './globals.scss';
 import { Contact } from '@/app/components/componentindex';
 import Layout from '@/app/layout';
 
