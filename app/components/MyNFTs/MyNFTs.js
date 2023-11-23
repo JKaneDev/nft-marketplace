@@ -113,6 +113,7 @@ const MyNFTs = () => {
 	const handleResetFilter = () => {
 		setCurrentCategory(null);
 		setCurrentFilter('Currently Owned');
+		setSearchQuery('');
 	};
 
 	const handleSearchQuery = (e) => {
@@ -207,7 +208,7 @@ const MyNFTs = () => {
 			<div className={Style.main_profile_search} ref={dropdownRef}>
 				<div className={Style.main_profile_search_input}>
 					<FaSearch className={Style.main_profile_search_input_icon} />
-					<input type='text' onChange={handleSearchQuery} />
+					<input type='text' onChange={handleSearchQuery} value={searchQuery} />
 				</div>
 				<button onClick={handleCategoriesDropdownToggle} className={Style.main_profile_search_btn}>
 					<p>{currentCategory ? currentCategory : 'Select Category'}</p>
