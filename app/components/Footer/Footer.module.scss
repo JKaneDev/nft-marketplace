@@ -121,7 +121,9 @@ $alt-bg-color: #2b2b2b;
 			width: 100%;
 
 			&::placeholder {
-				color: #202020;
+				color: white;
+				letter-spacing: 0.05rem;
+				font-weight: 100;
 			}
 		}
 

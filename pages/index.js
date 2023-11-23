@@ -1,4 +1,5 @@
 import React from 'react';
+import Style from '../styles/homepage.module.scss';
 import { Hero, Connect, CurrentAuction } from '../app/components/componentindex';
 import Layout from '../app/layout';
 
@@ -6,8 +7,10 @@ export const HomePage = () => {
 	return (
 		<div>
 			<Layout>
-				<Hero />
-				<Connect />
+				<div className={Style.homeview}>
+					<Hero />
+					<Connect />
+				</div>
 				<CurrentAuction />
 			</Layout>
 		</div>

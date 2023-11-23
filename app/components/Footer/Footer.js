@@ -77,6 +77,7 @@ const Footer = () => {
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						className={Style.main_columns_newsletter_input}
+						placeholder='Enter your email...'
 					/>
 					<p>
 						Get the the most up-to-date information on upcoming NFT products, exclusive access to creator interviews and
