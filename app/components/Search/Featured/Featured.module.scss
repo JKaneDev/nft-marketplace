@@ -13,48 +13,36 @@ $elem-border-alt: 2px solid #303030;
 	height: 200px;
 	width: 200px;
 	border-radius: 8px;
-	margin-right: auto;
-
-	@media (min-width: 1640px) {
-		height: 275px;
-		width: 275px;
-	}
+	align-self: center;
 }
 
 .featured {
-	min-width: 1200px;
-	max-width: 1800px;
 	max-height: 500px;
-	border: 1px solid #0cc0df;
+	border: 2px solid #0cc0df;
 	border-radius: 8px;
-	margin: 2rem 3rem;
-	padding: 3rem clamp(1rem, 4rem, 10rem);
-	display: flex;
+	margin: 2rem auto;
+	display: grid;
+	grid-template-columns: 1fr 3fr 1fr;
 	gap: 2rem;
+	width: 1150px;
+	padding: 3rem 4rem;
 
-	@media (min-width: 1640px) {
-		padding: 5rem 8rem;
+	@media (min-width: 1626px) {
+		width: 1500px;
+		gap: 2rem;
 	}
 
 	.featured_wrapper {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		gap: 1rem;
-
-		@media (min-width: 1640px) {
-			gap: 2rem;
-		}
+		gap: 2rem;
 
 		.featured_wrapper_socials {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			gap: 0.75rem;
-
-			@media (min-width: 1640px) {
-				gap: 1.5rem;
-			}
+			gap: 1rem;
 
 			.featured_wrapper_socials_wrapper {
 				display: flex;
@@ -67,11 +55,6 @@ $elem-border-alt: 2px solid #303030;
 				padding: 0.25rem;
 				transition: all 0.35s ease;
 				border: 2px solid $alt-bg-color;
-
-				@media (min-width: 1640px) {
-					height: 44px;
-					width: 44px;
-				}
 
 				&:hover {
 					cursor: pointer;
@@ -90,7 +73,6 @@ $elem-border-alt: 2px solid #303030;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
-		max-width: 60%;
 		margin: 0 auto;
 
 		h1 {
@@ -109,16 +91,6 @@ $elem-border-alt: 2px solid #303030;
 			}
 			-ms-overflow-style: none;
 		}
-
-		@media (min-width: 1640px) {
-			h1 {
-				font-size: 60px;
-			}
-
-			p {
-				font-size: 16px;
-			}
-		}
 	}
 	.featured_floor {
 		margin-left: auto;
@@ -128,10 +100,10 @@ $elem-border-alt: 2px solid #303030;
 		justify-content: center;
 		align-items: center;
 		gap: 1rem;
-		border: 1px solid #0cc0df;
+		border: 2px solid #0cc0df;
 		border-radius: 8px;
-		padding: 3rem 1rem;
-		width: 200px;
+		padding: 2rem;
+		font-weight: 300;
 
 		p:nth-of-type(1) {
 			font-size: 12px;
@@ -142,11 +114,6 @@ $elem-border-alt: 2px solid #303030;
 			font-size: 32px;
 			font-weight: 600;
 			letter-spacing: 0.05rem;
-		}
-
-		@media (min-width: 1640px) {
-			width: 250px;
-			padding: 3rem 1rem;
 		}
 	}
 }

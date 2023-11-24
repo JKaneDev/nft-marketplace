@@ -1,7 +1,7 @@
 import React from 'react';
 
 // INTERNAL IMPORTS
-import './globals.scss';
+import Style from '../styles/search-marketplace.module.scss';
 import { Featured, Browse } from '@/app/components/componentindex';
 import Layout from '@/app/layout';
 
@@ -9,8 +9,10 @@ const SearchMarketplace = () => {
 	return (
 		<>
 			<Layout>
-				<Featured />
-				<Browse />
+				<div className={Style.wrapper}>
+					<Featured />
+					<Browse />
+				</div>
 			</Layout>
 		</>
 	);

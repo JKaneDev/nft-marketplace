@@ -10,19 +10,40 @@ $elem-border-main: 1px solid #303030;
 $elem-border-alt: 2px solid #303030;
 
 .browse {
+	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
 	padding-bottom: 2rem;
+	width: 1150px;
 
-	.browse_search {
+	@media (min-width: 1626px) {
+		width: 1500px;
+	}
+
+	.browse_wrapper {
+		position: relative;
+		border-bottom: 0.5px solid #0cc0df;
+		padding-bottom: 1.5rem;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: stretch;
+		gap: 1rem;
+
+		@media (min-width: 1626px) {
+			width: 1500px;
+		}
+	}
+
+	.browse_wrapper_search {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 2rem 0;
+		flex: 1;
+		width: 100%;
 		position: relative;
-		border-bottom: 1px solid #0cc0df;
 
-		.browse_search_icon {
+		.browse_wrapper_search_icon {
 			position: absolute;
 			color: #606060;
 			font-weight: 200;
@@ -30,11 +51,11 @@ $elem-border-alt: 2px solid #303030;
 		}
 
 		input {
+			width: 100%;
 			flex: 1;
 			background-color: $alt-bg-color;
 			outline: none;
-			border: 1px solid $main-bg-color;
-			max-width: 100%;
+			border: 2px solid $main-bg-color;
 			padding: 0.75rem 2.5rem;
 			border-radius: 8px;
 			color: $font-color;
@@ -46,17 +67,13 @@ $elem-border-alt: 2px solid #303030;
 
 			&:hover {
 				background-color: $main-bg-color;
-				border: 1px solid #0cc0df;
+				border: 2px solid #0cc0df;
 			}
 
 			&:active,
 			&:focus {
-				background-color: $alt-bg-color;
-				border: 1px solid #0cc0df;
-
-				&:hover {
-					background-color: $alt-bg-color;
-				}
+				background-color: $main-bg-color;
+				border: 2px solid #0cc0df;
 			}
 
 			&::placeholder {
@@ -64,38 +81,105 @@ $elem-border-alt: 2px solid #303030;
 			}
 		}
 	}
+}
 
-	.browse_wrapper {
-		display: flex;
-		align-items: center;
-		justify-items: space-around;
-		gap: 3rem;
-		border-bottom: 0.5px solid #0cc0df;
-		padding: 2rem 0;
+.browse_wrapper_category_menu,
+.browse_wrapper_filter_menu {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	transform: translateY(60%);
+	right: 0;
+	gap: 0.5rem;
+	border-radius: 8px;
+	padding: 0.5rem;
+	background-color: $alt-bg-color;
+	z-index: 1000;
 
-		.browse_wrapper_genre {
-			color: white;
-			font-size: 16px;
-			font-weight: 100;
-			letter-spacing: 0.1rem;
-			border: 2px solid $alt-bg-color;
-			outline: none;
-			padding: 1rem 1.75rem;
-			border-radius: 16px;
-			background-color: $alt-bg-color;
-			transition: all 0.35s ease;
+	.browse_wrapper_category_menu_options,
+	.browse_wrapper_filter_menu_options {
+		color: white;
+		font-size: 16px;
+		text-align: left;
+		border-radius: 8px;
+		font-weight: 100;
+		letter-spacing: 0.1rem;
+		border: 2px solid $alt-bg-color;
+		background-color: $alt-bg-color;
+		transition: all 0.35s ease;
+		padding: 0.75rem 1.75rem;
 
-			&:hover {
-				border: 2px solid #0cc0df;
-				background-color: $main-bg-color;
-				cursor: pointer;
-			}
+		&:hover {
+			cursor: pointer;
+			background-color: #383838;
 		}
 	}
+}
 
-	.browse_auctions {
-		margin: 2rem auto;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 300px));
+.browse_wrapper_filter_menu {
+	transform: translateY(77.5%);
+}
+
+.browse_wrapper_category,
+.browse_wrapper_filter {
+	margin-left: auto;
+	font-weight: 200;
+	font-size: 16px;
+	letter-spacing: 0.1rem;
+	background-color: $alt-bg-color;
+	border: 2px solid $alt-bg-color;
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: 0.15s all ease-in-out;
+
+	&:hover {
+		background-color: $main-bg-color;
+		border: 2px solid #0cc0df;
+	}
+
+	.browse_wrapper_category_rotatedown {
+		transform: rotate(0deg);
+		transition: transform 0.3s ease-in-out;
+	}
+
+	.browse_wrapper_category_rotateup {
+		transform: rotate(180deg);
+		transition: transform 0.3s ease-in-out;
+	}
+}
+
+.browse_auctions {
+	position: relative;
+	width: 100%;
+	margin: 0;
+	padding: 1.5rem 0;
+	display: grid;
+	gap: 2rem;
+	grid-template-columns: repeat(auto-fit, minmax(330px, 330px));
+
+	@media (min-width: 1626px) {
+		width: 1500px;
+	}
+
+	.browse_auctions_reset {
+		right: -37.5px;
+		top: -16px;
+		position: absolute;
+		transition: all 0.35s ease-in-out;
+
+		@media (min-width: 1626px) {
+			right: -50px;
+		}
+
+		&:hover {
+			cursor: pointer;
+			color: #0cc0df;
+		}
 	}
 }

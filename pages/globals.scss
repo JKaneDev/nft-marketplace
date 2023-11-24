@@ -13,6 +13,7 @@
 * {
 	box-sizing: border-box;
 	margin: 0;
+	padding: 0;
 	-webkit-tap-highlight-color: none;
 }
 
@@ -44,7 +45,6 @@ body {
 	font-family: 'Poppins', Helvetica, Arial, sans-serif;
 	background: var(--main-bg-color);
 	color: var(--font-color);
-	letter-spacing: 0.025rem;
 	width: 100%;
 }
 

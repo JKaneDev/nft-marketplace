@@ -1,8 +1,7 @@
 import React from 'react';
 
 // INTERNAL IMPORTS
-import './globals.scss';
-import { Contact } from '@/app/components/componentindex';
+import { Contact, Footer } from '@/app/components/componentindex';
 import Layout from '@/app/layout';
 
 const ContactPage = () => {

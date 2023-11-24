@@ -104,7 +104,7 @@ $elem-border-alt: 2px solid #303030;
 	align-items: center;
 	gap: 1rem;
 
-	@media (min-width: 1640px) {
+	@media (min-width: 1626px) {
 		gap: 1.5rem;
 	}
 
@@ -120,7 +120,7 @@ $elem-border-alt: 2px solid #303030;
 		transition: all 0.35s ease;
 		border: 2px solid $alt-bg-color;
 
-		@media (min-width: 1640px) {
+		@media (min-width: 1626px) {
 			height: 44px;
 			width: 44px;
 		}

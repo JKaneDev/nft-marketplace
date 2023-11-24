@@ -22,7 +22,6 @@ import Fuse from 'fuse.js';
 const MyNFTs = () => {
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
-
 	const [currentCategory, setCurrentCategory] = useState(null);
 	const [currentFilter, setCurrentFilter] = useState('Currently Owned'); // or 'watchlist
 	const [searchQuery, setSearchQuery] = useState('');

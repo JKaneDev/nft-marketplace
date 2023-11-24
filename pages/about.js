@@ -2,7 +2,7 @@ import React from 'react';
 
 // INTERNAL IMPORTS
 import './globals.scss';
-import { About } from '@/app/components/componentindex';
+import { About, Footer } from '@/app/components/componentindex';
 import Layout from '@/app/layout';
 
 const AboutPage = () => {

@@ -3,11 +3,11 @@ import { Navbar, Footer } from './components/componentindex';
 
 const Layout = ({ children }) => {
 	return (
-		<div>
+		<>
 			<Navbar />
 			{children}
 			<Footer />
-		</div>
+		</>
 	);
 };
 
