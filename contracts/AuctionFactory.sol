@@ -11,11 +11,12 @@ contract AuctionFactory {
                 owner = payable(msg.sender);
         }
 
-        mapping (uint256 => AuctionItem) private auctions;
+        mapping (uint256 => AuctionItem) public auctions;
 
         event AuctionCreated(uint256 nftId, uint256 startingPrice, uint256 startTime, uint256 auctionDuration, address seller, address auctionAddress);
 
         struct AuctionItem {
+                address auctionAddress;
                 uint256 nftId;
                 uint256 startingPrice;
                 uint256 startTime;
@@ -24,7 +25,7 @@ contract AuctionFactory {
                 bool auctionActive;
         }
 
-        function createContract(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
+        function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
                 require(seller != address(0), 'Invalid seller address');
                 require(startingPrice > 0, 'Starting price must be at least 1 wei');
                 require(auctions[nftId].seller == address(0), 'Auction for this nft already exists');
@@ -34,6 +35,7 @@ contract AuctionFactory {
                 Auction newAuction = new Auction(nftId, startingPrice, currentTimestamp, auctionDuration, seller);
 
                 auctions[nftId] = AuctionItem(
+                        address(newAuction), 
                         nftId,
                         startingPrice,
                         block.timestamp,
@@ -42,6 +44,6 @@ contract AuctionFactory {
                         true
                 );
 
-                emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction);
+                emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
         }
 }
