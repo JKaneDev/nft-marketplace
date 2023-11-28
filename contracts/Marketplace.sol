@@ -152,23 +152,23 @@ contract Marketplace is ERC721URIStorage {
             }
         }
 
-            // Initialize array to store my NFTs for return
-            MarketItem[] memory items = new MarketItem[](itemCount);
+        // Initialize array to store my NFTs for return
+        MarketItem[] memory items = new MarketItem[](itemCount);
 
-            for (uint256 i = 0; i < totalCount; i++) {
+        for (uint256 i = 0; i < totalCount; i++) {
 
-                // Check all unsold items for ownership
-                if (idToMarketItem[i + 1].owner == msg.sender) {
-                    uint256 currentId = i + 1;
+            // Check all unsold items for ownership
+            if (idToMarketItem[i + 1].owner == msg.sender) {
+                uint256 currentId = i + 1;
 
-                    // Add all my NFTs to items array
-                    MarketItem storage currentItem = idToMarketItem[currentId];
-                    items[currentIndex] = currentItem;
-                    currentIndex += 1;
-                }
+                // Add all my NFTs to items array
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
             }
+        }
+
         return items;
-        
     }
 
     // Fetch NFTs for individual user
