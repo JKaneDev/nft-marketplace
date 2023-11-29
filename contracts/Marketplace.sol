@@ -201,3 +201,16 @@ contract Marketplace is ERC721URIStorage {
     }
 
 }
+
+// So I have this skeleton endAuction function:
+
+// function endAuction() public {
+//                 require(msg.sender == seller, 'Only NFT owner can end auction');
+
+//                 // transfer highest bid to the seller
+//                 // transfer royalties to the original owner
+//                 // transfer nft from seller to highestBidder
+//                 // emit auction ended event
+//         }
+
+// My question is about the royalties. The original owner defines the royalties when the NFT is first minted. This is stored in the NFTs metadata which is stored on IPFS. If this is the first time the NFT is being sold the seller be the same as the royalty receiver - so they will receive both the amount from the sale plus the deducted royalties. If the seller is different from the original owner, 
