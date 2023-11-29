@@ -62,6 +62,8 @@ contract Auction is ReentrancyGuard {
                 emit Bid(msg.sender, msg.value, address(this));
         }
 
+
+        // [ ] TODO: Royalty deductions and send, marketplace deduction
         function endAuction(uint256 tokenId) public nonReentrant {
                 require(msg.sender == seller, 'Only NFT owner can end auction');
 
@@ -76,6 +78,6 @@ contract Auction is ReentrancyGuard {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }
 
-                emit AuctionEnded (address(this), block.timestamp, nftId, seller, startingPrice, highestBid);
+                emit AuctionEnded(address(this), block.timestamp, nftId, seller, startingPrice, highestBid);
         }
 }

@@ -64,7 +64,7 @@ const pinToIpfs = async (cid) => {
 	}
 };
 
-export const initiateMintSequence = async (metadata, marketplace, tokenId, seller) => {
+export const initiateMintSequence = async (metadata, marketplace, tokenId, seller, royaltyPercentage) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
@@ -82,9 +82,15 @@ export const initiateMintSequence = async (metadata, marketplace, tokenId, selle
 		console.log('Metadata upload to IPFS successful');
 
 		// Step 5: Mint NFT and emit event
-		await marketplace.createToken(metadataCID, ethers.parseEther(metadata.price), {
-			value: ethers.parseEther('0.0025'),
-		});
+		await marketplace.createToken(
+			metadataCID,
+			royaltyPercentage,
+			parseInt(royaltyPercentage),
+			ethers.parseEther(metadata.price),
+			{
+				value: ethers.parseEther('0.0025'),
+			},
+		);
 
 		// Step 6: Pin data to IPFS and create duplicate in firebase for fast retrieval
 		await pinToIpfs(imageCID);

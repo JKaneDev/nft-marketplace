@@ -2,12 +2,13 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
+import "./IMarketplace.sol";
 import "hardhat/console.sol";
 
-contract Marketplace is ERC721URIStorage {
+contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
@@ -21,16 +22,20 @@ contract Marketplace is ERC721URIStorage {
 
     struct MarketItem {
         uint256 tokenId;
+        address payable originalOwner;
         address payable seller;
         address payable owner;
+        uint256 royaltyPercentage;
         uint256 price;
         bool sold;
     }
 
     event MarketItemCreated (
         uint256 indexed tokenId,
+        address originalOwner,
         address seller,
         address owner,
+        uint256 royaltyPercentage,
         uint256 price,
         bool sold
     );
@@ -48,7 +53,12 @@ contract Marketplace is ERC721URIStorage {
         listingPrice = _listingPrice;
     }
 
-    function createToken(string memory tokenURI, uint256 price) public payable returns (uint256) {
+    function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
+        MarketItem memory nft = idToMarketItem[tokenId];
+        return (nft.royaltyPercentage, nft.originalOwner);
+    }
+
+    function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
         _tokenIds.increment();
 
         uint256 newTokenId = _tokenIds.current();
@@ -57,19 +67,22 @@ contract Marketplace is ERC721URIStorage {
 
         _setTokenURI(newTokenId, tokenURI);
 
-        createMarketItem(newTokenId, price);
+        createMarketItem(newTokenId, royaltyPercentage, price);
 
         return newTokenId;
     }
 
-    function createMarketItem(uint256 tokenId, uint256 price) public payable {
+    // NFT is held in escrow in the marketplace
+    function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
         
         idToMarketItem[tokenId] = MarketItem(
             tokenId,
             payable(msg.sender),
+            payable(msg.sender),
             payable(address(this)),
+            royaltyPercentage,
             price,
             false
         );
@@ -79,12 +92,15 @@ contract Marketplace is ERC721URIStorage {
         emit MarketItemCreated(
             tokenId,
             msg.sender,
+            msg.sender,
             address(0),
+            royaltyPercentage,
             price,
             false
         );
     }
 
+    // Allows the user to relist an item they own in the marketplace
     function resellMarketItem(uint256 tokenId, uint256 price) public payable {
         require(idToMarketItem[tokenId].owner == msg.sender, "token can only be resold by owner");
         require(msg.value == listingPrice, "Price must be equal to listing price");
@@ -113,7 +129,6 @@ contract Marketplace is ERC721URIStorage {
 
         payable(owner).transfer(listingPrice);
         payable(idToMarketItem[tokenId].seller).transfer(msg.value);
-
     }
 
     function getListingPrice() public view returns (uint256) {
@@ -200,17 +215,9 @@ contract Marketplace is ERC721URIStorage {
         return items;
     }
 
+    function handleAuctionEnd(uint256 tokenId, address winner) external override {
+        // Transfer NFT to intended recipient
+        IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
+    }
 }
 
-// So I have this skeleton endAuction function:
-
-// function endAuction() public {
-//                 require(msg.sender == seller, 'Only NFT owner can end auction');
-
-//                 // transfer highest bid to the seller
-//                 // transfer royalties to the original owner
-//                 // transfer nft from seller to highestBidder
-//                 // emit auction ended event
-//         }
-
-// My question is about the royalties. The original owner defines the royalties when the NFT is first minted. This is stored in the NFTs metadata which is stored on IPFS. If this is the first time the NFT is being sold the seller be the same as the royalty receiver - so they will receive both the amount from the sale plus the deducted royalties. If the seller is different from the original owner, 
