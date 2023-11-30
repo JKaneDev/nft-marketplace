@@ -67,13 +67,28 @@ contract Auction is ReentrancyGuard {
         function endAuction(uint256 tokenId) public nonReentrant {
                 require(msg.sender == seller, 'Only NFT owner can end auction');
 
-                address winner = highestBidder;
+                (uint256 royaltyPercentage, address payable originalOwner) = marketplaceContract.getRoyaltyData(tokenId);
 
                 // Make fund transfer and initiate NFT transfer if a bid was made
                 if (highestBidder != address(0)) {
-                        (bool sent, ) = payable(seller).call{value: highestBid}("");
-                        require(sent, "Failed to send Ether to the seller");
-                        marketplaceContract.handleAuctionEnd(tokenId, winner);
+                        // Calculate sale allocations
+                        uint256 royaltyAmount = (highestBid * royaltyPercentage) / 100;
+                        uint256 sellerAmount = highestBid - royaltyAmount;
+                        uint256 marketplaceFee = (highestBid * 2) / 100;
+
+                        // Send sale amount to seller
+                        (bool sellerAmountSent, ) = payable(seller).call{value: sellerAmount}("");
+                        require(sellerAmountSent, "Failed to send Ether to the seller");
+
+                        // Send royalty amount to original nft owner
+                        (bool royaltiesSent, ) = payable(originalOwner).call{value: royaltyAmount}("");
+                        require(royaltiesSent, "Failed to send royalties to original owner");
+
+                        // Send marketplace fee to marketplace contract
+                        (bool feesSent, ) = payable(marketplaceAddress).call{value: marketplaceFee}("");
+                        require(feesSent, "Failed to send fees to marketplace contract");
+
+                        marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
                 } else {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }
