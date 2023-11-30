@@ -21,6 +21,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     mapping (uint256 => MarketItem) private idToMarketItem;
 
     event NFTTransferred(uint256 nftId, address auctionWinner);
+    event FundsWithdrawn(uint256 amount, address targetWallet);
 
     struct MarketItem {
         uint256 tokenId;
@@ -49,6 +50,16 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     constructor() ERC721("NFT Metaverse Token", "MYNFT") {
         owner = payable(msg.sender);
+    }
+
+    function withdrawFunds() public onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, 'No funds to withdraw');
+
+        (bool sent, ) = payable(owner).call{value: balance}("");
+        require(sent, 'Failed to withdraw funds');
+
+        emit FundsWithdrawn(balance, msg.sender);
     }
 
     function updateListingPrice(uint256 _listingPrice) public payable onlyOwner {
@@ -131,10 +142,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
         payable(owner).transfer(listingPrice);
         payable(idToMarketItem[tokenId].seller).transfer(msg.value);
-    }
-
-    function getListingPrice() public view returns (uint256) {
-        return listingPrice;
     }
 
     function fetchMarketItems() public view returns (MarketItem[] memory) {
