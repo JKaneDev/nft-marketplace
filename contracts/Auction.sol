@@ -36,9 +36,10 @@ contract Auction is ReentrancyGuard {
                 // Execute withdrawal if user has funds to withdraw
                 if (amount > 0) {
                         pendingReturns[msg.sender] = 0;
+                        (bool sent, ) = payable(msg.sender).call{value: amount}("");
 
                         // Alter contract data only if withdrawal is successful
-                        if (!payable(msg.sender).send(amount)) {
+                        if (!sent) {
                                 pendingReturns[msg.sender] = amount;
                                 return false;
                         }
