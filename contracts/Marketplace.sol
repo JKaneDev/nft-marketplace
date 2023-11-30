@@ -20,6 +20,8 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     
     mapping (uint256 => MarketItem) private idToMarketItem;
 
+    event NFTTransferred(uint256 nftId, address auctionWinner);
+
     struct MarketItem {
         uint256 tokenId;
         address payable originalOwner;
@@ -218,6 +220,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     function handleAuctionEnd(uint256 tokenId, address winner) external override {
         // Transfer NFT to intended recipient
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
+
+        idToMarketItem[tokenId].owner = payable(winner);
+
+        emit NFTTransferred(tokenId, winner);
     }
 }
 
