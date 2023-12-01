@@ -46,7 +46,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 	}
 };
 
-export const subscribeToMarketplaceEvents = async (dispatch, marketplace) => {};
+export const loadAuctionFactoryContract = async (dispatch) => {};
 
 const pinToIpfs = async (cid) => {
 	try {
@@ -105,3 +105,5 @@ export const initiateMintSequence = async (metadata, marketplace, tokenId, selle
 		console.error('Validation Errors: ', validationErrors);
 	}
 };
+
+const listenForCreatedAuctions = async (dispatch) => {};

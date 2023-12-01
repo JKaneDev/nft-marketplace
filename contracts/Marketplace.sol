@@ -114,9 +114,8 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     }
 
     // Allows the user to relist an item they own in the marketplace
-    function resellMarketItem(uint256 tokenId, uint256 price) public payable {
+    function resellMarketItem(uint256 tokenId, uint256 price) external payable override {
         require(idToMarketItem[tokenId].owner == msg.sender, "token can only be resold by owner");
-        require(msg.value == listingPrice, "Price must be equal to listing price");
 
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;

@@ -19,7 +19,6 @@ $font-color: #fefefe;
 	transition: border 0.35s ease;
 
 	&:hover {
-		cursor: pointer;
 		border: 2px solid #0cc0df;
 	}
 
@@ -178,7 +177,7 @@ $font-color: #fefefe;
 	width: 330px;
 
 	.card_wrapper_interface {
-		border: 1px solid #0cc0df;
+		border: 2px solid #0cc0df;
 		padding: 0.5rem 1rem;
 		border-radius: 8px;
 		display: flex;
@@ -201,7 +200,6 @@ $font-color: #fefefe;
 			width: 25px;
 			background-color: $main-bg-color;
 			border: 2px solid #0cc0df;
-
 			border-radius: 5rem;
 
 			.card_wrapper_interface_exit_icon {
@@ -214,6 +212,7 @@ $font-color: #fefefe;
 			&:hover {
 				.card_wrapper_interface_exit_icon {
 					color: #0cc0df;
+					cursor: pointer;
 				}
 			}
 		}
@@ -229,7 +228,7 @@ $font-color: #fefefe;
 			transition: all 0.35s ease-in-out;
 			border-radius: 4px;
 			width: 70%;
-			height: 80%;
+			height: 85%;
 
 			&:hover {
 				border: 1px solid #0cc0df;
@@ -242,21 +241,20 @@ $font-color: #fefefe;
 		}
 
 		.card_wrapper_interface_place {
-			height: 80%;
+			height: 85%;
 			color: white;
 			font-size: 12px;
-			font-weight: 300;
+			font-weight: 200;
 			letter-spacing: 0.1rem;
-			border: 2px solid $alt-bg-color;
-			outline: none;
-			padding: 0.35rem 0.75rem;
+			border: 1px solid $main-bg-color;
+			padding: 0.35rem 1rem 0.35rem 1.25rem;
 			border-radius: 4px;
 			background-color: $alt-bg-color;
-			transition: all 0.35s ease;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			width: 35%;
+			width: 40px;
+			transition: all 0.35s ease-in-out;
 
 			&:hover {
 				border: 1px solid #0cc0df;
@@ -267,7 +265,7 @@ $font-color: #fefefe;
 	}
 
 	.card_wrapper_bid {
-		border: 1px solid #0cc0df;
+		border: 2px solid #0cc0df;
 		padding: 0.5rem 1rem;
 		border-radius: 8px;
 		display: flex;
@@ -276,6 +274,7 @@ $font-color: #fefefe;
 		gap: 0.5rem;
 		position: relative;
 		width: 50%;
+		transition: all 0.35s ease-in-out;
 
 		p:nth-of-type(1) {
 			position: absolute;
@@ -288,9 +287,10 @@ $font-color: #fefefe;
 			padding: 0.25rem 0.75rem;
 			font-weight: 400;
 			letter-spacing: 0.05rem;
-			transition: all 0.34s ease-in-out;
+			transition: all 0.35s ease-in-out;
 
 			&:hover {
+				cursor: pointer;
 				color: transparent;
 
 				&::before {
@@ -309,7 +309,7 @@ $font-color: #fefefe;
 					z-index: 1;
 					font-weight: 400;
 					letter-spacing: inherit;
-					border: 1px solid #0cc0df;
+					border: 2px solid #0cc0df;
 				}
 			}
 

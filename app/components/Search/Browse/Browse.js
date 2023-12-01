@@ -11,7 +11,6 @@ import { doc, getDoc } from 'firebase/firestore';
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
 import { AuctionCard } from '../../componentindex';
-import images from '../../../../assets/index';
 
 // EXTERNAL IMPORTS
 import { FaSearch, FaCaretDown } from 'react-icons/fa';

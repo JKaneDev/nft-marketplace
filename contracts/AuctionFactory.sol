@@ -3,15 +3,18 @@ pragma solidity ^0.8.19;
 
 import './Auction.sol';
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./IMarketplace.sol";
 
 contract AuctionFactory {
 
         address payable owner;
         address marketplaceAddress;
+        IMarketplace marketplaceContract;
 
         constructor(address _marketplaceAddress) {
                 owner = payable(msg.sender);
                 marketplaceAddress = _marketplaceAddress;
+                marketplaceContract = IMarketplace(_marketplaceAddress);
         }
 
         mapping (uint256 => AuctionItem) public auctions;
@@ -46,7 +49,7 @@ contract AuctionFactory {
                 );
 
                 // Transfer the NFT from the seller to escrow in the marketplace contract
-                IERC721(address(this)).transferFrom(seller, address(this), nftId);
+                marketplaceContract.resellMarketItem(nftId, startingPrice);
 
                 emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
         }
