@@ -10,12 +10,12 @@ const marketplaceContractSlice = createSlice({
 	name: 'marketplaceContract',
 	initialState,
 	reducers: {
-		setContract: (state, action) => {
-			state.contract = action.payload;
+		setMarketplaceContract: (state, action) => {
+			state.MarketplaceContract = action.payload;
 			state.isLoaded = true;
 			state.error = null;
 		},
-		unsetContract: (state) => {
+		unsetMarketplaceContract: (state) => {
 			state.contract = null;
 			state.isLoaded = false;
 		},

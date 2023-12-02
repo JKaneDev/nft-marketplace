@@ -1,7 +1,6 @@
 const { ethers } = require('ethers');
 const Marketplace = require('../abis/contracts/Marketplace.sol/Marketplace.json');
 const AuctionFactory = require('../abis/contracts/AuctionFactory.sol/AuctionFactory.json');
-const Auction = require('../abis/contracts/Auction.sol/Auction.json');
 
 async function main() {
 	const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -11,7 +10,7 @@ async function main() {
 	const marketplaceContract = await marketplace.deploy();
 	await marketplaceContract.waitForDeployment();
 
-	const marketplaceAddress = marketplaceContract.address;
+	const marketplaceAddress = await marketplaceContract.getAddress();
 
 	const auctionFactory = new ethers.ContractFactory(AuctionFactory.abi, AuctionFactory.bytecode, wallet);
 	const auctionFactoryContract = await auctionFactory.deploy(marketplaceAddress);

@@ -1,10 +1,15 @@
 import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
-import { setContract } from './marketplaceSlices';
+import { setMarketplaceContract } from './marketplaceSlices';
+import { setAuctionFactoryContract } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
+import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
+import moment from 'moment';
+import { realtimeDb } from '@/firebaseConfig';
+import { ref, set } from 'firebase/database';
 
 export const connectToEthereum = async (dispatch) => {
 	try {
@@ -38,7 +43,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 		const marketplace = new ethers.Contract(address, abi, signer);
 
 		// Dispatch successful contract  creation
-		dispatch(setContract({ address, abi }));
+		dispatch(setMarketplaceContract({ address, abi }));
 
 		return marketplace;
 	} catch (error) {
@@ -46,7 +51,22 @@ export const loadMarketplaceContract = async (dispatch) => {
 	}
 };
 
-export const loadAuctionFactoryContract = async (dispatch) => {};
+export const loadAuctionFactoryContract = async (dispatch) => {
+	const abi = AuctionFactory.abi;
+	const address = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
+
+	try {
+		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+		const signer = await provider.getSigner();
+		const auctionFactory = new ethers.Contract(address, abi, signer);
+
+		dispatch(setAuctionFactoryContract({ address, abi }));
+
+		return auctionFactory;
+	} catch (error) {
+		console.log('Auction Factory not deployed to the current network.');
+	}
+};
 
 const pinToIpfs = async (cid) => {
 	try {
@@ -106,4 +126,32 @@ export const initiateMintSequence = async (metadata, marketplace, tokenId, selle
 	}
 };
 
-const listenForCreatedAuctions = async (dispatch) => {};
+export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
+	auctionFactoryContract.on(
+		'AuctionCreated',
+		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
+			console.log(`Auction Created for NFT ID: ${nftId}`);
+
+			const formattedStartTime = moment.unix(startTime).format('YY:MM:DD HH:mm');
+			const formattedDuration = moment.duration(auctionDuration, 'seconds').format('DD:HH:mm:ss');
+			const formattedEndTime = moment.unix(startTime).add(auctionDuration, 'seconds').format('YY:MM:DD HH:mm:ss');
+
+			// Add auction to firebase
+			const auctionData = {
+				startingPrice: startingPrice.toString(),
+				startTime: formattedStartTime,
+				auctionDuration: formattedDuration,
+				auctionEndTime: formattedEndTime,
+				sellerAddress: seller,
+				auctionAddress: auctionAddress,
+			};
+
+			try {
+				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+				await set(auctionRef, auctionData);
+			} catch (error) {
+				console.error('Error adding auction data to firebase: ', error);
+			}
+		},
+	);
+};
