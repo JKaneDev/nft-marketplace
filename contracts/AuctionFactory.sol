@@ -83,20 +83,12 @@ contract AuctionFactory {
         }
 
         /* 
-        TODO: [ ] Return all active IDs from auctions mapping
+        TODO: [x] Return all active IDs from auctions mapping
         TODO: [ ] Pass all active IDs into loadActiveAuctions
         TODO: [ ] Loop over AuctionCreated events, return those that match ids of active auctions
         TODO: [ ] Add formatted auction data objects to realtime database
         */
-        function getActiveAuctionIds() public view returns (uint256[] memory, bool[] memory) {
-                uint256 activeAuctionCount = _totalAuctions.current() - _endedAuctions.current();
-                uint256[] memory activeAuctionIds = new uint256[](activeCount);
-                uint256 activeIndex = 0;
-
-                for (uint256 i = 0; i < _totalAuctions.current(); i++) {
-                        if (auctions[i].active) {
-                                activeIds[activeIndex] = auctions[i].
-                        }
-                }
+        function getActiveAuctionIds() public view returns (uint256[] memory) {
+                return _activeAuctionIds;
         }
 }
