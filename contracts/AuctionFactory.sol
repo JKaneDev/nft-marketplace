@@ -4,8 +4,15 @@ pragma solidity ^0.8.19;
 import './Auction.sol';
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IMarketplace.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract AuctionFactory {
+        using Counters for Counters.Counter;
+
+        Counters.Counter private _totalAuctions;
+        Counters.Counter private _endedAuctions;
+
+        uint256[] private _activeAuctionIds;
 
         address payable owner;
         address marketplaceAddress;
@@ -28,6 +35,7 @@ contract AuctionFactory {
                 uint256 startTime;
                 uint256 auctionDuration;
                 address seller;
+                bool active;
         }
 
         function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
@@ -45,12 +53,50 @@ contract AuctionFactory {
                         startingPrice,
                         block.timestamp,
                         auctionDuration,
-                        seller
+                        seller,
+                        true
                 );
 
                 // Transfer the NFT from the seller to escrow in the marketplace contract
                 marketplaceContract.resellMarketItem(nftId, startingPrice);
 
+                _totalAuctions.increment();
+                _activeAuctionIds.push(nftId);
+
                 emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
+        }
+
+        function changeActiveStatus (uint256 nftId) public {
+                auctions[nftId].active = false;
+                removeActiveAuction(nftId);
+                _endedAuctions.increment();
+        }
+
+        function removeActiveAuction(uint256 nftId) internal {
+                for (uint256 i = 0; i < _activeAuctionIds.length; i++) {
+                        if (_activeAuctionIds[i] == nftId) {
+                                _activeAuctionIds[i] = _activeAuctionIds[_activeAuctionIds.length - 1];
+                                _activeAuctionIds.pop();
+                                break;
+                        }
+                }
+        }
+
+        /* 
+        TODO: [ ] Return all active IDs from auctions mapping
+        TODO: [ ] Pass all active IDs into loadActiveAuctions
+        TODO: [ ] Loop over AuctionCreated events, return those that match ids of active auctions
+        TODO: [ ] Add formatted auction data objects to realtime database
+        */
+        function getActiveAuctionIds() public view returns (uint256[] memory, bool[] memory) {
+                uint256 activeAuctionCount = _totalAuctions.current() - _endedAuctions.current();
+                uint256[] memory activeAuctionIds = new uint256[](activeCount);
+                uint256 activeIndex = 0;
+
+                for (uint256 i = 0; i < _totalAuctions.current(); i++) {
+                        if (auctions[i].active) {
+                                activeIds[activeIndex] = auctions[i].
+                        }
+                }
         }
 }

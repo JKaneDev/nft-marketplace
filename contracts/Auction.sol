@@ -3,12 +3,14 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./IMarketplace.sol";
+import './AuctionFactory.sol';
 
 contract Auction is ReentrancyGuard {
 
         uint256 nftId;
         address marketplaceAddress;
         IMarketplace marketplaceContract;
+        AuctionFactory private auctionFactory;
         address payable seller;
         uint256 startingPrice;
         address payable highestBidder;
@@ -20,9 +22,10 @@ contract Auction is ReentrancyGuard {
         event Bid(address bidder, uint256 bidAmount, address auctionAddress);
         event AuctionEnded(address auctionAddress, uint256 timestamp, uint256 nftId, address seller, uint256 startingPrice, uint256 highestBid);
 
-        constructor(uint256 _nftId, uint256 _startingPrice, address _seller, address _marketplaceAddress) {
+        constructor(uint256 _nftId, uint256 _startingPrice, address _seller, address _marketplaceAddress, address _auctionFactoryAddress) {
                 marketplaceAddress = _marketplaceAddress;
                 marketplaceContract = IMarketplace(marketplaceAddress);
+                auctionFactory = AuctionFactory(_auctionFactoryAddress);
                 nftId = _nftId;
                 seller = payable(_seller);
                 startingPrice = _startingPrice;
@@ -88,6 +91,8 @@ contract Auction is ReentrancyGuard {
                         require(feesSent, "Failed to send fees to marketplace contract");
 
                         marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
+
+                        auctionFactory.changeActiveStatus(tokenId);
                 } else {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }

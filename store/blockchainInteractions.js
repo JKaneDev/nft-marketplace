@@ -7,6 +7,7 @@ import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/fireba
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
+import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import moment from 'moment';
 import { realtimeDb } from '@/firebaseConfig';
 import { ref, set } from 'firebase/database';
@@ -154,4 +155,55 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 			}
 		},
 	);
+};
+
+export const loadActiveAuctions = async (auctionFactoryContract) => {
+	const SECONDS_PER_DAY = 86400;
+	const AVERAGE_BLOCK_TIME_SECONDS = 12;
+	const BLOCKS_PER_DAY = SECONDS_PER_DAY / AVERAGE_BLOCK_TIME_SECONDS;
+	const DAYS = 7;
+
+	try {
+		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+		const latestBlockNumber = await provider.getBlockNumber();
+		const fromBlock = latestBlockNumber - BLOCKS_PER_DAY * DAYS;
+
+		let activeAuctions = [];
+
+		// Fetch all created auctions for the last 7 days
+		const createdEvents = await auctionFactoryContract.queryFilter('AuctionCreated', fromBlock, 'latest');
+
+		// Loop through the created auctions
+		for (const event of createdEvents) {
+			// Create an auction instance for each
+			const auctionContract = new ethers.Contract(event.args.auctionAddress, Auction.abi, provider);
+
+			// Check if each contract has ended or not
+			const endedEvents = await auctionContract.queryFilter('AuctionEnded', fromBlock, 'latest');
+
+			// if the auction has not ended - create formatted data object and add to activeAuctions
+			if (endedEvents.length === 0) {
+				const formattedStartTime = moment.unix(event.args.startTime).format('YY:MM:DD HH:mm');
+				const formattedDuration = moment.duration(event.args.auctionDuration, 'seconds').format('DD:HH:mm:ss');
+				const formattedEndTime = moment
+					.unix(event.args.startTime)
+					.add(event.args.auctionDuration, 'seconds')
+					.format('YY:MM:DD HH:mm:ss');
+
+				activeAuctions.push({
+					startingPrice: event.args.startingPrice.toString(),
+					startTime: formattedStartTime,
+					auctionDuration: formattedDuration,
+					auctionEndTime: formattedEndTime,
+					sellerAddress: event.args.seller,
+					auctionAddress: event.args.auctionAddress,
+				});
+			}
+		}
+
+		// return formatted data
+		return activeAuctions;
+	} catch (error) {
+		console.error('Error loading active auctions: ', error);
+	}
 };
