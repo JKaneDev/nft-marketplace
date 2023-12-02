@@ -45,7 +45,7 @@ contract AuctionFactory {
 
                 uint256 currentTimestamp = block.timestamp;
 
-                Auction newAuction = new Auction(nftId, startingPrice, seller, marketplaceAddress);
+                Auction newAuction = new Auction(nftId, startingPrice, seller, marketplaceAddress, address(this));
 
                 auctions[nftId] = AuctionItem(
                         address(newAuction), 
@@ -82,12 +82,6 @@ contract AuctionFactory {
                 }
         }
 
-        /* 
-        TODO: [x] Return all active IDs from auctions mapping
-        TODO: [ ] Pass all active IDs into loadActiveAuctions
-        TODO: [ ] Loop over AuctionCreated events, return those that match ids of active auctions
-        TODO: [ ] Add formatted auction data objects to realtime database
-        */
         function getActiveAuctionIds() public view returns (uint256[] memory) {
                 return _activeAuctionIds;
         }

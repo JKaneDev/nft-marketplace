@@ -10,7 +10,7 @@ import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.
 import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import moment from 'moment';
 import { realtimeDb } from '@/firebaseConfig';
-import { ref, set } from 'firebase/database';
+import { get, ref, set } from 'firebase/database';
 
 export const connectToEthereum = async (dispatch) => {
 	try {
@@ -36,7 +36,7 @@ export const connectToEthereum = async (dispatch) => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+	const address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -54,7 +54,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
+	const address = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -172,32 +172,39 @@ export const loadActiveAuctions = async (auctionFactoryContract) => {
 
 		// Fetch all created auctions for the last 7 days
 		const createdEvents = await auctionFactoryContract.queryFilter('AuctionCreated', fromBlock, 'latest');
+		const nftIdsFromActiveAuctions = auctionFactoryContract.getActiveAuctionIds();
 
 		// Loop through the created auctions
 		for (const event of createdEvents) {
-			// Create an auction instance for each
-			const auctionContract = new ethers.Contract(event.args.auctionAddress, Auction.abi, provider);
+			if (nftIdsFromActiveAuctions.includes(event.args.nftId)) {
+				// Does auction already exist in DB?
+				const auctionRef = ref(realtimeDb, `auctions/${event.args.nftId}`);
+				const auctionSnapshot = await get(auctionRef);
 
-			// Check if each contract has ended or not
-			const endedEvents = await auctionContract.queryFilter('AuctionEnded', fromBlock, 'latest');
+				if (!auctionSnapshot.exists()) {
+					const formattedStartTime = moment.unix(event.args.startTime).format('YY:MM:DD HH:mm');
+					const formattedDuration = moment.duration(event.args.auctionDuration, 'seconds').format('DD:HH:mm:ss');
+					const formattedEndTime = moment
+						.unix(event.args.startTime)
+						.add(event.args.auctionDuration, 'seconds')
+						.format('YY:MM:DD HH:mm:ss');
 
-			// if the auction has not ended - create formatted data object and add to activeAuctions
-			if (endedEvents.length === 0) {
-				const formattedStartTime = moment.unix(event.args.startTime).format('YY:MM:DD HH:mm');
-				const formattedDuration = moment.duration(event.args.auctionDuration, 'seconds').format('DD:HH:mm:ss');
-				const formattedEndTime = moment
-					.unix(event.args.startTime)
-					.add(event.args.auctionDuration, 'seconds')
-					.format('YY:MM:DD HH:mm:ss');
+					const auctionData = {
+						startingPrice: event.args.startingPrice.toString(),
+						startTime: formattedStartTime,
+						auctionDuration: formattedDuration,
+						auctionEndTime: formattedEndTime,
+						sellerAddress: event.args.seller,
+						auctionAddress: event.args.auctionAddress,
+					};
 
-				activeAuctions.push({
-					startingPrice: event.args.startingPrice.toString(),
-					startTime: formattedStartTime,
-					auctionDuration: formattedDuration,
-					auctionEndTime: formattedEndTime,
-					sellerAddress: event.args.seller,
-					auctionAddress: event.args.auctionAddress,
-				});
+					// Add formatted data to realtime database
+					try {
+						await set(auctionRef, auctionData);
+					} catch (error) {
+						console.error('Error adding auction data to firebase database: ', error);
+					}
+				}
 			}
 		}
 
