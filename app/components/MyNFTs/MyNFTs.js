@@ -255,14 +255,7 @@ const MyNFTs = () => {
 				<>
 					{filteredNFTs &&
 						filteredNFTs.map((nft) => (
-							<NFTCard
-								key={nft.id}
-								id={nft.id}
-								name={nft.name}
-								image={nft.image}
-								price={nft.price}
-								category={nft.category}
-							/>
+							<NFTCard key={nft.id} id={nft.id} name={nft.name} image={nft.image} category={nft.category} />
 						))}
 				</>
 			</div>

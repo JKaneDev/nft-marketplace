@@ -108,7 +108,7 @@ const CreateNFT = () => {
 		}
 
 		try {
-			await initiateMintSequence(metadata, marketplace, tokenId, seller, nftData.royaltyPercentage);
+			await initiateMintSequence(metadata, marketplace, tokenId, seller, nftData.royalties);
 			setLoading(false);
 			window.location.reload();
 		} catch (error) {

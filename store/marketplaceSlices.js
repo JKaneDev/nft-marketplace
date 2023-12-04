@@ -27,5 +27,5 @@ const marketplaceContractSlice = createSlice({
 	},
 });
 
-export const { setContract, unsetContract, setError } = marketplaceContractSlice.actions;
+export const { setMarketplaceContract, unsetMarketplaceContract, setError } = marketplaceContractSlice.actions;
 export default marketplaceContractSlice.reducer;

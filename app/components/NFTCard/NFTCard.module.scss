@@ -16,11 +16,11 @@ $font-color: #fefefe;
 	border-top-right-radius: 14px;
 	height: 425px;
 	width: 335px;
-	transition: border 0.35s ease;
+	// transition: border 0.35s ease;
 
-	&:hover {
-		border: 2px solid #0cc0df;
-	}
+	// &:hover {
+	// 	border: 2px solid #0cc0df;
+	// }
 
 	.card_img {
 		height: 330px;
@@ -91,6 +91,47 @@ $font-color: #fefefe;
 		letter-spacing: 0.05rem;
 	}
 
+	.card_auction_info {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		position: relative;
+
+		.card_auction_info_more {
+			display: none;
+		}
+
+		.card_auction_info_more.visible {
+			position: absolute;
+			width: 150px;
+			display: flex;
+			font-size: 12px;
+			font-weight: 100;
+			padding: 0.5rem 0.75rem;
+			border: 1px solid #0cc0df;
+			border-radius: 8px;
+			top: -115px;
+			right: 35px;
+			z-index: 1000;
+			background-color: $main-bg-color;
+			color: white;
+		}
+
+		.card_auction_info_icon {
+			justify-self: flex-end;
+			position: absolute;
+			top: 2px;
+			right: 15px;
+			transition: all 0.15s ease-in-out;
+
+			&:hover {
+				color: #0cc0df;
+				cursor: pointer;
+			}
+		}
+	}
+
 	.card_auction_list {
 		display: flex;
 		align-items: center;
@@ -106,6 +147,12 @@ $font-color: #fefefe;
 			font-weight: 100;
 			letter-spacing: 0.05rem;
 			transition: all 0.35s ease-in-out;
+			max-width: 125px;
+
+			&::placeholder {
+				font-weight: 400;
+				font-size: 10px;
+			}
 
 			&:hover,
 			&:focus,
@@ -115,7 +162,10 @@ $font-color: #fefefe;
 		}
 	}
 
-	.card_auction_list_btn {
+	.card_auction_list_wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		letter-spacing: 0.05rem;
 		font-weight: 200;
 		border: 2px solid $main-bg-color;
@@ -123,7 +173,7 @@ $font-color: #fefefe;
 		background-color: $alt-bg-color;
 		color: $font-color;
 		font-size: 14px;
-		padding: 0.5rem 1rem;
+		padding: 0.6rem 0.75rem;
 		border-radius: 8px;
 		transition: all 0.35s ease-in-out;
 

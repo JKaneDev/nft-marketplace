@@ -1,12 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Style from './NFTCard.module.scss';
 import Image from 'next/image';
 
 import images from '../../../assets/index';
 
-const NFTCard = ({ id, name, price, category, image }) => {
+import { FaGavel, FaInfoCircle } from 'react-icons/fa';
+
+const NFTCard = ({ name, image }) => {
+	const [isInfoVisible, setIsInfoVisible] = useState(false);
+
+	const handleShowAuctionInfo = (e) => {
+		setIsInfoVisible(!isInfoVisible);
+	};
+
 	return (
 		<div className={Style.card}>
 			<div className={Style.card_img}>
@@ -23,10 +31,19 @@ const NFTCard = ({ id, name, price, category, image }) => {
 			</div>
 
 			<div className={Style.card_auction}>
-				<p>Create Auction Listing</p>
+				<div className={Style.card_auction_info}>
+					<p>Create Auction Listing</p>
+					<FaInfoCircle className={Style.card_auction_info_icon} onClick={handleShowAuctionInfo} />
+					<p className={`${Style.card_auction_info_more} ${isInfoVisible ? Style.visible : ''}`}>
+						Please enter the auction start price in ETH and the time in Minutes. E.g. '2.5' & '60'
+					</p>
+				</div>
 				<div className={Style.card_auction_list}>
-					<input type='text' placeholder='Sale Price' />
-					<button className={Style.card_auction_list_btn}>List</button>
+					<input type='text' placeholder='(ETH): E.g. 2.5' />
+					<input type='text' placeholder='(Mins): E.g. 60' />
+					<div className={Style.card_auction_list_wrapper}>
+						<FaGavel className={Style.card_auction_list_wrapper_icon} />
+					</div>
 				</div>
 			</div>
 		</div>

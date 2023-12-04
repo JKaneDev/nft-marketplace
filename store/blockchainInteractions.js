@@ -34,6 +34,14 @@ export const connectToEthereum = async (dispatch) => {
 	}
 };
 
+export const getProvider = async () => new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+
+export const getSignerAddress = async () => {
+	const provider = await getProvider();
+	const signer = provider.getSigner();
+	return signer.getAddress();
+};
+
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
 	const address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
@@ -103,15 +111,9 @@ export const initiateMintSequence = async (metadata, marketplace, tokenId, selle
 		console.log('Metadata upload to IPFS successful');
 
 		// Step 5: Mint NFT and emit event
-		await marketplace.createToken(
-			metadataCID,
-			royaltyPercentage,
-			parseInt(royaltyPercentage),
-			ethers.parseEther(metadata.price),
-			{
-				value: ethers.parseEther('0.0025'),
-			},
-		);
+		await marketplace.createToken(metadataCID, parseInt(royaltyPercentage), ethers.parseEther(metadata.price), {
+			value: ethers.parseEther('0.0025'),
+		});
 
 		// Step 6: Pin data to IPFS and create duplicate in firebase for fast retrieval
 		await pinToIpfs(imageCID);
@@ -212,5 +214,18 @@ export const loadActiveAuctions = async (auctionFactoryContract) => {
 		return activeAuctions;
 	} catch (error) {
 		console.error('Error loading active auctions: ', error);
+	}
+};
+
+export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, dispatch) => {
+	try {
+		const usersAddress = await getSignerAddress();
+		const tx = await auctionFactoryContract.createAuction(startingPrice, auctionDuration, nftId, usersAddress);
+
+		const receipt = await tx.wait();
+
+		return receipt;
+	} catch (error) {
+		console.error('Error creating new auction: ', error);
 	}
 };
