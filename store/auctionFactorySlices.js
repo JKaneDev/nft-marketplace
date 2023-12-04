@@ -4,6 +4,7 @@ const initialState = {
 	contract: null,
 	isLoaded: false,
 	error: null,
+	auctions: [],
 };
 
 const auctionFactorySlice = createSlice({
@@ -24,8 +25,15 @@ const auctionFactorySlice = createSlice({
 			state.isLoaded = false;
 			state.contract = null;
 		},
+		addAuction: (state, action) => {
+			state.auctions.push(action.payload);
+		},
+		setAuctions: (state, action) => {
+			state.auctions.push(action.payload);
+		},
 	},
 });
 
-export const { setAuctionFactoryContract, unsetAuctionFactoryContract, setError } = auctionFactorySlice.actions;
+export const { setAuctionFactoryContract, unsetAuctionFactoryContract, setError, addAuction, setAuctions } =
+	auctionFactorySlice.actions;
 export default auctionFactorySlice.reducer;

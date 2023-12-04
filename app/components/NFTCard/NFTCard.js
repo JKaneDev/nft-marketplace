@@ -4,15 +4,27 @@ import React, { useState } from 'react';
 import Style from './NFTCard.module.scss';
 import Image from 'next/image';
 
+// BLOCKCHAIN + BACKEND + REDUX IMPORTS
+import { createAuction, loadAuctionFactoryContract } from '@/store/blockchainInteractions';
+import { Dispatch } from '@reduxjs/toolkit';
+
+// INTERNAL IMPORTS
 import images from '../../../assets/index';
 
 import { FaGavel, FaInfoCircle } from 'react-icons/fa';
 
 const NFTCard = ({ name, image }) => {
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
+	const [startingPrice, setStartingPrice] = useState('');
+	const [duration, setDuration] = useState('');
 
 	const handleShowAuctionInfo = (e) => {
 		setIsInfoVisible(!isInfoVisible);
+	};
+
+	const handleAuctionStart = async () => {
+		const contract = await loadAuctionFactoryContract(dispatch);
+		await createAuction(startingPrice, auctionDuration);
 	};
 
 	return (
@@ -42,7 +54,7 @@ const NFTCard = ({ name, image }) => {
 					<input type='text' placeholder='(ETH): E.g. 2.5' />
 					<input type='text' placeholder='(Mins): E.g. 60' />
 					<div className={Style.card_auction_list_wrapper}>
-						<FaGavel className={Style.card_auction_list_wrapper_icon} />
+						<FaGavel className={Style.card_auction_list_wrapper_icon} onClick={handleAuctionStart} />
 					</div>
 				</div>
 			</div>

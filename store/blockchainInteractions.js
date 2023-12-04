@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
 import { setMarketplaceContract } from './marketplaceSlices';
-import { setAuctionFactoryContract } from './auctionFactorySlices';
+import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
@@ -152,6 +152,8 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 			try {
 				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 				await set(auctionRef, auctionData);
+
+				dispatch(addAuction(auctionData));
 			} catch (error) {
 				console.error('Error adding auction data to firebase: ', error);
 			}
@@ -159,59 +161,27 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 	);
 };
 
-export const loadActiveAuctions = async (auctionFactoryContract) => {
-	const SECONDS_PER_DAY = 86400;
-	const AVERAGE_BLOCK_TIME_SECONDS = 12;
-	const BLOCKS_PER_DAY = SECONDS_PER_DAY / AVERAGE_BLOCK_TIME_SECONDS;
-	const DAYS = 7;
+export const loadActiveAuctions = async () => {
+	const dispatch = useDispatch();
 
 	try {
-		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-		const latestBlockNumber = await provider.getBlockNumber();
-		const fromBlock = latestBlockNumber - BLOCKS_PER_DAY * DAYS;
+		// Reference to the auctions in Firebase
+		const auctionsRef = ref(realtimeDb, 'auctions');
 
-		let activeAuctions = [];
+		// Fetch the auctions data
+		const snapshot = await get(auctionsRef);
+		if (snapshot.exists()) {
+			const auctionsData = snapshot.val();
 
-		// Fetch all created auctions for the last 7 days
-		const createdEvents = await auctionFactoryContract.queryFilter('AuctionCreated', fromBlock, 'latest');
-		const nftIdsFromActiveAuctions = auctionFactoryContract.getActiveAuctionIds();
-
-		// Loop through the created auctions
-		for (const event of createdEvents) {
-			if (nftIdsFromActiveAuctions.includes(event.args.nftId)) {
-				// Does auction already exist in DB?
-				const auctionRef = ref(realtimeDb, `auctions/${event.args.nftId}`);
-				const auctionSnapshot = await get(auctionRef);
-
-				if (!auctionSnapshot.exists()) {
-					const formattedStartTime = moment.unix(event.args.startTime).format('YY:MM:DD HH:mm');
-					const formattedDuration = moment.duration(event.args.auctionDuration, 'seconds').format('DD:HH:mm:ss');
-					const formattedEndTime = moment
-						.unix(event.args.startTime)
-						.add(event.args.auctionDuration, 'seconds')
-						.format('YY:MM:DD HH:mm:ss');
-
-					const auctionData = {
-						startingPrice: event.args.startingPrice.toString(),
-						startTime: formattedStartTime,
-						auctionDuration: formattedDuration,
-						auctionEndTime: formattedEndTime,
-						sellerAddress: event.args.seller,
-						auctionAddress: event.args.auctionAddress,
-					};
-
-					// Add formatted data to realtime database
-					try {
-						await set(auctionRef, auctionData);
-					} catch (error) {
-						console.error('Error adding auction data to firebase database: ', error);
-					}
+			const fetchedAuctions = Object.entries(auctionsData).reduce((acc, [nftId, auctionData]) => {
+				if (auctionData.active) {
+					acc.push({ nftId, ...auctionData });
 				}
-			}
-		}
+				return acc;
+			}, []);
 
-		// return formatted data
-		return activeAuctions;
+			dispatch(setAuctions(fetchedAuctions));
+		}
 	} catch (error) {
 		console.error('Error loading active auctions: ', error);
 	}
@@ -219,8 +189,15 @@ export const loadActiveAuctions = async (auctionFactoryContract) => {
 
 export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, dispatch) => {
 	try {
+		const startingPriceWei = ethers.utils.parseEther(startingPrice);
+		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
 		const usersAddress = await getSignerAddress();
-		const tx = await auctionFactoryContract.createAuction(startingPrice, auctionDuration, nftId, usersAddress);
+		const tx = await auctionFactoryContract.createAuction(
+			startingPriceWei,
+			auctionDurationInSeconds,
+			nftId,
+			usersAddress,
+		);
 
 		const receipt = await tx.wait();
 
