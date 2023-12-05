@@ -72,6 +72,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     }
 
     function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
+        console.log('createToken function caller: ', msg.sender);
         _tokenIds.increment();
 
         uint256 newTokenId = _tokenIds.current();
@@ -87,14 +88,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // NFT is held in escrow in the marketplace
     function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
+        console.log('createMarketItem function caller: ', msg.sender);
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
         
         idToMarketItem[tokenId] = MarketItem(
             tokenId,
-            payable(msg.sender),
-            payable(msg.sender),
-            payable(address(this)),
+            payable(msg.sender), // originalOwner
+            payable(msg.sender), // seller
+            payable(address(this)), // owner
             royaltyPercentage,
             price,
             false
@@ -115,7 +117,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // Allows the user to relist an item they own in the marketplace
     function resellMarketItem(uint256 tokenId, uint256 price) external payable override {
-        require(idToMarketItem[tokenId].owner == msg.sender, "token can only be resold by owner");
 
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;

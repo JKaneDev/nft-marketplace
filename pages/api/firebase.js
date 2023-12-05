@@ -27,7 +27,7 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 	try {
 		// Define the NFT metadata object for Firebase
 		const nftDataForFirebase = {
-			id: tokenId,
+			id: tokenId.toString(),
 			name: metadata.displayName,
 			description: metadata.description,
 			properties: metadata.properties,
@@ -35,11 +35,6 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 			category: metadata.category,
 			image: firebaseImageUrl,
 		};
-
-		console.log('updatefirebase: ', {
-			nftDataForFirebase,
-			userWalletAddress,
-		});
 
 		// Get a reference to the user's document in Firestore
 		const userRef = doc(db, 'users', userWalletAddress);

@@ -35,6 +35,7 @@ const Navbar = () => {
 
 	const handleConnect = async () => {
 		try {
+			console.log('Handling Wallet Connect');
 			if (!isConnected) {
 				const account = await connectToEthereum(dispatch);
 				loadOrCreateAccount(account);
@@ -47,12 +48,16 @@ const Navbar = () => {
 	};
 
 	const loadOrCreateAccount = async (walletAddress) => {
+		console.log('Loading or creating account');
 		const userRef = doc(db, 'users', walletAddress);
 		const docSnap = await getDoc(userRef);
+		console.log('Database ref created or found');
 
-		if (!docSnap.exists()) {
+		if (docSnap.exists()) {
+			console.log('User already has profile in DB');
 			return docSnap.data();
 		} else {
+			console.log('No profile found - creating profile');
 			const newUser = {
 				walletAddress: walletAddress,
 				profilePicture: '',

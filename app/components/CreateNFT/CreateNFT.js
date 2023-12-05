@@ -7,6 +7,7 @@ import { RingLoader } from 'react-spinners';
 // BLOCKCHAIN + STORAGE + STATE IMPORTS
 import { useSelector, useDispatch } from 'react-redux';
 import { loadMarketplaceContract, connectToEthereum, initiateMintSequence } from '@/store/blockchainInteractions';
+import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
@@ -42,22 +43,6 @@ const CreateNFT = () => {
 
 		loadContract();
 	}, [dispatch]);
-
-	// Fetch data from NFT mint event
-	useEffect(() => {
-		if (marketplace) {
-			const handleMarketItemCreated = (tokenId, seller) => {
-				setTokenId(tokenId.toString());
-				setSeller(seller);
-			};
-
-			marketplace.on('MarketItemCreated', handleMarketItemCreated);
-
-			return () => {
-				marketplace.off('MarketItemCreated', handleMarketItemCreated);
-			};
-		}
-	}, [marketplace]);
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
@@ -108,7 +93,7 @@ const CreateNFT = () => {
 		}
 
 		try {
-			await initiateMintSequence(metadata, marketplace, tokenId, seller, nftData.royalties);
+			await initiateMintSequence(metadata, marketplace, nftData.royalties);
 			setLoading(false);
 			window.location.reload();
 		} catch (error) {

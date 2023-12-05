@@ -5,6 +5,7 @@ import './Auction.sol';
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IMarketplace.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
 contract AuctionFactory {
         using Counters for Counters.Counter;
@@ -39,6 +40,7 @@ contract AuctionFactory {
         }
 
         function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
+                console.log('createAuction function caller: ', msg.sender);
                 require(seller != address(0), 'Invalid seller address');
                 require(startingPrice > 0, 'Starting price must be at least 1 wei');
                 require(auctions[nftId].seller == address(0), 'Auction for this nft already exists');

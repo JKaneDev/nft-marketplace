@@ -5,15 +5,17 @@ import Style from './NFTCard.module.scss';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
-import { createAuction, loadAuctionFactoryContract } from '@/store/blockchainInteractions';
-import { Dispatch } from '@reduxjs/toolkit';
+import { createAuction, getSignerAddress, loadAuctionFactoryContract } from '@/store/blockchainInteractions';
+import { useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
 
 import { FaGavel, FaInfoCircle } from 'react-icons/fa';
 
-const NFTCard = ({ name, image }) => {
+const NFTCard = ({ id, name, image }) => {
+	const dispatch = useDispatch();
+
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
 	const [startingPrice, setStartingPrice] = useState('');
 	const [duration, setDuration] = useState('');
@@ -23,8 +25,15 @@ const NFTCard = ({ name, image }) => {
 	};
 
 	const handleAuctionStart = async () => {
+		console.log('Auction Sequence Initialized');
 		const contract = await loadAuctionFactoryContract(dispatch);
-		await createAuction(startingPrice, auctionDuration);
+		console.log('Data before auction call: ', {
+			contract,
+			startingPrice,
+			duration,
+			id,
+		});
+		await createAuction(contract, startingPrice, duration, id);
 	};
 
 	return (
@@ -51,10 +60,10 @@ const NFTCard = ({ name, image }) => {
 					</p>
 				</div>
 				<div className={Style.card_auction_list}>
-					<input type='text' placeholder='(ETH): E.g. 2.5' />
-					<input type='text' placeholder='(Mins): E.g. 60' />
-					<div className={Style.card_auction_list_wrapper}>
-						<FaGavel className={Style.card_auction_list_wrapper_icon} onClick={handleAuctionStart} />
+					<input type='text' placeholder='(ETH): E.g. 2.5' onChange={(e) => setStartingPrice(e.target.value)} />
+					<input type='text' placeholder='(Mins): E.g. 60' onChange={(e) => setDuration(e.target.value)} />
+					<div className={Style.card_auction_list_wrapper} onClick={handleAuctionStart}>
+						<FaGavel className={Style.card_auction_list_wrapper_icon} />
 					</div>
 				</div>
 			</div>

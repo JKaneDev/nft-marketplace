@@ -38,13 +38,14 @@ export const getProvider = async () => new ethers.JsonRpcProvider('http://127.0.
 
 export const getSignerAddress = async () => {
 	const provider = await getProvider();
-	const signer = provider.getSigner();
-	return signer.getAddress();
+	const signer = await provider.getSigner();
+	console.log('Signer: ', signer.address);
+	return signer.address;
 };
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
+	const address = '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -62,7 +63,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0';
+	const address = '0x09635F643e140090A9A8Dcd712eD6285858ceBef';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -93,7 +94,7 @@ const pinToIpfs = async (cid) => {
 	}
 };
 
-export const initiateMintSequence = async (metadata, marketplace, tokenId, seller, royaltyPercentage) => {
+export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
@@ -102,25 +103,36 @@ export const initiateMintSequence = async (metadata, marketplace, tokenId, selle
 		const imageCID = await uploadImageToIpfs(metadata.image);
 
 		// Step 3: Destructure unnecessary data & update metadata with IPFS image CID
-		const { siteLink, imagePreview, ...metadataToUpload } = metadata;
+		const { siteLink, ...metadataToUpload } = metadata;
 		metadataToUpload.image = imageCID;
 
-		// Step 4: Upload metadata to IPFS
+		// Step 4: Upload + pin metadata to IPFS
 		const metadataCID = await uploadMetadata(metadataToUpload);
-
-		console.log('Metadata upload to IPFS successful');
-
-		// Step 5: Mint NFT and emit event
-		await marketplace.createToken(metadataCID, parseInt(royaltyPercentage), ethers.parseEther(metadata.price), {
-			value: ethers.parseEther('0.0025'),
-		});
-
-		// Step 6: Pin data to IPFS and create duplicate in firebase for fast retrieval
 		await pinToIpfs(imageCID);
 		await pinToIpfs(metadataCID);
-		const firebaseImageUrl = await uploadImageToFirebase(metadata.image, metadata.displayName, tokenId, seller);
-		await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
-		console.log('Metadata uploaded to firebase!');
+
+		marketplace.on('MarketItemCreated', async (tokenId, seller) => {
+			const firebaseImageUrl = await uploadImageToFirebase(
+				metadata.image,
+				metadataToUpload.displayName,
+				tokenId,
+				seller,
+			);
+			await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
+			console.log('Metadata uploaded to firebase!');
+		});
+
+		// Step 5: Mint NFT and emit event
+		const tx = await marketplace.createToken(
+			metadataCID,
+			parseInt(royaltyPercentage),
+			ethers.parseEther(metadata.price),
+			{
+				value: ethers.parseEther('0.0025'),
+			},
+		);
+
+		const receipt = await tx.wait();
 
 		console.log('Smart contract call successful');
 	} else {
@@ -187,9 +199,9 @@ export const loadActiveAuctions = async () => {
 	}
 };
 
-export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, dispatch) => {
+export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId) => {
 	try {
-		const startingPriceWei = ethers.utils.parseEther(startingPrice);
+		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
 		const usersAddress = await getSignerAddress();
 		const tx = await auctionFactoryContract.createAuction(
@@ -200,6 +212,7 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 		);
 
 		const receipt = await tx.wait();
+		console.log('Create Auction Receipt: ', receipt);
 
 		return receipt;
 	} catch (error) {
