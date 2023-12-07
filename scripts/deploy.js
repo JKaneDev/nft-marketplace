@@ -16,6 +16,10 @@ async function main() {
 	const auctionFactoryContract = await auctionFactory.deploy(marketplaceAddress);
 	await auctionFactoryContract.waitForDeployment();
 
+	const auctionFactoryAddress = await auctionFactoryContract.getAddress();
+
+	await marketplaceContract.setAuctionFactoryAddress(auctionFactoryAddress);
+
 	console.log(`marketplaceContract deployed to address: ${await marketplaceContract.getAddress()}`);
 	console.log(`auctionFactoryContract deployed to address: ${await auctionFactoryContract.getAddress()}`);
 }

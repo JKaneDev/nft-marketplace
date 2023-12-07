@@ -10,7 +10,7 @@ import { doc, getDoc } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
 import Style from './MyNFTs.module.scss';
-import { NFTCard } from '../componentindex';
+import { MarketItem } from '../componentindex';
 import images from '../../../assets/index';
 
 // EXTERNAL IMPORTS
@@ -255,7 +255,14 @@ const MyNFTs = () => {
 				<>
 					{filteredNFTs &&
 						filteredNFTs.map((nft) => (
-							<NFTCard key={nft.id} id={nft.id} name={nft.name} image={nft.image} category={nft.category} />
+							<MarketItem
+								key={nft.id}
+								id={nft.id}
+								name={nft.name}
+								image={nft.image}
+								category={nft.category}
+								price={nft.price}
+							/>
 						))}
 				</>
 			</div>

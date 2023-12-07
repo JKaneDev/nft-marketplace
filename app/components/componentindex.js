@@ -12,10 +12,10 @@ import CreateNFT from './CreateNFT/CreateNFT';
 import Watchlist from './Watchlist/Watchlist';
 import Contact from './Contact/Contact';
 import About from './About/About';
-import NFTCard from './NFTCard/NFTCard';
+import MarketItem from './MarketItem/MarketItem';
 
 export {
-	NFTCard,
+	MarketItem,
 	About,
 	Contact,
 	Footer,

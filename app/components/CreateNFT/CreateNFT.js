@@ -19,8 +19,6 @@ const CreateNFT = () => {
 	const isConnected = useSelector((state) => state.connection.isConnected);
 	const [loading, setLoading] = useState(false);
 	const [marketplace, setMarketplace] = useState(null);
-	const [tokenId, setTokenId] = useState(null);
-	const [seller, setSeller] = useState(null);
 	const [validationErrors, setValidationErrors] = useState({});
 
 	const [nftData, setNftData] = useState({
@@ -71,6 +69,19 @@ const CreateNFT = () => {
 		}));
 	};
 
+	const resetNftData = () => {
+		setNftData({
+			displayName: '',
+			siteLink: '',
+			description: '',
+			royalties: '',
+			properties: '',
+			price: '',
+			category: null,
+			image: null,
+		});
+	};
+
 	const createNft = async (metadata) => {
 		setLoading(true);
 		// Call disallowed unless valid MetaMask connection
@@ -95,7 +106,10 @@ const CreateNFT = () => {
 		try {
 			await initiateMintSequence(metadata, marketplace, nftData.royalties);
 			setLoading(false);
-			window.location.reload();
+
+			setTimeout(() => {
+				resetNftData();
+			}, 2000);
 		} catch (error) {
 			console.error('Error in createNFT: ', error);
 		}
@@ -122,7 +136,7 @@ const CreateNFT = () => {
 							<Image src={images.upload} alt='upload placeholder'></Image>
 							<p>Upload Image</p>
 							<p>Browse Files</p>
-							<p>Max Size: 10mb</p>
+							<p>Max Size: 1mb</p>
 							<p>JPG, JPEG, SVG, PNG</p>
 						</div>
 					)}
@@ -138,6 +152,7 @@ const CreateNFT = () => {
 					<input
 						type='text'
 						placeholder='Dark Magicians'
+						value={nftData.displayName}
 						onChange={(e) => handleInputChange('displayName', e.target.value)}
 					/>
 					{validationErrors.displayName && (
@@ -149,6 +164,7 @@ const CreateNFT = () => {
 					<input
 						type='text'
 						placeholder='https://darkmagicians.io'
+						value={nftData.siteLink}
 						onChange={(e) => handleInputChange('siteLink', e.target.value)}
 					/>
 					{validationErrors.siteLink && (
@@ -159,6 +175,7 @@ const CreateNFT = () => {
 					<p>Description*</p>
 					<textarea
 						placeholder='Short description of your NFT'
+						value={nftData.description}
 						onChange={(e) => handleInputChange('description', e.target.value)}
 					/>
 					{validationErrors.description && (
@@ -169,7 +186,12 @@ const CreateNFT = () => {
 				<div className={Style.main_info_wrapper}>
 					<Image src={images.percentage} className={Style.main_info_wrapper_percentage} alt='% Symbol' />
 					<p>Royalties</p>
-					<input type='text' placeholder='MAX: 10%' onChange={(e) => handleInputChange('royalties', e.target.value)} />
+					<input
+						type='text'
+						placeholder='MAX: 10%'
+						value={nftData.royalties}
+						onChange={(e) => handleInputChange('royalties', e.target.value)}
+					/>
 					{validationErrors.royalties && (
 						<span className={Style.main_info_wrapper_error}>{validationErrors.royalties}</span>
 					)}
@@ -178,6 +200,7 @@ const CreateNFT = () => {
 					<p>Properties</p>
 					<input
 						type='text'
+						value={nftData.properties}
 						placeholder='Comma Separated. E.g. "Dark, Sci-Fi, Cyberpunk"'
 						onChange={(e) => handleInputChange('properties', e.target.value)}
 					/>
@@ -190,6 +213,7 @@ const CreateNFT = () => {
 					<p>Price*</p>
 					<input
 						type='text'
+						value={nftData.price}
 						placeholder='ETH Amount: E.g. 2.5'
 						onChange={(e) => handleInputChange('price', e.target.value)}
 					/>

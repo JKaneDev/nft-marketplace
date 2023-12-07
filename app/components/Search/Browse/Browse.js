@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
 
 // BLOCKCHAIN + BACKEND IMPORTS
 import { ethers } from 'ethers';
@@ -11,6 +12,7 @@ import { doc, getDoc } from 'firebase/firestore';
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
 import { AuctionCard } from '../../componentindex';
+import { listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
 import { FaSearch, FaCaretDown } from 'react-icons/fa';
@@ -19,6 +21,8 @@ import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
 
 const Browse = () => {
+	const auctionFactoryContract = useSelector((state) => state.auctionFactory.contract);
+
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState(null);
@@ -26,6 +30,7 @@ const Browse = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
 	const dropdownRef = useRef(null);
+	const dispatch = useDispatch();
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
@@ -86,6 +91,16 @@ const Browse = () => {
 		};
 	}, []);
 
+	// Load and listen for auctions
+	useEffect(() => {
+		const loadAuctionFactoryFunctions = async () => {
+			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			await loadActiveAuctions();
+		};
+
+		loadAuctionFactoryFunctions();
+	}, []);
+
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
 		setIsFilterOpen(false);
@@ -98,7 +113,7 @@ const Browse = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
-	const filterOptions = ['Currently Owned', 'Watchlist'];
+	const filterOptions = ['Marketplace', 'Live Auctions'];
 
 	const handleCategorySelect = (category) => {
 		setCurrentCategory(category);
@@ -197,7 +212,6 @@ const Browse = () => {
 			</div>
 			<div className={Style.browse_auctions}>
 				<MdRestartAlt size={28} className={Style.browse_auctions_reset} onClick={handleResetFilter} />
-				<AuctionCard />
 			</div>
 		</div>
 	);

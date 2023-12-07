@@ -7,7 +7,6 @@ import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/fireba
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
-import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import moment from 'moment';
 import { realtimeDb } from '@/firebaseConfig';
 import { get, ref, set } from 'firebase/database';
@@ -39,13 +38,12 @@ export const getProvider = async () => new ethers.JsonRpcProvider('http://127.0.
 export const getSignerAddress = async () => {
 	const provider = await getProvider();
 	const signer = await provider.getSigner();
-	console.log('Signer: ', signer.address);
 	return signer.address;
 };
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E';
+	const address = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -63,7 +61,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x09635F643e140090A9A8Dcd712eD6285858ceBef';
+	const address = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -204,6 +202,7 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
 		const usersAddress = await getSignerAddress();
+
 		const tx = await auctionFactoryContract.createAuction(
 			startingPriceWei,
 			auctionDurationInSeconds,

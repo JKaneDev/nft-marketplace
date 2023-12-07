@@ -17,6 +17,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     uint256 listingPrice = 0.0025 ether;
 
     address payable owner;
+    address private auctionFactory;
     
     mapping (uint256 => MarketItem) private idToMarketItem;
 
@@ -30,6 +31,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         address payable owner;
         uint256 royaltyPercentage;
         uint256 price;
+        bool auction;
         bool sold;
     }
 
@@ -40,6 +42,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         address owner,
         uint256 royaltyPercentage,
         uint256 price,
+        bool auction,
         bool sold
     );
 
@@ -95,10 +98,11 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         idToMarketItem[tokenId] = MarketItem(
             tokenId,
             payable(msg.sender), // originalOwner
-            payable(msg.sender), // seller
-            payable(address(this)), // owner
+            payable(msg.sender), // seller 
+            payable(address(this)),
             royaltyPercentage,
             price,
+            false,
             false
         );
 
@@ -111,12 +115,18 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
             address(0),
             royaltyPercentage,
             price,
+            false,
             false
         );
     }
 
     // Allows the user to relist an item they own in the marketplace
     function resellMarketItem(uint256 tokenId, uint256 price) external payable override {
+        require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
+
+        if (msg.sender == auctionFactory) {
+            idToMarketItem[tokenId].auction = true;
+        }
 
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;
@@ -224,6 +234,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return items;
     }
 
+    function setAuctionFactoryAddress(address auctionFactoryAddress) public {
+        auctionFactory = auctionFactoryAddress;
+    }
+
     function handleAuctionEnd(uint256 tokenId, address winner) external override {
         // Transfer NFT to intended recipient
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
@@ -233,4 +247,3 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         emit NFTTransferred(tokenId, winner);
     }
 }
-
