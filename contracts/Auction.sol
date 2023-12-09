@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./IMarketplace.sol";
 import './AuctionFactory.sol';
+import "hardhat/console.sol";
 
 contract Auction is ReentrancyGuard {
 
@@ -23,6 +24,7 @@ contract Auction is ReentrancyGuard {
         event AuctionEnded(address auctionAddress, uint256 timestamp, uint256 nftId, address seller, uint256 startingPrice, uint256 highestBid);
 
         constructor(uint256 _nftId, uint256 _startingPrice, address _seller, address _marketplaceAddress, address _auctionFactoryAddress) {
+                console.log('Auction contract initialized: ', _nftId, _seller, _startingPrice);
                 marketplaceAddress = _marketplaceAddress;
                 marketplaceContract = IMarketplace(marketplaceAddress);
                 auctionFactory = AuctionFactory(_auctionFactoryAddress);

@@ -122,7 +122,21 @@ const MyNFTs = () => {
 	const filteredNFTs = useMemo(() => {
 		if (!userData) return [];
 
-		let nfts = currentFilter === 'Currently Owned' ? userData.ownedNFTs : userData.watchlist;
+		let nfts = [];
+		switch (currentFilter) {
+			case 'Currently Owned':
+				nfts = userData.ownedNFTs.filter((nft) => !nft.isListed);
+				break;
+			case 'Watchlist':
+				nfts = userData.watchlist;
+				break;
+			case 'Currently Listed':
+				nfts = userData.ownedNFTs.filter((nft) => nft.isListed);
+				break;
+			default:
+				nfts = userData.ownedNFTs.filter((nft) => !nft.isListed);
+		}
+
 		if (currentCategory) {
 			nfts = nfts.filter((nft) => nft.category === currentCategory);
 		}
