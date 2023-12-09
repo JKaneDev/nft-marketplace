@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-	contract: null,
+	contractDetails: null,
 	isLoaded: false,
 	error: null,
 	auctions: [],
@@ -12,18 +12,18 @@ const auctionFactorySlice = createSlice({
 	initialState,
 	reducers: {
 		setAuctionFactoryContract: (state, action) => {
-			state.contract = action.payload;
+			state.contractDetails = action.payload;
 			state.isLoaded = true;
 			state.error = null;
 		},
 		unsetAuctionFactoryContract: (state) => {
-			state.contract = null;
+			state.contractDetails = null;
 			state.isLoaded = false;
 		},
 		setError: (state, action) => {
 			state.error = action.payload;
 			state.isLoaded = false;
-			state.contract = null;
+			state.contractDetails = null;
 		},
 		addAuction: (state, action) => {
 			state.auctions.push(action.payload);

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-	contract: null,
+	contractDetails: null,
 	isLoaded: false,
 	error: null,
 };
@@ -11,7 +11,7 @@ const marketplaceContractSlice = createSlice({
 	initialState,
 	reducers: {
 		setMarketplaceContract: (state, action) => {
-			state.MarketplaceContract = action.payload;
+			state.contractDetails = action.payload;
 			state.isLoaded = true;
 			state.error = null;
 		},
@@ -22,7 +22,7 @@ const marketplaceContractSlice = createSlice({
 		setError: (state, action) => {
 			state.error = action.payload;
 			state.isLoaded = false;
-			state.contract = null;
+			state.contractDetails = null;
 		},
 	},
 });

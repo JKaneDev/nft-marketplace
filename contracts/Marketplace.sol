@@ -133,7 +133,9 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         idToMarketItem[tokenId].seller = payable(msg.sender);
         idToMarketItem[tokenId].owner = payable(address(this));
 
+        if (_itemsSold.current() > 0) {
         _itemsSold.decrement();
+    }
 
         _transfer(msg.sender, address(this), tokenId);
     }

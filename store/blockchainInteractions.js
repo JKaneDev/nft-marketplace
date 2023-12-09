@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
-import { setMarketplaceContract } from './marketplaceSlices';
+import { setError, setMarketplaceContract } from './marketplaceSlices';
 import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
@@ -43,7 +43,7 @@ export const getSignerAddress = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
+	const address = '0x610178dA211FEF7D417bC0e6FeD39F05609AD788';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -56,12 +56,13 @@ export const loadMarketplaceContract = async (dispatch) => {
 		return marketplace;
 	} catch (error) {
 		console.log('Marketplace contract not deployed to the current network. Please select another with MetaMask.');
+		dispatch(setError(error.message));
 	}
 };
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
+	const address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -73,7 +74,14 @@ export const loadAuctionFactoryContract = async (dispatch) => {
 		return auctionFactory;
 	} catch (error) {
 		console.log('Auction Factory not deployed to the current network.');
+		dispatch(setError(error.message));
 	}
+};
+
+export const createContractInstance = async (contractDetails) => {
+	const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+	const signer = await provider.getSigner();
+	return new ethers.Contract(contractDetails.address, contractDetails.abi, signer);
 };
 
 const pinToIpfs = async (cid) => {
