@@ -10,7 +10,7 @@ import { doc, getDoc } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
 import Style from './MyNFTs.module.scss';
-import { MarketItem } from '../componentindex';
+import { MarketItem, AuctionCard } from '../componentindex';
 import images from '../../../assets/index';
 
 // EXTERNAL IMPORTS
@@ -18,12 +18,13 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
+import { BiLogoNetlify } from 'react-icons/bi';
 
 const MyNFTs = () => {
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState(null);
-	const [currentFilter, setCurrentFilter] = useState('Currently Owned'); // or 'watchlist
+	const [currentFilter, setCurrentFilter] = useState('Currently Owned');
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
 	const dropdownRef = useRef(null);
@@ -99,13 +100,14 @@ const MyNFTs = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
-	const filterOptions = ['Currently Owned', 'Watchlist'];
+	const filterOptions = ['Currently Owned', 'Currently Listed', 'Watchlist'];
 
 	const handleCategorySelect = (category) => {
 		setCurrentCategory(category);
 	};
 
 	const handleFilterSelect = (filter) => {
+		console.log('Filter:', filter, 'Type:', typeof filter);
 		setCurrentFilter(filter);
 	};
 
@@ -276,6 +278,7 @@ const MyNFTs = () => {
 								image={nft.image}
 								category={nft.category}
 								price={nft.price}
+								isListed={nft.isListed}
 							/>
 						))}
 				</>

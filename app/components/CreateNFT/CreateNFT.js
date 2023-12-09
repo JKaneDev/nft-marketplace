@@ -6,8 +6,7 @@ import { RingLoader } from 'react-spinners';
 
 // BLOCKCHAIN + STORAGE + STATE IMPORTS
 import { useSelector, useDispatch } from 'react-redux';
-import { loadMarketplaceContract, connectToEthereum, initiateMintSequence } from '@/store/blockchainInteractions';
-import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
+import { connectToEthereum, initiateMintSequence, createContractInstance } from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
@@ -17,8 +16,8 @@ import { validateInput } from './utils';
 const CreateNFT = () => {
 	const dispatch = useDispatch();
 	const isConnected = useSelector((state) => state.connection.isConnected);
+	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 	const [loading, setLoading] = useState(false);
-	const [marketplace, setMarketplace] = useState(null);
 	const [validationErrors, setValidationErrors] = useState({});
 
 	const [nftData, setNftData] = useState({
@@ -31,16 +30,6 @@ const CreateNFT = () => {
 		category: null,
 		image: null,
 	});
-
-	// Loads marketplace contract on mount
-	useEffect(() => {
-		const loadContract = async () => {
-			const marketplace = await loadMarketplaceContract(dispatch);
-			setMarketplace(marketplace);
-		};
-
-		loadContract();
-	}, [dispatch]);
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
@@ -91,12 +80,6 @@ const CreateNFT = () => {
 			return;
 		}
 
-		// Disallow function call if smart contract is not loaded
-		if (!marketplace) {
-			window.alert('Smart contract not loaded');
-			return;
-		}
-
 		// Disallow multiple function calls
 		if (loading) {
 			window.alert('Mint already called. Please wait');
@@ -104,12 +87,15 @@ const CreateNFT = () => {
 		}
 
 		try {
+			console.log('Create nft called');
+			const marketplace = await createContractInstance(marketplaceDetails);
 			await initiateMintSequence(metadata, marketplace, nftData.royalties);
-			setLoading(false);
 
 			setTimeout(() => {
 				resetNftData();
-			}, 2000);
+			}, 3000);
+
+			setLoading(false);
 		} catch (error) {
 			console.error('Error in createNFT: ', error);
 		}

@@ -34,6 +34,7 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 			price: metadata.price,
 			category: metadata.category,
 			image: firebaseImageUrl,
+			isListed: true,
 		};
 
 		// Get a reference to the user's document in Firestore
@@ -48,5 +49,35 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 	} catch (error) {
 		console.error('Error updating Firebase with NFT:', error);
 		throw error;
+	}
+};
+
+export const toggleNFTListingStatus = async (userWalletAddress, nftId) => {
+	try {
+		// Reference to the user's document
+		const userRef = doc(db, 'users', userWalletAddress);
+
+		// Get the current data of the user
+		const userDoc = await getDoc(userRef);
+		if (userDoc.exists()) {
+			const userData = userDoc.data();
+
+			// Assuming ownedNFTs is a map of NFTs
+			const currentIsListedStatus = userData.ownedNFTs[nftId].isListed;
+
+			// Path to the specific NFT
+			const nftPath = `ownedNFTs.${nftId}.isListed`;
+
+			// Update the isListed property of the specific NFT
+			await updateDoc(userRef, {
+				[nftPath]: !currentIsListedStatus,
+			});
+
+			console.log('NFT listing status toggled successfully');
+		} else {
+			console.log('User document does not exist');
+		}
+	} catch (error) {
+		console.error('Error toggling NFT listing status:', error);
 	}
 };

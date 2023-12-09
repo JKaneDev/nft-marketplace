@@ -43,7 +43,7 @@ export const getSignerAddress = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x610178dA211FEF7D417bC0e6FeD39F05609AD788';
+	const address = '0x0B306BF915C4d645ff596e518fAf3F9669b97016';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -62,7 +62,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
+	const address = '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -105,6 +105,7 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 	const validationErrors = validateInput(metadata);
 
 	if (Object.keys(validationErrors).length === 0) {
+		console.log('initiate mint sequence called');
 		// Step 2: Upload Image to IPFS and get CID
 		const imageCID = await uploadImageToIpfs(metadata.image);
 
@@ -117,16 +118,29 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 		await pinToIpfs(imageCID);
 		await pinToIpfs(metadataCID);
 
-		marketplace.on('MarketItemCreated', async (tokenId, seller) => {
-			const firebaseImageUrl = await uploadImageToFirebase(
-				metadata.image,
-				metadataToUpload.displayName,
-				tokenId,
-				seller,
-			);
-			await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
-			console.log('Metadata uploaded to firebase!');
-		});
+		marketplace.on(
+			'MarketItemCreated',
+			async (tokenId, originalOwner, seller, owner, royaltyPercentage, price, auction, sold) => {
+				console.log('Market item created event: ', {
+					tokenId,
+					originalOwner,
+					seller,
+					owner,
+					royaltyPercentage,
+					price,
+					auction,
+					sold,
+				});
+				const firebaseImageUrl = await uploadImageToFirebase(
+					metadata.image,
+					metadataToUpload.displayName,
+					tokenId,
+					seller,
+				);
+				await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
+				console.log('Metadata uploaded to firebase!');
+			},
+		);
 
 		// Step 5: Mint NFT and emit event
 		const tx = await marketplace.createToken(

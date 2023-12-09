@@ -13,8 +13,10 @@ import Watchlist from './Watchlist/Watchlist';
 import Contact from './Contact/Contact';
 import About from './About/About';
 import MarketItem from './MarketItem/MarketItem';
+import NFTInfo from './MarketItem/NFTInfo/NFTInfo';
 
 export {
+	NFTInfo,
 	MarketItem,
 	About,
 	Contact,

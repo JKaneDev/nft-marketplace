@@ -5,15 +5,18 @@ import Style from './MarketItem.module.scss';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
-import { createAuction, loadAuctionFactoryContract } from '@/store/blockchainInteractions';
+import { createAuction, createContractInstance } from '@/store/blockchainInteractions';
+import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import AuctionInterface from '../AuctionInterface/AuctionInterface';
+import AuctionInterface from './AuctionInterface/AuctionInterface';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
+import { NFTInfo } from '../componentindex';
 
-const MarketItem = ({ id, name, image, price }) => {
+const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const dispatch = useDispatch();
+	const contractDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
 	const [startingPrice, setStartingPrice] = useState('');
@@ -24,7 +27,7 @@ const MarketItem = ({ id, name, image, price }) => {
 	};
 
 	const handleAuctionStart = async () => {
-		const contract = await loadAuctionFactoryContract(dispatch);
+		const contract = await createContractInstance(contractDetails.address, contractDetails.abi);
 		await createAuction(contract, startingPrice, duration, id);
 	};
 
@@ -43,13 +46,18 @@ const MarketItem = ({ id, name, image, price }) => {
 				</div>
 			</div>
 
-			<AuctionInterface
-				isInfoVisible={isInfoVisible}
-				setStartingPrice={setStartingPrice}
-				setDuration={setDuration}
-				handleShowAuctionInfo={handleShowAuctionInfo}
-				handleAuctionStart={handleAuctionStart}
-			/>
+			{isListed ? (
+				<NFTInfo id={id} name={name} price={price} category={category} />
+			) : (
+				// <span>Hello</span>
+				<AuctionInterface
+					isInfoVisible={isInfoVisible}
+					setStartingPrice={setStartingPrice}
+					setDuration={setDuration}
+					handleShowAuctionInfo={handleShowAuctionInfo}
+					handleAuctionStart={handleAuctionStart}
+				/>
+			)}
 		</div>
 	);
 };

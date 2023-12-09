@@ -1,0 +1,125 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+$icon-bg-color: #1da1f2;
+$font-color: #fefefe;
+
+.wrapper {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	font-weight: 200;
+	letter-spacing: 0.1rem;
+	font-size: 14px;
+	padding: 0.5rem 1rem;
+	width: 330px;
+}
+
+.wrapper_price {
+	border: 2px solid #0cc0df;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.5rem;
+	position: relative;
+	width: 50%;
+	transition: all 0.35s ease-in-out;
+
+	.wrapper_price_input {
+		display: flex;
+		align-items: center;
+		position: relative;
+
+		.wrapper_price_input_eth {
+			filter: invert(14%) sepia(82%) saturate(9%) hue-rotate(18deg) brightness(95%) contrast(95%);
+			position: absolute;
+			height: 16px;
+			width: 16px;
+			right: 0px;
+			top: 8px;
+		}
+	}
+
+	input {
+		width: 100%;
+		padding: 0.65rem 0 0.25rem 0;
+		font-weight: 300;
+		text-align: left;
+		padding-left: 0.25rem;
+		background: $main-bg-color;
+		border: none;
+		outline: none;
+		color: white;
+		font-size: 14px;
+		letter-spacing: 0.1rem;
+	}
+
+	p:nth-of-type(1) {
+		z-index: 1000;
+		position: absolute;
+		transform: translateY(-1.75rem);
+		font-size: 12px;
+		top: 1rem;
+		left: 0.5rem;
+		background-color: #0cc0df;
+		border-radius: 8px;
+		color: black;
+		padding: 0.2rem 0.75rem;
+		font-weight: 400;
+		letter-spacing: 0.05rem;
+		transition: all 0.35s ease-in-out;
+	}
+
+	p:nth-of-type(2) {
+		padding: 0.65rem 0 0.25rem 0;
+		font-weight: 300;
+		text-align: left;
+		padding-left: 0.25rem;
+	}
+}
+
+.wrapper_info {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.25rem;
+	width: 50%;
+	padding-bottom: 0.25rem;
+
+	p {
+		text-align: center;
+		font-weight: 500;
+	}
+
+	button {
+		transition: all 0.35s ease-in-out;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 0.75rem;
+		background: $alt-bg-color;
+		border: 1px solid $main-bg-color;
+		font-size: 14px;
+		font-weight: 100;
+		letter-spacing: 0.1rem;
+		border-radius: 8px;
+		color: white;
+
+		&:hover {
+			background-color: $main-bg-color;
+			border: 1px solid #0cc0df;
+			cursor: pointer;
+		}
+	}
+}
+
+.wrapper_info_btns {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
