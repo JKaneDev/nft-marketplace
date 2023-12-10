@@ -42,7 +42,7 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 
 		// Update the user's document with the new NFT data
 		await updateDoc(userRef, {
-			ownedNFTs: arrayUnion(nftDataForFirebase),
+			[`ownedNFTs.${tokenId}`]: nftDataForFirebase,
 		});
 
 		console.log('Firebase metadata upload success');
@@ -62,18 +62,22 @@ export const toggleNFTListingStatus = async (userWalletAddress, nftId) => {
 		if (userDoc.exists()) {
 			const userData = userDoc.data();
 
-			// Assuming ownedNFTs is a map of NFTs
-			const currentIsListedStatus = userData.ownedNFTs[nftId].isListed;
+			// Check if the NFT exists in the map
+			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
+				const currentIsListedStatus = userData.ownedNFTs[nftId].isListed;
 
-			// Path to the specific NFT
-			const nftPath = `ownedNFTs.${nftId}.isListed`;
+				// Path to the specific NFT
+				const nftPath = `ownedNFTs.${nftId}.isListed`;
 
-			// Update the isListed property of the specific NFT
-			await updateDoc(userRef, {
-				[nftPath]: !currentIsListedStatus,
-			});
+				// Update the isListed property of the specific NFT
+				await updateDoc(userRef, {
+					[nftPath]: !currentIsListedStatus,
+				});
 
-			console.log('NFT listing status toggled successfully');
+				console.log('NFT listing status toggled successfully');
+			} else {
+				console.log('NFT does not exist in user data');
+			}
 		} else {
 			console.log('User document does not exist');
 		}
