@@ -15,6 +15,7 @@ $font-color: #fefefe;
 	font-size: 14px;
 	padding: 0.5rem 1rem;
 	width: 330px;
+	position: relative;
 }
 
 .wrapper_price {
@@ -90,6 +91,9 @@ $font-color: #fefefe;
 	gap: 0.25rem;
 	width: 50%;
 	padding-bottom: 0.25rem;
+	position: absolute;
+	top: 2.5px;
+	right: -2.5px;
 
 	p {
 		text-align: center;

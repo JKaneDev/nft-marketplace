@@ -89,11 +89,11 @@ const CreateNFT = () => {
 		try {
 			console.log('Create nft called');
 			const marketplace = await createContractInstance(marketplaceDetails);
-			await initiateMintSequence(metadata, marketplace, nftData.royalties);
+			await initiateMintSequence(metadata, marketplace, nftData.royalties, marketplaceDetails.abi);
 
 			setTimeout(() => {
 				resetNftData();
-			}, 3000);
+			}, 1500);
 
 			setLoading(false);
 		} catch (error) {

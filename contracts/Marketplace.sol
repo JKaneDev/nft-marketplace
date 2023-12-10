@@ -21,6 +21,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     
     mapping (uint256 => MarketItem) private idToMarketItem;
 
+    
     event NFTTransferred(uint256 nftId, address auctionWinner);
     event FundsWithdrawn(uint256 amount, address targetWallet);
 
@@ -75,7 +76,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     }
 
     function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
-        console.log('createToken function caller: ', msg.sender);
         _tokenIds.increment();
 
         uint256 newTokenId = _tokenIds.current();
@@ -91,7 +91,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // NFT is held in escrow in the marketplace
     function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
-        console.log('createMarketItem function caller: ', msg.sender);
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
         

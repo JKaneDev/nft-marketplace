@@ -43,7 +43,7 @@ export const getSignerAddress = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x0B306BF915C4d645ff596e518fAf3F9669b97016';
+	const address = '0x04C89607413713Ec9775E14b954286519d836FEf';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -62,7 +62,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1';
+	const address = '0x4C4a2f8c81640e47606d3fd77B353E87Ba015584';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -100,7 +100,13 @@ const pinToIpfs = async (cid) => {
 	}
 };
 
-export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage) => {
+const uploadToFirebase = async (metadata, metadataToUpload, tokenId, seller) => {
+	const firebaseImageUrl = await uploadImageToFirebase(metadata.image, metadataToUpload.displayName, tokenId, seller);
+	await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
+	console.log('Metadata uploaded to firebase!');
+};
+
+export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage, abi) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
@@ -118,30 +124,6 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 		await pinToIpfs(imageCID);
 		await pinToIpfs(metadataCID);
 
-		marketplace.on(
-			'MarketItemCreated',
-			async (tokenId, originalOwner, seller, owner, royaltyPercentage, price, auction, sold) => {
-				console.log('Market item created event: ', {
-					tokenId,
-					originalOwner,
-					seller,
-					owner,
-					royaltyPercentage,
-					price,
-					auction,
-					sold,
-				});
-				const firebaseImageUrl = await uploadImageToFirebase(
-					metadata.image,
-					metadataToUpload.displayName,
-					tokenId,
-					seller,
-				);
-				await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
-				console.log('Metadata uploaded to firebase!');
-			},
-		);
-
 		// Step 5: Mint NFT and emit event
 		const tx = await marketplace.createToken(
 			metadataCID,
@@ -154,11 +136,37 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 
 		const receipt = await tx.wait();
 
+		const marketItemCreatedLog = receipt.logs.find(
+			(log) =>
+				log.topics[0] === ethers.id('MarketItemCreated(uint256,address,address,address,uint256,uint256,bool,bool)'),
+		);
+		if (marketItemCreatedLog) {
+			const contractInterface = new ethers.Interface(abi);
+			const parsedLog = contractInterface.parseLog(marketItemCreatedLog);
+			console.log(parsedLog);
+
+			const eventData = extractMarketItemEventData(parsedLog);
+			await uploadToFirebase(metadata, metadataToUpload, eventData.tokenId, eventData.seller);
+		}
+
 		console.log('Smart contract call successful');
 	} else {
 		window.alert('Invalid data - Please see console and try again');
 		console.error('Validation Errors: ', validationErrors);
 	}
+};
+
+const extractMarketItemEventData = (parsedLog) => {
+	return {
+		tokenId: parsedLog.args[0],
+		originalOwner: parsedLog.args[1],
+		seller: parsedLog.args[2],
+		owner: parsedLog.args[3],
+		royaltyPercentage: parsedLog.args[4],
+		price: ethers.formatEther(parsedLog.args[5]),
+		auction: parsedLog.args[6],
+		sold: parsedLog.args[7],
+	};
 };
 
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
