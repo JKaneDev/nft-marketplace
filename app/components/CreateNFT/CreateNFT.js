@@ -15,10 +15,12 @@ import { validateInput } from './utils';
 
 const CreateNFT = () => {
 	const dispatch = useDispatch();
-	const isConnected = useSelector((state) => state.connection.isConnected);
-	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 	const [loading, setLoading] = useState(false);
 	const [validationErrors, setValidationErrors] = useState({});
+
+	const isConnected = useSelector((state) => state.connection.isConnected);
+	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
+	const user = useSelector((state) => state.connection.account);
 
 	const [nftData, setNftData] = useState({
 		displayName: '',
@@ -88,7 +90,7 @@ const CreateNFT = () => {
 
 		try {
 			console.log('Create nft called');
-			const marketplace = await createContractInstance(marketplaceDetails);
+			const marketplace = await createContractInstance(marketplaceDetails, user);
 			await initiateMintSequence(metadata, marketplace, nftData.royalties, marketplaceDetails.abi);
 
 			setTimeout(() => {

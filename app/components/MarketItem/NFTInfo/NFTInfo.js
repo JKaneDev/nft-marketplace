@@ -20,12 +20,13 @@ const NFTInfo = ({ id, price, category }) => {
 	const [updatedPrice, setUpdatedPrice] = useState(null);
 	const [loading, setLoading] = useState(false);
 
+	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const updateListingPrice = async (e) => {
 		setLoading(true);
 		// Update in smart contract
-		const marketplace = await createContractInstance(marketplaceDetails);
+		const marketplace = await createContractInstance(marketplaceDetails, user);
 		const newPrice = ethers.parseEther(updatedPrice);
 		await marketplace.updateNFTPrice(id, newPrice);
 

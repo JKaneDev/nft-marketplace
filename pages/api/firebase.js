@@ -1,5 +1,5 @@
 import { db, storage } from '../../firebaseConfig';
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, getDocs, query, getDoc, deleteField } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export const uploadImageToFirebase = async (image, displayName, tokenId, walletAddress) => {
@@ -83,5 +83,44 @@ export const toggleNFTListingStatus = async (userWalletAddress, nftId) => {
 		}
 	} catch (error) {
 		console.error('Error toggling NFT listing status:', error);
+	}
+};
+
+export const changeNftOwnershipInFirebase = async (id, buyer) => {
+	try {
+		// Step 1: Find the current owner of the NFT
+		const usersRef = collection(db, 'users');
+		const querySnapshot = await getDocs(query(usersRef));
+		let seller = '';
+		let nftData;
+
+		querySnapshot.forEach((doc) => {
+			const userData = doc.data();
+			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
+				seller = doc.id;
+				nftData = userData.ownedNFTs[nftId];
+			}
+		});
+
+		if (!seller) {
+			console.log('NFT not found in any user account.');
+			return;
+		}
+
+		// Step 2: Remove NFT from seller's ownedNFTs map
+		const sellerRef = doc(db, 'users', seller);
+		await updateDoc(sellerRef, {
+			[`ownedNFTs.${nftId}`]: deleteField(),
+		});
+
+		// Step 3: Add NFT to buyer's ownedNFTs map
+		const buyerRef = doc(db, 'users', buyer);
+		await updateDoc(buyerRef, {
+			[`ownedNFTs.${nftId}`]: nftData,
+		});
+
+		console.log('NFT ownership updated successfully in Firebase.');
+	} catch (error) {
+		console.error('Error updating NFT ownership in Firebase:', error);
 	}
 };

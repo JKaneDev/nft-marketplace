@@ -3,7 +3,7 @@ import { connectSuccess, connectFailure } from './connectSlices';
 import { setError, setMarketplaceContract } from './marketplaceSlices';
 import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
-import { uploadImageToFirebase, updateFirebaseWithNFT } from '@/pages/api/firebase';
+import { uploadImageToFirebase, updateFirebaseWithNFT, toggleNFTListingStatus } from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
@@ -88,10 +88,8 @@ export const loadAuctionFactoryContract = async (dispatch) => {
 	}
 };
 
-export const createContractInstance = async (contractDetails) => {
-	const signer = await getSignerAddress();
-	return new ethers.Contract(contractDetails.address, contractDetails.abi, signer);
-};
+export const createContractInstance = async (contractDetails, user) =>
+	new ethers.Contract(contractDetails.address, contractDetails.abi, user);
 
 const pinToIpfs = async (cid) => {
 	try {
@@ -255,5 +253,22 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 		return receipt;
 	} catch (error) {
 		console.error('Error creating new auction: ', error);
+	}
+};
+
+export const purchaseNft = async (marketplace, id, price, user) => {
+	try {
+		const priceInWei = ethers.parseEther(price.toString());
+		const tx = await marketplace.createMarketSale(id, { value: priceInWei });
+		const receipt = await tx.wait();
+
+		console.log('Transaction Successful!');
+
+		if (receipt) {
+			await toggleNFTListingStatus(user, id);
+			await changeNftOwnershipInFirebase(id, user);
+		}
+	} catch (error) {
+		console.error('Error purchasing NFT: ', error);
 	}
 };

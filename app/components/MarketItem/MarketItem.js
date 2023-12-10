@@ -15,6 +15,7 @@ import images from '../../../assets/index';
 import { NFTInfo } from '../componentindex';
 
 const MarketItem = ({ id, name, image, price, category, isListed }) => {
+	const user = useSelector((state) => state.connection.account);
 	const contractDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
@@ -26,7 +27,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	};
 
 	const handleAuctionStart = async () => {
-		const contract = await createContractInstance(contractDetails.address, contractDetails.abi);
+		const contract = await createContractInstance(contractDetails, user);
 		await createAuction(contract, startingPrice, duration, id);
 	};
 
@@ -40,6 +41,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 					width={330}
 					height={330}
 				/>
+
 				<div className={Style.card_img_name}>
 					<p>{name ? name : 'Placeholder NFT'}</p>
 				</div>

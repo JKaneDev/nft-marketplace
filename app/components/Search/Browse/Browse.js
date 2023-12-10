@@ -106,7 +106,7 @@ const Browse = () => {
 	// Load and listen for auctions
 	// useEffect(() => {
 	// 	const loadAuctionFactoryFunctions = async () => {
-	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
+	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails, user);
 	// 		await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 	// 		await loadActiveAuctions();
 	// 	};

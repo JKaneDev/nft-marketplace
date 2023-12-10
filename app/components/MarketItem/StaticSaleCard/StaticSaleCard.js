@@ -9,13 +9,19 @@ import images from '../../../../assets/index';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { useSelector } from 'react-redux';
+import { createContractInstance, purchaseNft } from '@/store/blockchainInteractions';
 
 const StaticSaleCard = ({ id, name, image, category, price }) => {
+	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const [purchasing, setPurchasing] = useState(false);
+	const [inWatchlist, setInWatchlist] = useState(false);
 
-	const handleNftPurchase = () => {};
+	const handleNftPurchase = async () => {
+		const marketplace = await createContractInstance(marketplaceDetails, user);
+		await purchaseNft(marketplace, id, price, user);
+	};
 
 	return (
 		<div className={Style.card}>
