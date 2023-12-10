@@ -43,7 +43,7 @@ export const getSignerAddress = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x51A1ceB83B83F1985a81C295d1fF28Afef186E02';
+	const address = '0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -62,7 +62,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x36b58F5C1969B7b6591D752ea6F5486D069010AB';
+	const address = '0xD84379CEae14AA33C123Af12424A37803F885889';
 
 	try {
 		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');

@@ -23,7 +23,7 @@ const MyNFTs = () => {
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState(null);
-	const [currentFilter, setCurrentFilter] = useState('Currently Owned');
+	const [currentFilter, setCurrentFilter] = useState('Currently Listed');
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
 	const dropdownRef = useRef(null);

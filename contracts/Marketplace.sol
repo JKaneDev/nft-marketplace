@@ -71,12 +71,14 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     }
 
     function updateNFTPrice(uint256 tokenId, uint256 price) public {
-        require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist");
-        require(idToMarketItem[tokenId].owner == msg.sender, "Caller is not the owner");
+        require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist in marketplace");
+        require(idToMarketItem[tokenId].seller == msg.sender, "Caller is not the owner");
         require(price > 0, "Price must be greater than zero");
 
         // Update the price
         idToMarketItem[tokenId].price = price;
+
+        console.log('Updated market item: ', idToMarketItem[tokenId].price);
     }
 
     function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
@@ -100,6 +102,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // NFT is held in escrow in the marketplace
     function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
+        console.log('Create Market Item Function Caller: ', msg.sender);
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
         

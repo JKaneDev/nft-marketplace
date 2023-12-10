@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { ethers } from 'ethers';
+import { RingLoader } from 'react-spinners';
 
 // INTERNAL IMPORTS
 import Style from './NFTInfo.module.scss';
@@ -17,10 +18,12 @@ import { doc, updateDoc } from 'firebase/firestore';
 const NFTInfo = ({ id, price, category }) => {
 	const [updatingPrice, setUpdatingPrice] = useState(false);
 	const [updatedPrice, setUpdatedPrice] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const updateListingPrice = async (e) => {
+		setLoading(true);
 		// Update in smart contract
 		const marketplace = await createContractInstance(marketplaceDetails);
 		const newPrice = ethers.parseEther(updatedPrice);
@@ -29,10 +32,15 @@ const NFTInfo = ({ id, price, category }) => {
 		// Update firebase
 		const userWalletAddress = await getSignerAddress();
 		const userRef = doc(db, 'users', userWalletAddress);
-		const nftPath = `ownedNFTs.${id - 1}.price`;
+		const nftPath = `ownedNFTs.${id}.price`;
 		await updateDoc(userRef, {
 			[nftPath]: updatedPrice,
 		});
+
+		setLoading(false);
+		togglePriceUpdate();
+
+		window.location.reload();
 	};
 
 	const togglePriceUpdate = () => {
@@ -58,7 +66,9 @@ const NFTInfo = ({ id, price, category }) => {
 			</div>
 			<div className={Style.wrapper_info}>
 				<p>{category}</p>
-				{updatingPrice ? (
+				{updatingPrice && loading ? (
+					<RingLoader size={30} color={'#fff'} />
+				) : updatingPrice ? (
 					<div className={Style.wrapper_info_btns}>
 						<button onClick={() => updateListingPrice(updatedPrice)}>
 							<FaCheckCircle />

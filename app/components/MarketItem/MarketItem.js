@@ -15,7 +15,6 @@ import images from '../../../assets/index';
 import { NFTInfo } from '../componentindex';
 
 const MarketItem = ({ id, name, image, price, category, isListed }) => {
-	const dispatch = useDispatch();
 	const contractDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
@@ -35,14 +34,14 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 		<div className={Style.card}>
 			<div className={Style.card_img}>
 				<Image
-					src={image ? image : images.mape2}
+					src={image ? image : images.placeholder}
 					alt='live auction nft image'
 					className={Style.card_img_image}
 					width={330}
 					height={330}
 				/>
 				<div className={Style.card_img_name}>
-					<p>{name ? name : 'Mutant Ape'}</p>
+					<p>{name ? name : 'Placeholder NFT'}</p>
 				</div>
 			</div>
 
