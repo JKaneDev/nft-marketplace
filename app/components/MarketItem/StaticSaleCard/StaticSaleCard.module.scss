@@ -1,0 +1,160 @@
+$main-bg-color: #0f0f0f;
+$alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+$icon-bg-color: #1da1f2;
+$font-color: #fefefe;
+
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	border: 2px solid $main-bg-color;
+	border-radius: 8px;
+	border-top-left-radius: 14px;
+	border-top-right-radius: 14px;
+	height: 425px;
+	width: 335px;
+
+	.card_img {
+		height: 330px;
+		width: 330px;
+		position: relative;
+
+		.card_img_image {
+			height: 100%;
+			width: 100%;
+			border-radius: 10px;
+		}
+
+		p {
+			color: white;
+		}
+
+		.card_img_wrapper {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 12px;
+			position: absolute;
+			right: 0.25rem;
+			top: 0.5rem;
+			background-color: $alt-bg-color;
+			padding: 0.25rem 0.75rem;
+			border-radius: 32px;
+		}
+
+		.card_img_like {
+			color: white;
+			transition: all 0.35s ease;
+
+			&:hover {
+				color: red;
+				cursor: pointer;
+			}
+		}
+
+		.card_img_name {
+			background-color: RGB(15, 15, 15, 0.75);
+			font-weight: 200;
+			letter-spacing: 0.1rem;
+			color: white;
+			padding: 0.5rem 1.25rem;
+			width: 70%;
+			position: relative;
+			bottom: 2.9rem;
+			border-bottom-right-radius: 8px;
+			border-top-left-radius: 8px;
+			margin-left: auto;
+			text-align: center;
+		}
+	}
+}
+
+.card_interface {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	font-weight: 200;
+	letter-spacing: 0.1rem;
+	font-size: 14px;
+	padding: 0.5rem 1rem;
+	width: 330px;
+	position: relative;
+}
+
+.card_interface_price {
+	border: 2px solid #0cc0df;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.5rem;
+	position: relative;
+	width: 50%;
+	transition: all 0.35s ease-in-out;
+
+	p:nth-of-type(1) {
+		z-index: 1000;
+		position: absolute;
+		transform: translateY(-1.75rem);
+		font-size: 12px;
+		top: 1rem;
+		left: 0.5rem;
+		background-color: #0cc0df;
+		border-radius: 8px;
+		color: black;
+		padding: 0.2rem 0.75rem;
+		font-weight: 400;
+		letter-spacing: 0.05rem;
+		transition: all 0.35s ease-in-out;
+	}
+
+	p:nth-of-type(2) {
+		padding: 0.65rem 0 0.25rem 0;
+		font-weight: 300;
+		text-align: left;
+		padding-left: 0.25rem;
+	}
+}
+
+.card_interface_action {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.25rem;
+	width: 50%;
+	padding-bottom: 0.25rem;
+	position: absolute;
+	top: 2.5px;
+	right: -2.5px;
+
+	p {
+		text-align: center;
+		font-weight: 500;
+	}
+
+	button {
+		transition: all 0.35s ease-in-out;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 0.75rem;
+		background: $alt-bg-color;
+		border: 1px solid $main-bg-color;
+		font-size: 14px;
+		font-weight: 100;
+		letter-spacing: 0.1rem;
+		border-radius: 8px;
+		color: white;
+
+		&:hover {
+			background-color: $main-bg-color;
+			border: 1px solid #0cc0df;
+			cursor: pointer;
+		}
+	}
+}

@@ -14,8 +14,10 @@ import Contact from './Contact/Contact';
 import About from './About/About';
 import MarketItem from './MarketItem/MarketItem';
 import NFTInfo from './MarketItem/NFTInfo/NFTInfo';
+import StaticSaleCard from './MarketItem/StaticSaleCard/StaticSaleCard';
 
 export {
+	StaticSaleCard,
 	NFTInfo,
 	MarketItem,
 	About,

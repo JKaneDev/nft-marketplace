@@ -9,7 +9,7 @@ import { FaHeart, FaTimes } from 'react-icons/fa';
 import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
 
-const AuctionCard = () => {
+const AuctionCard = ({ id, name, image, category, price }) => {
 	const [isBidding, setIsBidding] = useState(false);
 
 	return (

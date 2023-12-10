@@ -6,7 +6,7 @@ import Fuse from 'fuse.js';
 
 // BLOCKCHAIN + BACKEND IMPORTS
 import { db } from '@/firebaseConfig';
-import { doc, getDoc, getDocs, where } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
@@ -16,7 +16,7 @@ import { createContractInstance, listenForCreatedAuctions, loadActiveAuctions } 
 import { FaSearch, FaCaretDown } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
-import Fuse from 'fuse.js';
+import { AuctionCard, StaticSaleCard } from '../../componentindex';
 
 const Browse = () => {
 	const dispatch = useDispatch();
@@ -238,6 +238,33 @@ const Browse = () => {
 			</div>
 			<div className={Style.browse_auctions}>
 				<MdRestartAlt size={28} className={Style.browse_auctions_reset} onClick={handleResetFilter} />
+				<>
+					{filteredNFTs && currentFilter === 'Live Auctions' ? (
+						filteredNFTs.map((nft) => (
+							<AuctionCard
+								key={nft.id}
+								id={nft.id}
+								name={nft.name}
+								image={nft.image}
+								category={nft.category}
+								price={nft.price}
+							/>
+						))
+					) : filteredNFTs && currentFilter === 'Marketplace' ? (
+						filteredNFTs.map((nft) => (
+							<StaticSaleCard
+								key={nft.id}
+								id={nft.id}
+								name={nft.name}
+								image={nft.image}
+								category={nft.category}
+								price={nft.price}
+							/>
+						))
+					) : (
+						<></>
+					)}
+				</>
 			</div>
 		</div>
 	);
