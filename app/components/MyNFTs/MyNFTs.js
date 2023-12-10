@@ -4,20 +4,21 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { ethers } from 'ethers';
 import { db } from '../../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
 import Style from './MyNFTs.module.scss';
-import { MarketItem, AuctionCard } from '../componentindex';
+import { MarketItem } from '../componentindex';
 import images from '../../../assets/index';
+import { getProvider, getSignerAddress } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown, FaSearch } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
+import { useSelector } from 'react-redux';
 
 const MyNFTs = () => {
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -28,24 +29,14 @@ const MyNFTs = () => {
 	const [userData, setUserData] = useState(null);
 	const dropdownRef = useRef(null);
 
+	const user = useSelector((state) => state.connection.account);
+
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
-		const getWalletAddress = async () => {
-			if (window.ethereum) {
-				const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-				// const provider = new ethers.provider.Web3Provider(window.ethereum);
-				const signer = await provider.getSigner();
-				return await signer.getAddress();
-			}
-			return null;
-		};
-
 		const fetchUserData = async () => {
 			try {
-				const walletAddress = await getWalletAddress();
-
-				if (walletAddress) {
-					const userRef = doc(db, 'users', walletAddress);
+				if (user) {
+					const userRef = doc(db, 'users', user);
 					const docSnap = await getDoc(userRef);
 					if (docSnap.exists()) {
 						const data = docSnap.data();
@@ -152,8 +143,6 @@ const MyNFTs = () => {
 
 		// Perform fuzzy search
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
-
-		console.log('Filtered NFTs: ', nfts);
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
 	}, [userData, currentCategory, currentFilter, searchQuery]);
 

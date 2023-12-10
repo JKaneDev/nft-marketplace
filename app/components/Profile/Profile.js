@@ -6,9 +6,9 @@ import Image from 'next/image';
 // INTERNAL IMPORTS
 import Style from './Profile.module.scss';
 import images from '../../../assets/index';
+import { getSignerAddress } from '@/store/blockchainInteractions';
 
 // BLOCKCHAIN & BACKEND IMPORTS
-import { ethers } from 'ethers';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../firebaseConfig.js';
@@ -34,18 +34,10 @@ const Profile = () => {
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
-		const getWalletAddress = async () => {
-			if (window.ethereum) {
-				const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-				// const provider = new ethers.provider.Web3Provider(window.ethereum);
-				const signer = await provider.getSigner();
-				return await signer.getAddress();
-			}
-			return null;
-		};
-
 		const fetchUserData = async () => {
-			const userRef = doc(db, 'users', await getWalletAddress());
+			const userWalletAddress = await getSignerAddress();
+			console.log('Wallet address: ', userWalletAddress);
+			const userRef = doc(db, 'users', userWalletAddress);
 			const docSnap = await getDoc(userRef);
 			if (docSnap.exists()) {
 				setProfileData(docSnap.data());

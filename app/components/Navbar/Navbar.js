@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 // ICON IMPORTS
 import { BsSearch } from 'react-icons/bs';
-import { IoMenu, IoReturnUpBack } from 'react-icons/io5';
+import { IoMenu } from 'react-icons/io5';
 import { FaPlus, FaPlug } from 'react-icons/fa';
 
 // INTERNAL IMPORTS

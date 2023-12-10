@@ -16,14 +16,26 @@ export const connectToEthereum = async (dispatch) => {
 		if (typeof window.ethereum !== 'undefined') {
 			// Request account access
 			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-			const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-			const signer = await provider.getSigner();
 
+			// Update state with the current account
 			dispatch(connectSuccess({ account: accounts[0] }));
+			console.log('Connected account: ', accounts[0]);
 
-			return signer.getAddress();
+			// Listen for account changes
+			window.ethereum.on('accountsChanged', (accounts) => {
+				// Update state with the new account
+				if (accounts.length > 0) {
+					dispatch(connectSuccess({ account: accounts[0] }));
+					console.log('Account changed to: ', accounts[0]);
+				} else {
+					// Handle the case where the user has disconnected all accounts
+					dispatch(connectFailure('No accounts connected'));
+				}
+			});
+
+			return accounts[0];
 		} else {
-			// Prompt metamask installation
+			// Prompt MetaMask installation
 			window.alert('Please install MetaMask');
 			dispatch(connectFailure('MetaMask not installed'));
 		}
@@ -33,7 +45,7 @@ export const connectToEthereum = async (dispatch) => {
 	}
 };
 
-export const getProvider = async () => new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
+export const getProvider = async () => new ethers.BrowserProvider(window.ethereum);
 
 export const getSignerAddress = async () => {
 	const provider = await getProvider();
@@ -43,11 +55,10 @@ export const getSignerAddress = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25';
+	const address = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 	try {
-		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-		const signer = await provider.getSigner();
+		const signer = await getSignerAddress();
 		const marketplace = new ethers.Contract(address, abi, signer);
 
 		// Dispatch successful contract  creation
@@ -62,11 +73,10 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xD84379CEae14AA33C123Af12424A37803F885889';
+	const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 
 	try {
-		const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-		const signer = await provider.getSigner();
+		const signer = await getSignerAddress();
 		const auctionFactory = new ethers.Contract(address, abi, signer);
 
 		dispatch(setAuctionFactoryContract({ address, abi }));
@@ -79,8 +89,7 @@ export const loadAuctionFactoryContract = async (dispatch) => {
 };
 
 export const createContractInstance = async (contractDetails) => {
-	const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-	const signer = await provider.getSigner();
+	const signer = await getSignerAddress();
 	return new ethers.Contract(contractDetails.address, contractDetails.abi, signer);
 };
 

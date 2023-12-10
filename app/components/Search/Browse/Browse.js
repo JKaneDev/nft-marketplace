@@ -1,18 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
+import Fuse from 'fuse.js';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { ethers } from 'ethers';
 import { db } from '@/firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, where } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
-import { AuctionCard } from '../../componentindex';
-import { listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
+import { createContractInstance, listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
 import { FaSearch, FaCaretDown } from 'react-icons/fa';
@@ -21,35 +19,49 @@ import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
 
 const Browse = () => {
-	const auctionFactoryContract = useSelector((state) => state.auctionFactory.contract);
+	const dispatch = useDispatch();
+	const dropdownRef = useRef(null);
 
+	const [currentFilter, setCurrentFilter] = useState('Marketplace');
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState(null);
-	const [currentFilter, setCurrentFilter] = useState('Currently Owned'); // or 'watchlist
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
-	const dropdownRef = useRef(null);
-	const dispatch = useDispatch();
+	const [allNFTs, setAllNFTs] = useState([]);
+
+	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
+	const user = useSelector((state) => state.connection.account);
+
+	// Fetch data for all users depending on filter selection
+	useEffect(() => {
+		const fetchUsersNFTs = async () => {
+			const querySnapshot = await getDocs(collection(db, 'users'));
+			const fetchedNFTs = [];
+
+			querySnapshot.forEach((doc) => {
+				if (doc.id !== user) {
+					const userData = doc.data();
+					Object.values(userData.ownedNFTs).forEach((nft) => {
+						if (nft.isListed == true) {
+							fetchedNFTs.push(nft);
+						}
+					});
+				}
+			});
+
+			setAllNFTs(fetchedNFTs);
+		};
+
+		fetchUsersNFTs();
+	}, [user, currentFilter]);
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
-		const getWalletAddress = async () => {
-			if (window.ethereum) {
-				const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-				// const provider = new ethers.provider.Web3Provider(window.ethereum);
-				const signer = await provider.getSigner();
-				return await signer.getAddress();
-			}
-			return null;
-		};
-
 		const fetchUserData = async () => {
 			try {
-				const walletAddress = await getWalletAddress();
-
-				if (walletAddress) {
-					const userRef = doc(db, 'users', walletAddress);
+				if (user) {
+					const userRef = doc(db, 'users', user);
 					const docSnap = await getDoc(userRef);
 					if (docSnap.exists()) {
 						const data = docSnap.data();
@@ -92,14 +104,15 @@ const Browse = () => {
 	}, []);
 
 	// Load and listen for auctions
-	useEffect(() => {
-		const loadAuctionFactoryFunctions = async () => {
-			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
-			await loadActiveAuctions();
-		};
+	// useEffect(() => {
+	// 	const loadAuctionFactoryFunctions = async () => {
+	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
+	// 		await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+	// 		await loadActiveAuctions();
+	// 	};
 
-		loadAuctionFactoryFunctions();
-	}, []);
+	// 	loadAuctionFactoryFunctions();
+	// }, []);
 
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
@@ -125,7 +138,7 @@ const Browse = () => {
 
 	const handleResetFilter = () => {
 		setCurrentCategory(null);
-		setCurrentFilter('Currently Owned');
+		setCurrentFilter('Marketplace');
 		setSearchQuery('');
 	};
 
@@ -133,10 +146,24 @@ const Browse = () => {
 		setSearchQuery(e.target.value);
 	};
 
-	const filteredNFTs = useMemo(() => {
-		if (!userData) return [];
+	const checkStaticSaleOrAuction = (nfts) => {
+		return nfts;
+	};
 
-		let nfts = currentFilter === 'Currently Owned' ? userData.ownedNFTs : userData.watchlist;
+	const filteredNFTs = useMemo(() => {
+		let nfts = allNFTs;
+
+		switch (currentFilter) {
+			case 'Marketplace':
+				nfts = checkStaticSaleOrAuction(nfts);
+				break;
+			case 'Live Auctions':
+				nfts = checkStaticSaleOrAuction(nfts);
+				break;
+			default:
+				break;
+		}
+
 		if (currentCategory) {
 			nfts = nfts.filter((nft) => nft.category === currentCategory);
 		}
@@ -148,10 +175,9 @@ const Browse = () => {
 			threshold: 0.3,
 		});
 
-		// Perform fuzzy search
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
-	}, [userData, currentCategory, currentFilter, searchQuery]);
+	}, [allNFTs, currentFilter, currentCategory, searchQuery]);
 
 	return (
 		<div className={Style.browse}>
