@@ -18,7 +18,6 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
-import { BiLogoNetlify } from 'react-icons/bi';
 
 const MyNFTs = () => {
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -122,21 +121,22 @@ const MyNFTs = () => {
 	};
 
 	const filteredNFTs = useMemo(() => {
-		if (!userData) return [];
+		if (!userData || userData.ownedNFTs) return [];
 
-		let nfts = [];
+		let nfts = Object.values(userData.ownedNFTs);
+
 		switch (currentFilter) {
 			case 'Currently Owned':
-				nfts = userData.ownedNFTs.filter((nft) => !nft.isListed);
+				nfts = nfts.filter((nft) => !nft.isListed);
 				break;
 			case 'Watchlist':
 				nfts = userData.watchlist;
 				break;
 			case 'Currently Listed':
-				nfts = userData.ownedNFTs.filter((nft) => nft.isListed);
+				nfts = nfts.filter((nft) => nft.isListed);
 				break;
 			default:
-				nfts = userData.ownedNFTs.filter((nft) => !nft.isListed);
+				break;
 		}
 
 		if (currentCategory) {

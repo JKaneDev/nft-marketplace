@@ -70,6 +70,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         listingPrice = _listingPrice;
     }
 
+    function updateNFTPrice(uint256 tokenId, uint256 price) public {
+        require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist");
+        require(idToMarketItem[tokenId].owner == msg.sender, "Caller is not the owner");
+        require(price > 0, "Price must be greater than zero");
+
+        // Update the price
+        idToMarketItem[tokenId].price = price;
+    }
+
     function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
         MarketItem memory nft = idToMarketItem[tokenId];
         return (nft.royaltyPercentage, nft.originalOwner);
