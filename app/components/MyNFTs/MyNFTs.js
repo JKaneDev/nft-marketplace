@@ -121,7 +121,7 @@ const MyNFTs = () => {
 	};
 
 	const filteredNFTs = useMemo(() => {
-		if (!userData || userData.ownedNFTs) return [];
+		if (!userData || !userData.ownedNFTs) return [];
 
 		let nfts = Object.values(userData.ownedNFTs);
 
@@ -152,6 +152,8 @@ const MyNFTs = () => {
 
 		// Perform fuzzy search
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
+
+		console.log('Filtered NFTs: ', nfts);
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
 	}, [userData, currentCategory, currentFilter, searchQuery]);
 
