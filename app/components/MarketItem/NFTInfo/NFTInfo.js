@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { ethers } from 'ethers';
+import { ethers, Log } from 'ethers';
 import { RingLoader } from 'react-spinners';
 
 // INTERNAL IMPORTS
@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { createContractInstance, getSignerAddress } from '@/store/blockchainInteractions';
 import { db } from '../../../../firebaseConfig';
 import { doc, updateDoc } from 'firebase/firestore';
+import { toggleNFTListingStatus } from '@/pages/api/firebase';
 
 const NFTInfo = ({ id, price, category }) => {
 	const [updatingPrice, setUpdatingPrice] = useState(false);
@@ -43,6 +44,11 @@ const NFTInfo = ({ id, price, category }) => {
 		window.location.reload();
 	};
 
+	const handleDelistNft = async () => {
+		const marketplace = await createContractInstance(marketplaceDetails);
+		await toggleNFTListingStatus(user.account, id);
+	};
+
 	const togglePriceUpdate = () => {
 		setUpdatingPrice(!updatingPrice);
 	};
@@ -53,6 +59,9 @@ const NFTInfo = ({ id, price, category }) => {
 
 	return (
 		<div className={Style.wrapper}>
+			<button className={Style.wrapper_delist} onClick={handleDelistNft}>
+				Delist
+			</button>
 			<div className={Style.wrapper_price}>
 				<p>Price:</p>
 				{updatingPrice ? (
