@@ -36,7 +36,7 @@ const MyNFTs = () => {
 		const fetchUserData = async () => {
 			try {
 				if (user) {
-					const userRef = doc(db, 'users', user);
+					const userRef = doc(db, 'users', user.account);
 					const docSnap = await getDoc(userRef);
 					if (docSnap.exists()) {
 						const data = docSnap.data();

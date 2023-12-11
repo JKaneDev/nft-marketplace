@@ -27,7 +27,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	};
 
 	const handleAuctionStart = async () => {
-		const contract = await createContractInstance(contractDetails, user);
+		const contract = await createContractInstance(contractDetails);
 		await createAuction(contract, startingPrice, duration, id);
 	};
 

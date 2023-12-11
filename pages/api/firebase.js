@@ -1,5 +1,5 @@
 import { db, storage } from '../../firebaseConfig';
-import { doc, updateDoc, getDocs, query, getDoc, deleteField } from 'firebase/firestore';
+import { doc, updateDoc, getDocs, query, getDoc, deleteField, collection } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export const uploadImageToFirebase = async (image, displayName, tokenId, walletAddress) => {
@@ -15,6 +15,8 @@ export const uploadImageToFirebase = async (image, displayName, tokenId, walletA
 
 		// Get the download URL
 		const imageUrl = await getDownloadURL(imageRef);
+
+		console.log('Firebase image upload successful');
 
 		return imageUrl;
 	} catch (error) {
@@ -41,9 +43,14 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 		const userRef = doc(db, 'users', userWalletAddress);
 
 		// Update the user's document with the new NFT data
-		await updateDoc(userRef, {
-			[`ownedNFTs.${tokenId}`]: nftDataForFirebase,
-		});
+
+		if (userRef) {
+			await updateDoc(userRef, {
+				[`ownedNFTs.${tokenId}`]: nftDataForFirebase,
+			});
+		} else {
+			console.log('Firebase user ref does not exist');
+		}
 
 		console.log('Firebase metadata upload success');
 	} catch (error) {
@@ -52,10 +59,11 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 	}
 };
 
-export const toggleNFTListingStatus = async (userWalletAddress, nftId) => {
+export const toggleNFTListingStatus = async (seller, nftId) => {
 	try {
 		// Reference to the user's document
-		const userRef = doc(db, 'users', userWalletAddress);
+		console.log('Seller: ', seller, typeof seller);
+		const userRef = doc(db, 'users', seller);
 
 		// Get the current data of the user
 		const userDoc = await getDoc(userRef);
@@ -64,6 +72,7 @@ export const toggleNFTListingStatus = async (userWalletAddress, nftId) => {
 
 			// Check if the NFT exists in the map
 			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
+				console.log('NFT found at ref');
 				const currentIsListedStatus = userData.ownedNFTs[nftId].isListed;
 
 				// Path to the specific NFT
@@ -96,9 +105,9 @@ export const changeNftOwnershipInFirebase = async (id, buyer) => {
 
 		querySnapshot.forEach((doc) => {
 			const userData = doc.data();
-			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
+			if (userData.ownedNFTs && userData.ownedNFTs[id]) {
 				seller = doc.id;
-				nftData = userData.ownedNFTs[nftId];
+				nftData = userData.ownedNFTs[id];
 			}
 		});
 
@@ -110,13 +119,13 @@ export const changeNftOwnershipInFirebase = async (id, buyer) => {
 		// Step 2: Remove NFT from seller's ownedNFTs map
 		const sellerRef = doc(db, 'users', seller);
 		await updateDoc(sellerRef, {
-			[`ownedNFTs.${nftId}`]: deleteField(),
+			[`ownedNFTs.${id}`]: deleteField(),
 		});
 
 		// Step 3: Add NFT to buyer's ownedNFTs map
-		const buyerRef = doc(db, 'users', buyer);
+		const buyerRef = doc(db, 'users', buyer.account);
 		await updateDoc(buyerRef, {
-			[`ownedNFTs.${nftId}`]: nftData,
+			[`ownedNFTs.${id}`]: nftData,
 		});
 
 		console.log('NFT ownership updated successfully in Firebase.');

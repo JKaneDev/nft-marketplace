@@ -26,13 +26,12 @@ const NFTInfo = ({ id, price, category }) => {
 	const updateListingPrice = async (e) => {
 		setLoading(true);
 		// Update in smart contract
-		const marketplace = await createContractInstance(marketplaceDetails, user);
+		const marketplace = await createContractInstance(marketplaceDetails);
 		const newPrice = ethers.parseEther(updatedPrice);
 		await marketplace.updateNFTPrice(id, newPrice);
 
 		// Update firebase
-		const userWalletAddress = await getSignerAddress();
-		const userRef = doc(db, 'users', userWalletAddress);
+		const userRef = doc(db, 'users', user);
 		const nftPath = `ownedNFTs.${id}.price`;
 		await updateDoc(userRef, {
 			[nftPath]: updatedPrice,

@@ -61,7 +61,7 @@ const Browse = () => {
 		const fetchUserData = async () => {
 			try {
 				if (user) {
-					const userRef = doc(db, 'users', user);
+					const userRef = doc(db, 'users', user.account);
 					const docSnap = await getDoc(userRef);
 					if (docSnap.exists()) {
 						const data = docSnap.data();
@@ -106,7 +106,7 @@ const Browse = () => {
 	// Load and listen for auctions
 	// useEffect(() => {
 	// 	const loadAuctionFactoryFunctions = async () => {
-	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails, user);
+	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
 	// 		await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 	// 		await loadActiveAuctions();
 	// 	};

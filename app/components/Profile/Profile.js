@@ -13,6 +13,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../firebaseConfig.js';
 import dataURLtoBlob from 'dataurl-to-blob';
+import { useSelector } from 'react-redux';
 
 import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
 
@@ -31,13 +32,12 @@ const Profile = () => {
 	});
 
 	const [selectedImage, setSelectedImage] = useState(null);
+	const user = useSelector((state) => state.connection.account);
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
 		const fetchUserData = async () => {
-			const userWalletAddress = await getSignerAddress();
-			console.log('Wallet address: ', userWalletAddress);
-			const userRef = doc(db, 'users', userWalletAddress);
+			const userRef = doc(db, 'users', user.account);
 			const docSnap = await getDoc(userRef);
 			if (docSnap.exists()) {
 				setProfileData(docSnap.data());

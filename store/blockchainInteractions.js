@@ -1,9 +1,14 @@
-import { ethers } from 'ethers';
+import { ethers, EtherscanProvider } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
 import { setError, setMarketplaceContract } from './marketplaceSlices';
 import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
-import { uploadImageToFirebase, updateFirebaseWithNFT, toggleNFTListingStatus } from '@/pages/api/firebase';
+import {
+	uploadImageToFirebase,
+	updateFirebaseWithNFT,
+	toggleNFTListingStatus,
+	changeNftOwnershipInFirebase,
+} from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
@@ -47,18 +52,18 @@ export const connectToEthereum = async (dispatch) => {
 
 export const getProvider = async () => new ethers.BrowserProvider(window.ethereum);
 
-export const getSignerAddress = async () => {
+export const getSigner = async () => {
 	const provider = await getProvider();
 	const signer = await provider.getSigner();
-	return signer.address;
+	return signer;
 };
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+	const address = '0x67d269191c92Caf3cD7723F116c85e6E9bf55933';
 
 	try {
-		const signer = await getSignerAddress();
+		const signer = await getSigner();
 		const marketplace = new ethers.Contract(address, abi, signer);
 
 		// Dispatch successful contract  creation
@@ -73,10 +78,10 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+	const address = '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E';
 
 	try {
-		const signer = await getSignerAddress();
+		const signer = await getSigner();
 		const auctionFactory = new ethers.Contract(address, abi, signer);
 
 		dispatch(setAuctionFactoryContract({ address, abi }));
@@ -88,8 +93,10 @@ export const loadAuctionFactoryContract = async (dispatch) => {
 	}
 };
 
-export const createContractInstance = async (contractDetails, user) =>
-	new ethers.Contract(contractDetails.address, contractDetails.abi, user);
+export const createContractInstance = async (contractDetails) => {
+	const signer = await getSigner();
+	return new ethers.Contract(contractDetails.address, contractDetails.abi, signer);
+};
 
 const pinToIpfs = async (cid) => {
 	try {
@@ -110,10 +117,9 @@ const pinToIpfs = async (cid) => {
 const uploadToFirebase = async (metadata, metadataToUpload, tokenId, seller) => {
 	const firebaseImageUrl = await uploadImageToFirebase(metadata.image, metadataToUpload.displayName, tokenId, seller);
 	await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
-	console.log('Metadata uploaded to firebase!');
 };
 
-export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage, abi) => {
+export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage, abi, user) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
@@ -150,10 +156,8 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 		if (marketItemCreatedLog) {
 			const contractInterface = new ethers.Interface(abi);
 			const parsedLog = contractInterface.parseLog(marketItemCreatedLog);
-			console.log(parsedLog);
-
 			const eventData = extractMarketItemEventData(parsedLog);
-			await uploadToFirebase(metadata, metadataToUpload, eventData.tokenId, eventData.seller);
+			await uploadToFirebase(metadata, metadataToUpload, eventData.tokenId, user.account);
 		}
 
 		console.log('Smart contract call successful');
@@ -256,8 +260,11 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 	}
 };
 
+export const getSellerAddress = async (marketplace, tokenId) => await marketplace.getSellerAddress(tokenId);
+
 export const purchaseNft = async (marketplace, id, price, user) => {
 	try {
+		const seller = await getSellerAddress(marketplace, id);
 		const priceInWei = ethers.parseEther(price.toString());
 		const tx = await marketplace.createMarketSale(id, { value: priceInWei });
 		const receipt = await tx.wait();
@@ -265,7 +272,7 @@ export const purchaseNft = async (marketplace, id, price, user) => {
 		console.log('Transaction Successful!');
 
 		if (receipt) {
-			await toggleNFTListingStatus(user, id);
+			await toggleNFTListingStatus(seller.toLowerCase(), id);
 			await changeNftOwnershipInFirebase(id, user);
 		}
 	} catch (error) {

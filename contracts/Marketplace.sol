@@ -86,6 +86,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return (nft.royaltyPercentage, nft.originalOwner);
     }
 
+    function getSellerAddress(uint256 tokenId) public view returns (address) {
+        return idToMarketItem[tokenId].seller;
+    }
+
     function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
         _tokenIds.increment();
 

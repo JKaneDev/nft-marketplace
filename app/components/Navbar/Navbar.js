@@ -48,10 +48,8 @@ const Navbar = () => {
 	};
 
 	const loadOrCreateAccount = async (walletAddress) => {
-		console.log('Loading or creating account');
 		const userRef = doc(db, 'users', walletAddress);
 		const docSnap = await getDoc(userRef);
-		console.log('Database ref created or found');
 
 		if (docSnap.exists()) {
 			console.log('User already has profile in DB');
