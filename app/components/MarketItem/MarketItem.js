@@ -16,7 +16,7 @@ import { NFTInfo } from '../componentindex';
 
 const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const user = useSelector((state) => state.connection.account);
-	const contractDetails = useSelector((state) => state.auctionFactory.contractDetails);
+	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
 	const [startingPrice, setStartingPrice] = useState('');
@@ -27,8 +27,8 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	};
 
 	const handleAuctionStart = async () => {
-		const contract = await createContractInstance(contractDetails);
-		await createAuction(contract, startingPrice, duration, id);
+		const contract = await createContractInstance(auctionFactoryDetails);
+		await createAuction(contract, startingPrice, duration, id, user.account);
 	};
 
 	return (

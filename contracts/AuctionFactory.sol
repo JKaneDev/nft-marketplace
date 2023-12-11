@@ -59,12 +59,16 @@ contract AuctionFactory {
                 );
 
                 // Transfer the NFT from the seller to escrow in the marketplace contract
-                marketplaceContract.resellMarketItem(nftId, startingPrice);
+                marketplaceContract.resellMarketItem(nftId, startingPrice, seller);
+
+                console.log('Resell Market Item Called');
 
                 _totalAuctions.increment();
                 _activeAuctionIds.push(nftId);
 
                 emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
+
+                console.log('Event emitted');
         }
 
         function changeActiveStatus (uint256 nftId) public {

@@ -136,7 +136,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     }
 
     // Allows the user to relist an item they own in the marketplace
-    function resellMarketItem(uint256 tokenId, uint256 price) external payable override {
+    function resellMarketItem(uint256 tokenId, uint256 price, address seller) external payable override {
         require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
 
         if (msg.sender == auctionFactory) {
@@ -152,7 +152,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         _itemsSold.decrement();
     }
 
-        _transfer(msg.sender, address(this), tokenId);
+        _transfer(seller, address(this), tokenId);
     }
 
     function createMarketSale(uint256 tokenId) public payable {

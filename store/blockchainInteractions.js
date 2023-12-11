@@ -1,4 +1,4 @@
-import { ethers, EtherscanProvider } from 'ethers';
+import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
 import { setError, setMarketplaceContract } from './marketplaceSlices';
 import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
@@ -60,7 +60,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x67d269191c92Caf3cD7723F116c85e6E9bf55933';
+	const address = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 	try {
 		const signer = await getSigner();
@@ -78,7 +78,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E';
+	const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 
 	try {
 		const signer = await getSigner();
@@ -238,18 +238,12 @@ export const loadActiveAuctions = async () => {
 	}
 };
 
-export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId) => {
+export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, seller) => {
 	try {
 		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
-		const usersAddress = await getSignerAddress();
 
-		const tx = await auctionFactoryContract.createAuction(
-			startingPriceWei,
-			auctionDurationInSeconds,
-			nftId,
-			usersAddress,
-		);
+		const tx = await auctionFactoryContract.createAuction(startingPriceWei, auctionDurationInSeconds, nftId, seller);
 
 		const receipt = await tx.wait();
 		console.log('Create Auction Receipt: ', receipt);
@@ -265,7 +259,8 @@ export const getSellerAddress = async (marketplace, tokenId) => await marketplac
 export const purchaseNft = async (marketplace, id, price, user) => {
 	try {
 		const seller = await getSellerAddress(marketplace, id);
-		const priceInWei = ethers.parseEther(price.toString());
+		const priceInWei = ethers.parseEther(price);
+		console.log('Passed price in Ether:', price, typeof price, 'Converted to Wei:', priceInWei.toString());
 		const tx = await marketplace.createMarketSale(id, { value: priceInWei });
 		const receipt = await tx.wait();
 
