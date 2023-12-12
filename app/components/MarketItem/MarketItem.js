@@ -30,14 +30,12 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 		setIsInfoVisible(!isInfoVisible);
 	};
 
-	const checkForActiveAuction = async (nftId) => {
+	const checkForActiveAuction = async () => {
 		const contract = await createContractInstance(auctionFactoryDetails);
 		const activeAuctions = await contract.getActiveAuctionIds();
-		if (activeAuctions.includes(id)) {
-			setAuctionActive(true);
-		} else {
-			setAuctionActive(false);
-		}
+		const activeAuctionIds = activeAuctions.map((id) => id.toString());
+		const isAuctionActive = activeAuctionIds.includes(id);
+		setAuctionActive(isAuctionActive);
 	};
 
 	const handleAuctionStart = async () => {

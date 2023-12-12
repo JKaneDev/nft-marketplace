@@ -240,16 +240,7 @@ const Browse = () => {
 				<MdRestartAlt size={28} className={Style.browse_auctions_reset} onClick={handleResetFilter} />
 				<>
 					{filteredNFTs && currentFilter === 'Live Auctions' ? (
-						filteredNFTs.map((nft) => (
-							<AuctionCard
-								key={nft.id}
-								id={nft.id}
-								name={nft.name}
-								image={nft.image}
-								category={nft.category}
-								price={nft.price}
-							/>
-						))
+						filteredNFTs.map((nft) => <div key={nft.id}></div>)
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
 						filteredNFTs.map((nft) => (
 							<StaticSaleCard

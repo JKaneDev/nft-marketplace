@@ -6,18 +6,12 @@ import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyCLRsTtYkAli_SvwX4ji4KjcFOWOF8T2uE',
-
 	authDomain: 'niftyverse-40fdd.firebaseapp.com',
-
 	projectId: 'niftyverse-40fdd',
-
 	storageBucket: 'niftyverse-40fdd.appspot.com',
-
 	messagingSenderId: '488787979150',
-
 	appId: '1:488787979150:web:815aa5589109d86e7f12df',
-
-	measurementId: 'G-30MN9622MR',
+	databaseURL: 'https://niftyverse-40fdd-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 const app = initializeApp(firebaseConfig);

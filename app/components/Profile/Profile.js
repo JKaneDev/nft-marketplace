@@ -6,7 +6,6 @@ import Image from 'next/image';
 // INTERNAL IMPORTS
 import Style from './Profile.module.scss';
 import images from '../../../assets/index';
-import { getSignerAddress } from '@/store/blockchainInteractions';
 
 // BLOCKCHAIN & BACKEND IMPORTS
 import { doc, getDoc, updateDoc } from 'firebase/firestore';

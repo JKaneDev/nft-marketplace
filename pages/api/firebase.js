@@ -62,7 +62,6 @@ export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId,
 export const toggleNFTListingStatus = async (seller, nftId) => {
 	try {
 		// Reference to the user's document
-		console.log('Seller: ', seller, typeof seller);
 		const userRef = doc(db, 'users', seller);
 
 		// Get the current data of the user

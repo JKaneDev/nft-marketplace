@@ -26,6 +26,7 @@ const auctionFactorySlice = createSlice({
 			state.contractDetails = null;
 		},
 		addAuction: (state, action) => {
+			console.log('Add Auction Payload: ', action.payload);
 			state.auctions.push(action.payload);
 		},
 		setAuctions: (state, action) => {

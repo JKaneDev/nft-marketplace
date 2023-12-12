@@ -13,7 +13,8 @@ import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
 import moment from 'moment';
-import { realtimeDb } from '@/firebaseConfig';
+import 'moment-duration-format';
+import { realtimeDb } from '../firebaseConfig';
 import { get, ref, set } from 'firebase/database';
 
 export const connectToEthereum = async (dispatch) => {
@@ -60,7 +61,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB';
+	const address = '0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154';
 
 	try {
 		const signer = await getSigner();
@@ -78,7 +79,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x9E545E3C0baAB3E08CdfD552C960A1050f373042';
+	const address = '0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575';
 
 	try {
 		const signer = await getSigner();
@@ -180,59 +181,37 @@ const extractMarketItemEventData = (parsedLog) => {
 	};
 };
 
-const extractAuctionCreatedEventData = (parsedLog) => {
-	console.log({
-		nftId: parsedLog.args[0],
-		startingPrice: ethers.formatEther(parsedLog.args[1]),
-		startTime: parsedLog.args[2],
-		auctionDuration: parsedLog.args[3],
-		seller: parsedLog.args[4],
-		auctionAddress: parsedLog[5],
-	});
-	return {
-		nftId: parsedLog.args[0],
-		startingPrice: ethers.formatEther(parsedLog.args[1]),
-		startTime: parsedLog.args[2],
-		auctionDuration: parsedLog.args[3],
-		seller: parsedLog.args[4],
-		auctionAddress: parsedLog[5],
-	};
-};
-
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
 	auctionFactoryContract.on(
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
-			console.log({
-				nftId: nftId,
-				startingPrice: startingPrice,
-				startTime: startTime,
-				auctionDuration: auctionDuration,
-				seller: seller,
-				auctionAddress: auctionAddress,
-			});
-
-			console.log(`Auction Created for NFT ID: ${nftId}`);
-
-			// const formattedStartTime = moment.unix(startTime).format('YY:MM:DD HH:mm');
-			// const formattedDuration = moment.duration(auctionDuration, 'seconds').format('DD:HH:mm:ss');
-			// const formattedEndTime = moment.unix(startTime).add(auctionDuration, 'seconds').format('YY:MM:DD HH:mm:ss');
+			// Format startTime and auctionDuration
+			const formattedStartTime = moment.unix(startTime.toString()).format('YY:MM:DD HH:mm');
+			const formattedDuration = moment.duration(auctionDuration.toString()).format('DD:HH:mm:ss');
+			const formattedEndTime = moment
+				.unix(startTime.toString())
+				.add(auctionDuration.toString())
+				.format('YY:MM:DD HH:mm:ss');
 
 			// Add auction to firebase
 			const auctionData = {
-				nftId: nftId,
+				nftId: nftId.toString(),
 				startingPrice: ethers.formatEther(startingPrice).toString(),
-				startTime: startTime,
-				auctionDuration: auctionDuration,
+				startTime: formattedStartTime,
+				auctionDuration: formattedDuration,
+				endTime: formattedEndTime,
 				sellerAddress: seller,
 				auctionAddress: auctionAddress,
 			};
 
 			try {
-				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-				await set(auctionRef, auctionData);
-
 				dispatch(addAuction(auctionData));
+				dispatch(addAuction('Hello there testy'));
+
+				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+				console.log('Auction ref found: ', auctionRef);
+				await set(auctionRef, 'Auction Set Test');
+				await set(auctionRef, auctionData);
 			} catch (error) {
 				console.error('Error adding auction data to firebase: ', error);
 			}
@@ -274,26 +253,7 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 		const receipt = await tx.wait();
 
 		if (receipt) {
-			console.log('Auction Created Receipt: ', receipt.logs);
 			await toggleNFTListingStatus(seller.toLowerCase(), nftId);
-		}
-
-		const auctionCreatedLog = receipt.logs.find(
-			(log) => log.topics[0] === ethers.id('AuctionCreated(uint256,uint256,uint256,uint256,address,address)'),
-		);
-		if (auctionCreatedLog) {
-			const contractInterface = new ethers.Interface(abi);
-			const parsedLog = contractInterface.parseLog(auctionCreatedLog);
-			const eventData = extractAuctionCreatedEventData(parsedLog);
-
-			try {
-				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-				await set(auctionRef, eventData);
-
-				dispatch(addAuction(auctionData));
-			} catch (error) {
-				console.error('Error adding auction data to firebase: ', error);
-			}
 		}
 
 		return receipt;
