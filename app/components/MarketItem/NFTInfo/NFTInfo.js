@@ -32,7 +32,7 @@ const NFTInfo = ({ id, price, category }) => {
 		await marketplace.updateNFTPrice(id, newPrice);
 
 		// Update firebase
-		const userRef = doc(db, 'users', user);
+		const userRef = doc(db, 'users', user.account);
 		const nftPath = `ownedNFTs.${id}.price`;
 		await updateDoc(userRef, {
 			[nftPath]: updatedPrice,

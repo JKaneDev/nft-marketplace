@@ -20,7 +20,7 @@ const StaticSaleCard = ({ id, name, image, category, price }) => {
 
 	const handleNftPurchase = async () => {
 		const marketplace = await createContractInstance(marketplaceDetails);
-		await purchaseNft(marketplace, id, price, user);
+		await purchaseNft(marketplace, id, user);
 	};
 
 	return (

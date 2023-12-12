@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Style from './MarketItem.module.scss';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { createAuction, createContractInstance } from '@/store/blockchainInteractions';
 import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 import AuctionInterface from './AuctionInterface/AuctionInterface';
 
 // INTERNAL IMPORTS
@@ -21,14 +20,29 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
 	const [startingPrice, setStartingPrice] = useState('');
 	const [duration, setDuration] = useState('');
+	const [auctionActive, setAuctionActive] = useState(false);
+
+	useEffect(() => {
+		checkForActiveAuction(id);
+	}, []);
 
 	const handleShowAuctionInfo = (e) => {
 		setIsInfoVisible(!isInfoVisible);
 	};
 
+	const checkForActiveAuction = async (nftId) => {
+		const contract = await createContractInstance(auctionFactoryDetails);
+		const activeAuctions = await contract.getActiveAuctionIds();
+		if (activeAuctions.includes(id)) {
+			setAuctionActive(true);
+		} else {
+			setAuctionActive(false);
+		}
+	};
+
 	const handleAuctionStart = async () => {
 		const contract = await createContractInstance(auctionFactoryDetails);
-		await createAuction(contract, startingPrice, duration, id, user.account);
+		await createAuction(contract, startingPrice, duration, id, user.account, auctionFactoryDetails.abi);
 	};
 
 	return (
@@ -47,7 +61,9 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 				</div>
 			</div>
 
-			{isListed ? (
+			{isListed && auctionActive ? (
+				<></>
+			) : isListed ? (
 				<NFTInfo id={id} name={name} price={price} category={category} />
 			) : (
 				// <span>Hello</span>

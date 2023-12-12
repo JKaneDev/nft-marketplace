@@ -60,7 +60,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+	const address = '0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB';
 
 	try {
 		const signer = await getSigner();
@@ -78,7 +78,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+	const address = '0x9E545E3C0baAB3E08CdfD552C960A1050f373042';
 
 	try {
 		const signer = await getSigner();
@@ -180,22 +180,50 @@ const extractMarketItemEventData = (parsedLog) => {
 	};
 };
 
+const extractAuctionCreatedEventData = (parsedLog) => {
+	console.log({
+		nftId: parsedLog.args[0],
+		startingPrice: ethers.formatEther(parsedLog.args[1]),
+		startTime: parsedLog.args[2],
+		auctionDuration: parsedLog.args[3],
+		seller: parsedLog.args[4],
+		auctionAddress: parsedLog[5],
+	});
+	return {
+		nftId: parsedLog.args[0],
+		startingPrice: ethers.formatEther(parsedLog.args[1]),
+		startTime: parsedLog.args[2],
+		auctionDuration: parsedLog.args[3],
+		seller: parsedLog.args[4],
+		auctionAddress: parsedLog[5],
+	};
+};
+
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
 	auctionFactoryContract.on(
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
+			console.log({
+				nftId: nftId,
+				startingPrice: startingPrice,
+				startTime: startTime,
+				auctionDuration: auctionDuration,
+				seller: seller,
+				auctionAddress: auctionAddress,
+			});
+
 			console.log(`Auction Created for NFT ID: ${nftId}`);
 
-			const formattedStartTime = moment.unix(startTime).format('YY:MM:DD HH:mm');
-			const formattedDuration = moment.duration(auctionDuration, 'seconds').format('DD:HH:mm:ss');
-			const formattedEndTime = moment.unix(startTime).add(auctionDuration, 'seconds').format('YY:MM:DD HH:mm:ss');
+			// const formattedStartTime = moment.unix(startTime).format('YY:MM:DD HH:mm');
+			// const formattedDuration = moment.duration(auctionDuration, 'seconds').format('DD:HH:mm:ss');
+			// const formattedEndTime = moment.unix(startTime).add(auctionDuration, 'seconds').format('YY:MM:DD HH:mm:ss');
 
 			// Add auction to firebase
 			const auctionData = {
-				startingPrice: startingPrice.toString(),
-				startTime: formattedStartTime,
-				auctionDuration: formattedDuration,
-				auctionEndTime: formattedEndTime,
+				nftId: nftId,
+				startingPrice: ethers.formatEther(startingPrice).toString(),
+				startTime: startTime,
+				auctionDuration: auctionDuration,
 				sellerAddress: seller,
 				auctionAddress: auctionAddress,
 			};
@@ -212,9 +240,7 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 	);
 };
 
-export const loadActiveAuctions = async () => {
-	const dispatch = useDispatch();
-
+export const loadActiveAuctions = async (dispatch) => {
 	try {
 		// Reference to the auctions in Firebase
 		const auctionsRef = ref(realtimeDb, 'auctions');
@@ -238,7 +264,7 @@ export const loadActiveAuctions = async () => {
 	}
 };
 
-export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, seller) => {
+export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, seller, abi) => {
 	try {
 		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
@@ -246,7 +272,29 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 		const tx = await auctionFactoryContract.createAuction(startingPriceWei, auctionDurationInSeconds, nftId, seller);
 
 		const receipt = await tx.wait();
-		console.log('Create Auction Receipt: ', receipt);
+
+		if (receipt) {
+			console.log('Auction Created Receipt: ', receipt.logs);
+			await toggleNFTListingStatus(seller.toLowerCase(), nftId);
+		}
+
+		const auctionCreatedLog = receipt.logs.find(
+			(log) => log.topics[0] === ethers.id('AuctionCreated(uint256,uint256,uint256,uint256,address,address)'),
+		);
+		if (auctionCreatedLog) {
+			const contractInterface = new ethers.Interface(abi);
+			const parsedLog = contractInterface.parseLog(auctionCreatedLog);
+			const eventData = extractAuctionCreatedEventData(parsedLog);
+
+			try {
+				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+				await set(auctionRef, eventData);
+
+				dispatch(addAuction(auctionData));
+			} catch (error) {
+				console.error('Error adding auction data to firebase: ', error);
+			}
+		}
 
 		return receipt;
 	} catch (error) {
@@ -256,12 +304,11 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 
 export const getSellerAddress = async (marketplace, tokenId) => await marketplace.getSellerAddress(tokenId);
 
-export const purchaseNft = async (marketplace, id, price, user) => {
+export const purchaseNft = async (marketplace, id, user) => {
 	try {
 		const seller = await getSellerAddress(marketplace, id);
-		const priceInWei = ethers.parseEther(price);
-		console.log('Passed price in Ether:', price, typeof price, 'Converted to Wei:', priceInWei.toString());
-		const tx = await marketplace.createMarketSale(id, { value: priceInWei });
+		const price = await marketplace.getNFTPrice(id);
+		const tx = await marketplace.createMarketSale(id, { value: price });
 		const receipt = await tx.wait();
 
 		console.log('Transaction Successful!');

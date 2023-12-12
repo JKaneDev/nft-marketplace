@@ -42,7 +42,6 @@ contract AuctionFactory {
         function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
                 require(seller != address(0), 'Invalid seller address');
                 require(startingPrice > 0, 'Starting price must be at least 1 wei');
-                require(auctions[nftId].seller == address(0), 'Auction for this nft already exists');
 
                 uint256 currentTimestamp = block.timestamp;
 
@@ -67,11 +66,9 @@ contract AuctionFactory {
                 _activeAuctionIds.push(nftId);
 
                 emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
-
-                console.log('Event emitted');
         }
 
-        function changeActiveStatus (uint256 nftId) public {
+        function changeActiveStatus(uint256 nftId) public {
                 auctions[nftId].active = false;
                 removeActiveAuction(nftId);
                 _endedAuctions.increment();

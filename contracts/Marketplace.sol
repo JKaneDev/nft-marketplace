@@ -70,6 +70,11 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         listingPrice = _listingPrice;
     }
 
+    function getNFTPrice(uint256 tokenId) public view returns (uint256 price) {
+        MarketItem memory item = idToMarketItem[tokenId];
+        return item.price;
+    }
+
     function updateNFTPrice(uint256 tokenId, uint256 price) public {
         require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist in marketplace");
         require(idToMarketItem[tokenId].seller == msg.sender, "Caller is not the owner");
@@ -137,6 +142,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // Allows the user to relist an item they own in the marketplace
     function resellMarketItem(uint256 tokenId, uint256 price, address seller) external payable override {
+        console.log('Resell market item called');
         require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
 
         if (msg.sender == auctionFactory) {
@@ -149,10 +155,12 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         idToMarketItem[tokenId].owner = payable(address(this));
 
         if (_itemsSold.current() > 0) {
-        _itemsSold.decrement();
-    }
+            _itemsSold.decrement();
+        }
 
         _transfer(seller, address(this), tokenId);
+
+        console.log('Resell transfer succeeded');
     }
 
     function createMarketSale(uint256 tokenId) public payable {
@@ -260,6 +268,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
 
         idToMarketItem[tokenId].owner = payable(winner);
+        idToMarketItem[tokenId].sold = true;
 
         emit NFTTransferred(tokenId, winner);
     }

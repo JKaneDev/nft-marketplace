@@ -20,6 +20,7 @@ contract Auction is ReentrancyGuard {
 
         mapping(address => uint256) public pendingReturns;
 
+        event AuctionCreated(address auctionAddress);
         event Bid(address bidder, uint256 bidAmount, address auctionAddress);
         event AuctionEnded(address auctionAddress, uint256 timestamp, uint256 nftId, address seller, uint256 startingPrice, uint256 highestBid);
 
@@ -31,6 +32,8 @@ contract Auction is ReentrancyGuard {
                 nftId = _nftId;
                 seller = payable(_seller);
                 startingPrice = _startingPrice;
+
+                emit AuctionCreated(address(this));
         }
 
         function withdraw() public returns (bool) {

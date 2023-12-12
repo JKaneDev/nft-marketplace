@@ -104,15 +104,15 @@ const Browse = () => {
 	}, []);
 
 	// Load and listen for auctions
-	// useEffect(() => {
-	// 	const loadAuctionFactoryFunctions = async () => {
-	// 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-	// 		await listenForCreatedAuctions(dispatch, auctionFactoryContract);
-	// 		await loadActiveAuctions();
-	// 	};
+	useEffect(() => {
+		const loadAuctionFactoryFunctions = async () => {
+			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
+			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			await loadActiveAuctions(dispatch);
+		};
 
-	// 	loadAuctionFactoryFunctions();
-	// }, []);
+		loadAuctionFactoryFunctions();
+	}, []);
 
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
