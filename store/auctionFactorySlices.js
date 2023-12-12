@@ -26,8 +26,11 @@ const auctionFactorySlice = createSlice({
 			state.contractDetails = null;
 		},
 		addAuction: (state, action) => {
-			console.log('Add Auction Payload: ', action.payload);
-			state.auctions.push(action.payload);
+			if (!state.auctions.includes(action.payload)) {
+				state.auctions.push(action.payload);
+			} else {
+				console.log('Auction already exists in store');
+			}
 		},
 		setAuctions: (state, action) => {
 			state.auctions.push(action.payload);

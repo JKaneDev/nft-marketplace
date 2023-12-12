@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { ethers, Log } from 'ethers';
+import { ethers } from 'ethers';
 import { RingLoader } from 'react-spinners';
 
 // INTERNAL IMPORTS

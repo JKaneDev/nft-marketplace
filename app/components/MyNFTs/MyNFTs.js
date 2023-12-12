@@ -6,12 +6,13 @@ import Image from 'next/image';
 // BLOCKCHAIN + BACKEND IMPORTS
 import { db } from '../../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import Style from './MyNFTs.module.scss';
 import { MarketItem } from '../componentindex';
 import images from '../../../assets/index';
-import { getProvider, getSignerAddress } from '@/store/blockchainInteractions';
+import { loadActiveAuctions } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown, FaSearch } from 'react-icons/fa';
@@ -30,6 +31,7 @@ const MyNFTs = () => {
 	const dropdownRef = useRef(null);
 
 	const user = useSelector((state) => state.connection.account);
+	const dispatch = useDispatch();
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
@@ -76,6 +78,10 @@ const MyNFTs = () => {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
+	}, []);
+
+	useEffect(() => {
+		loadActiveAuctions(dispatch);
 	}, []);
 
 	const handleCategoriesDropdownToggle = () => {

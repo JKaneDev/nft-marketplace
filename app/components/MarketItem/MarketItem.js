@@ -7,15 +7,16 @@ import Image from 'next/image';
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { createAuction, createContractInstance } from '@/store/blockchainInteractions';
 import { useSelector } from 'react-redux';
-import AuctionInterface from './AuctionInterface/AuctionInterface';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
-import { NFTInfo } from '../componentindex';
+import { NFTInfo, AuctionInterface, EndAuctionInterface } from '../componentindex';
 
 const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const user = useSelector((state) => state.connection.account);
 	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
+	const auctionData = auctions.find((auction) => auction.nftId === id);
 
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
 	const [startingPrice, setStartingPrice] = useState('');
@@ -60,7 +61,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 			</div>
 
 			{isListed && auctionActive ? (
-				<></>
+				<EndAuctionInterface auctionData={auctionData} />
 			) : isListed ? (
 				<NFTInfo id={id} name={name} price={price} category={category} />
 			) : (

@@ -14,7 +14,11 @@ const AuctionInterface = ({
 		<div className={Style.card_auction}>
 			<div className={Style.card_auction_info}>
 				<p>Create Auction Listing</p>
-				<FaInfoCircle className={Style.card_auction_info_icon} onClick={handleShowAuctionInfo} />
+				<FaInfoCircle
+					className={Style.card_auction_info_icon}
+					onMouseEnter={handleShowAuctionInfo}
+					onMouseLeave={handleShowAuctionInfo}
+				/>
 				<p className={`${Style.card_auction_info_more} ${isInfoVisible ? Style.visible : ''}`}>
 					Please enter the auction start price in ETH and the time in Minutes. E.g. '2.5' & '60'
 				</p>

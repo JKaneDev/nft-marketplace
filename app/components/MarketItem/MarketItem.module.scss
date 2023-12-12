@@ -20,7 +20,7 @@ $font-color: #fefefe;
 	transition: all 0.35s ease-in-out;
 
 	&:hover {
-		transform: translateY(-1%);
+		transform: scale(1.05);
 	}
 
 	.card_img {

@@ -12,6 +12,7 @@ import {
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
+import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import moment from 'moment';
 import 'moment-duration-format';
 import { realtimeDb } from '../firebaseConfig';
@@ -61,7 +62,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154';
+	const address = '0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f';
 
 	try {
 		const signer = await getSigner();
@@ -79,7 +80,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575';
+	const address = '0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07';
 
 	try {
 		const signer = await getSigner();
@@ -186,31 +187,22 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
 			// Format startTime and auctionDuration
-			const formattedStartTime = moment.unix(startTime.toString()).format('YY:MM:DD HH:mm');
-			const formattedDuration = moment.duration(auctionDuration.toString()).format('DD:HH:mm:ss');
-			const formattedEndTime = moment
-				.unix(startTime.toString())
-				.add(auctionDuration.toString())
-				.format('YY:MM:DD HH:mm:ss');
 
 			// Add auction to firebase
 			const auctionData = {
 				nftId: nftId.toString(),
 				startingPrice: ethers.formatEther(startingPrice).toString(),
-				startTime: formattedStartTime,
-				auctionDuration: formattedDuration,
-				endTime: formattedEndTime,
+				startTime: startTime.toString(),
+				auctionDuration: auctionDuration.toString(),
 				sellerAddress: seller,
 				auctionAddress: auctionAddress,
 			};
 
 			try {
+				console.log(auctionData);
 				dispatch(addAuction(auctionData));
-				dispatch(addAuction('Hello there testy'));
 
 				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-				console.log('Auction ref found: ', auctionRef);
-				await set(auctionRef, 'Auction Set Test');
 				await set(auctionRef, auctionData);
 			} catch (error) {
 				console.error('Error adding auction data to firebase: ', error);
@@ -280,4 +272,18 @@ export const purchaseNft = async (marketplace, id, user) => {
 	} catch (error) {
 		console.error('Error purchasing NFT: ', error);
 	}
+};
+
+export const endAuction = async (id, sellerAddress, contractAddress) => {
+	try {
+		const signer = await getSigner();
+		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
+		const tx = await auctionContract.endAuction(id);
+		const receipt = tx.wait();
+
+		if (receipt) {
+			await toggleNFTListingStatus(sellerAddress.toLowerCase(), id);
+		}
+	} catch (error) {}
+	return;
 };
