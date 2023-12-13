@@ -12,15 +12,11 @@ import { AuctionTimer } from '../../componentindex';
 const EndAuctionInterface = ({ auctionData }) => {
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		console.log('AuctionData: ', auctionData);
-	});
-
 	const handleEndAuction = async () => {
 		try {
 			setLoading(true);
 
-			await endAuction(auctionData.nftId);
+			await endAuction(auctionData.nftId, auctionData.sellerAddress, auctionData.auctionAddress);
 
 			setLoading(false);
 		} catch (error) {

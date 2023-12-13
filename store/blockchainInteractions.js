@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
 import { setError, setMarketplaceContract } from './marketplaceSlices';
-import { setAuctionFactoryContract, addAuction, setAuctions } from './auctionFactorySlices';
+import { setAuctionFactoryContract, addAuction, setAuctions, removeAuction } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import {
 	uploadImageToFirebase,
@@ -13,10 +13,8 @@ import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
 import Auction from '../abis/contracts/Auction.sol/Auction.json';
-import moment from 'moment';
-import 'moment-duration-format';
 import { realtimeDb } from '../firebaseConfig';
-import { get, ref, set } from 'firebase/database';
+import { get, ref, set, remove } from 'firebase/database';
 
 export const connectToEthereum = async (dispatch) => {
 	try {
@@ -62,7 +60,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f';
+	const address = '0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f';
 
 	try {
 		const signer = await getSigner();
@@ -80,7 +78,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07';
+	const address = '0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d';
 
 	try {
 		const signer = await getSigner();
@@ -186,8 +184,6 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 	auctionFactoryContract.on(
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
-			// Format startTime and auctionDuration
-
 			// Add auction to firebase
 			const auctionData = {
 				nftId: nftId.toString(),
@@ -215,18 +211,19 @@ export const loadActiveAuctions = async (dispatch) => {
 	try {
 		// Reference to the auctions in Firebase
 		const auctionsRef = ref(realtimeDb, 'auctions');
+		console.log('load active - ref found', auctionsRef);
 
 		// Fetch the auctions data
 		const snapshot = await get(auctionsRef);
 		if (snapshot.exists()) {
 			const auctionsData = snapshot.val();
+			console.log('load active - snapshot received', auctionsData);
 
-			const fetchedAuctions = Object.entries(auctionsData).reduce((acc, [nftId, auctionData]) => {
-				if (auctionData.active) {
-					acc.push({ nftId, ...auctionData });
-				}
-				return acc;
-			}, []);
+			const fetchedAuctions = Object.entries(auctionsData).map(([nftId, auctionData]) => {
+				return { nftId, ...auctionData };
+			});
+
+			console.log('load active - fetched', fetchedAuctions);
 
 			dispatch(setAuctions(fetchedAuctions));
 		}
@@ -278,12 +275,30 @@ export const endAuction = async (id, sellerAddress, contractAddress) => {
 	try {
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
-		const tx = await auctionContract.endAuction(id);
-		const receipt = tx.wait();
-
-		if (receipt) {
-			await toggleNFTListingStatus(sellerAddress.toLowerCase(), id);
-		}
-	} catch (error) {}
+		await auctionContract.endAuction(id);
+	} catch (error) {
+		console.error('Error calling smart contract endAuction');
+	}
 	return;
+};
+
+export const listenForEndedAuctions = async (dispatch, contractAddress) => {
+	try {
+		const signer = await getSigner();
+		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
+
+		auctionContract.on('AuctionEnded', async (nftId, highestBidder) => {
+			dispatch(removeAuction(nftId));
+
+			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+			await remove(auctionRef);
+
+			console.log(`Auction with ID ${nftId} has been removed.`);
+
+			await toggleNFTListingStatus(sellerAddress.toLowerCase(), nftId.toString());
+			await changeNftOwnershipInFirebase(nftId.toString(), highestBidder.toString());
+		});
+	} catch (error) {
+		console.error('AuctionEnded event not emitted');
+	}
 };

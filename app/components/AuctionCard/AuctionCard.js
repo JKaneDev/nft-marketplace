@@ -2,60 +2,90 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useSelector } from 'react-redux';
 
-import { FaHeart, FaTimes } from 'react-icons/fa';
+import { FaHeart, FaCheck } from 'react-icons/fa';
 
 // INTERNAL IMPORTS
 import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
+import { AuctionTimer } from '../componentindex';
+import { endAuction } from '@/store/blockchainInteractions';
 
-const AuctionCard = ({ id, name, image, category, price }) => {
-	const [isBidding, setIsBidding] = useState(false);
+const AuctionCard = ({ id, image, name }) => {
+	const [loading, setLoading] = useState(false);
+	const [bidding, setBidding] = useState(false);
+	const [bidAmount, setBidAmount] = useState(null);
+
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
+	const auctionData = auctions.find((auction) => auction.nftId === id);
+
+	const handleEndAuction = async () => {
+		try {
+			setLoading(true);
+
+			await endAuction(auctionData.nftId, auctionData.sellerAddress, auctionData.auctionAddress);
+
+			setLoading(false);
+		} catch (error) {
+			console.error('Error ending auction');
+		}
+	};
+
+	const handleSetBid = () => {
+		setBidding(!bidding);
+	};
+
+	const handleAuctionBid = (amount) => {
+		return;
+	};
 
 	return (
 		<div className={Style.card}>
 			<div className={Style.card_img}>
-				<Image src={images.mape2} alt='live auction nft image' className={Style.card_img_image} />
+				<Image
+					src={image ? image : images.placeholder}
+					alt='live auction nft image'
+					width={330}
+					height={330}
+					className={Style.card_img_image}
+				/>
 				<div className={Style.card_img_wrapper}>
 					<FaHeart size={18} className={Style.card_img_like} />
-					<p>25</p>
 				</div>
 				<div className={Style.card_img_name}>
-					<p>Mutant Ape</p>
+					<p>{name}</p>
 				</div>
 			</div>
 
-			<div className={Style.card_wrapper}>
-				{isBidding ? (
-					<div className={Style.card_wrapper_interface}>
-						<span className={Style.card_wrapper_interface_exit} onClick={() => setIsBidding(!isBidding)}>
-							<FaTimes className={Style.card_wrapper_interface_exit_icon} />
-						</span>
-						<input type='text' className={Style.card_wrapper_interface_bid} />
-						<button className={Style.card_wrapper_interface_place}>Bid</button>
-					</div>
-				) : (
-					<div className={Style.card_wrapper_bid}>
-						<p onClick={() => setIsBidding(!isBidding)}>Current Bid:</p>
-						<p>1.5 ETH</p>
-					</div>
-				)}
-
-				<div className={Style.card_wrapper_time}>
-					<p>Time Remaining:</p>
-					<p>8h:22m:43s</p>
+			<div className={Style.interface}>
+				<p className={Style.interface_active}>Auction Active</p>
+				<div className={Style.interface_info}>
+					<p>Ending:</p>
+					<AuctionTimer
+						startTime={auctionData.startTime}
+						auctionDuration={auctionData.auctionDuration}
+						handleEndAuction={handleEndAuction}
+					/>
 				</div>
-			</div>
-
-			<div className={Style.card_bid}>
-				<div className={Style.card_bid_current}>
-					<p>Current Bid:</p>
-					<p>1.5 ETH</p>
+				<div className={Style.interface_actions}>
+					<div className={Style.interface_actions_bid}>
+						<p>Current Bid:</p>
+						<p>1 ETH</p>
+					</div>
+					{loading ? (
+						<RingLoader size={30} color={'#fff'} />
+					) : bidding ? (
+						<div className={Style.interface_actions_place}>
+							<input type='text' onChange={(e) => setBidAmount(e.target.value)} />
+							<button>
+								<FaCheck className={Style.interface_actions_place_confirm} />
+							</button>
+						</div>
+					) : (
+						<button onClick={handleSetBid}>Place Bid</button>
+					)}
 				</div>
-				{/* <div className={Style.card_bid_wrapper}>
-					<input type='text' className={Style.card_bid_wrapper_amount} />
-					<button className={Style.card_bid__wrapper_place}>Place Bid</button>
-				</div> */}
 			</div>
 		</div>
 	);

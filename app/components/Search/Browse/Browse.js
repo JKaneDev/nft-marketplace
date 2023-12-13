@@ -5,15 +5,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import Fuse from 'fuse.js';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { db } from '@/firebaseConfig';
+import { db, realtimeDb } from '@/firebaseConfig';
 import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
+import { get, ref, set, remove } from 'firebase/database';
 
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
 import { createContractInstance, listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
-import { FaSearch, FaCaretDown } from 'react-icons/fa';
+import { FaSearch, FaCaretDown, FaTshirt } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import { AuctionCard, StaticSaleCard } from '../../componentindex';
@@ -31,6 +32,7 @@ const Browse = () => {
 	const [allNFTs, setAllNFTs] = useState([]);
 
 	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const user = useSelector((state) => state.connection.account);
 
 	// Fetch data for all users depending on filter selection
@@ -146,21 +148,35 @@ const Browse = () => {
 		setSearchQuery(e.target.value);
 	};
 
-	const checkStaticSaleOrAuction = (nfts) => {
-		return nfts;
+	const checkStaticSaleOrAuction = (nfts, auctions) => {
+		try {
+			const activeAuctionIds = auctions.map((auction) => auction.nftId);
+
+			const auctionItems = nfts.filter((nft) => activeAuctionIds.includes(nft.id));
+			const marketplaceItems = nfts.filter((nft) => !activeAuctionIds.includes(nft.id));
+
+			return { auctionItems, marketplaceItems };
+		} catch (error) {
+			console.error('Error checking items for sale or auction');
+			return nfts;
+		}
 	};
 
 	const filteredNFTs = useMemo(() => {
 		let nfts = allNFTs;
 
+		let itemsToRender = checkStaticSaleOrAuction(nfts, auctions);
+
 		switch (currentFilter) {
 			case 'Marketplace':
-				nfts = checkStaticSaleOrAuction(nfts);
+				nfts = itemsToRender.marketplaceItems;
 				break;
 			case 'Live Auctions':
-				nfts = checkStaticSaleOrAuction(nfts);
+				nfts = itemsToRender.auctionItems;
+				console.log('Live Auctions: ', nfts);
 				break;
 			default:
+				nfts = itemsToRender.marketplaceItems;
 				break;
 		}
 
@@ -240,7 +256,7 @@ const Browse = () => {
 				<MdRestartAlt size={28} className={Style.browse_auctions_reset} onClick={handleResetFilter} />
 				<>
 					{filteredNFTs && currentFilter === 'Live Auctions' ? (
-						filteredNFTs.map((nft) => <div key={nft.id}></div>)
+						filteredNFTs.map((nft) => <AuctionCard key={nft.id} id={nft.id} image={nft.image} name={nft.name} />)
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
 						filteredNFTs.map((nft) => (
 							<StaticSaleCard

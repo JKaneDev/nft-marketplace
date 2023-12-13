@@ -42,6 +42,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const handleAuctionStart = async () => {
 		const contract = await createContractInstance(auctionFactoryDetails);
 		await createAuction(contract, startingPrice, duration, id, user.account, auctionFactoryDetails.abi);
+		window.location.reload();
 	};
 
 	return (

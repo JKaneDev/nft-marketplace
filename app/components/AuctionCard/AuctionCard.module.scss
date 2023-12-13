@@ -16,10 +16,11 @@ $font-color: #fefefe;
 	border-top-right-radius: 14px;
 	height: 425px;
 	width: 335px;
-	transition: border 0.35s ease;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	transition: all 0.35s ease-in-out;
 
 	&:hover {
-		border: 2px solid #0cc0df;
+		transform: scale(1.02);
 	}
 
 	.card_img {
@@ -166,179 +167,145 @@ $font-color: #fefefe;
 	}
 }
 
-.card_wrapper {
+.interface {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
 	font-weight: 200;
 	letter-spacing: 0.1rem;
-	font-size: 14px;
+	font-size: 16px;
 	padding: 0.5rem 1rem;
 	width: 330px;
+	position: relative;
 
-	.card_wrapper_interface {
-		border: 2px solid #0cc0df;
-		padding: 0.5rem 1rem;
+	.interface_active {
+		position: absolute;
+		top: -335px;
+		left: 15px;
+		background-color: #0cc0df;
+		color: black;
+		font-size: 14px;
+		font-weight: 400;
+		letter-spacing: 0.05rem;
+		padding: 0.25rem 0.75rem;
 		border-radius: 8px;
+		text-align: center;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: 0.5rem;
-		position: relative;
-		height: 100%;
-		width: 50%;
+	}
+}
 
-		.card_wrapper_interface_exit {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: $font-color;
-			position: absolute;
-			left: 8.1rem;
-			bottom: 2.3rem;
-			height: 25px;
-			width: 25px;
+.interface_info {
+	border: 2px solid #0cc0df;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.5rem;
+	position: relative;
+	width: 50%;
+	transition: all 0.35s ease-in-out;
+
+	p:nth-of-type(1) {
+		z-index: 1000;
+		position: absolute;
+		transform: translateY(-1.75rem);
+		font-size: 12px;
+		top: 1rem;
+		left: 0.5rem;
+		background-color: #0cc0df;
+		border-radius: 8px;
+		color: black;
+		padding: 0.2rem 0.75rem;
+		font-weight: 300;
+		letter-spacing: 0.05rem;
+		transition: all 0.35s ease-in-out;
+	}
+
+	p:nth-of-type(2) {
+		padding: 0.5rem 0 0.25rem 0;
+		font-weight: 200;
+		text-align: center;
+		font-size: 16px;
+		padding-left: 0.25rem;
+	}
+}
+
+.interface_actions {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.25rem;
+	width: 50%;
+	padding-bottom: 0.25rem;
+	position: absolute;
+	top: 2.5px;
+	right: -2.5px;
+
+	.interface_actions_bid {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 12px;
+
+		p:nth-of-type(1) {
+			font-weight: 500;
+		}
+	}
+
+	button {
+		transition: all 0.35s ease-in-out;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem 1.75rem;
+		background: $alt-bg-color;
+		border: 2px solid $main-bg-color;
+		font-size: 14px;
+		font-weight: 100;
+		letter-spacing: 0.1rem;
+		border-radius: 8px;
+		color: white;
+
+		&:hover {
 			background-color: $main-bg-color;
 			border: 2px solid #0cc0df;
-			border-radius: 5rem;
-
-			.card_wrapper_interface_exit_icon {
-				height: 12px;
-				width: 12px;
-				margin: auto;
-				transition: all 0.35s ease-in-out;
-			}
-
-			&:hover {
-				.card_wrapper_interface_exit_icon {
-					color: #0cc0df;
-					cursor: pointer;
-				}
-			}
-		}
-
-		.card_wrapper_interface_bid {
-			color: white;
-			display: flex;
-			align-items: center;
-			padding: 0.25rem 0.5rem;
-			outline: none;
-			border: 1px solid $main-bg-color;
-			background-color: $alt-bg-color;
-			transition: all 0.35s ease-in-out;
-			border-radius: 4px;
-			width: 70%;
-			height: 85%;
-
-			&:hover {
-				border: 1px solid #0cc0df;
-			}
-
-			&:active,
-			&:focus {
-				border: 1px solid #0cc0df;
-			}
-		}
-
-		.card_wrapper_interface_place {
-			height: 85%;
-			color: white;
-			font-size: 12px;
-			font-weight: 200;
-			letter-spacing: 0.1rem;
-			border: 1px solid $main-bg-color;
-			padding: 0.35rem 1rem 0.35rem 1.25rem;
-			border-radius: 4px;
-			background-color: $alt-bg-color;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 40px;
-			transition: all 0.35s ease-in-out;
-
-			&:hover {
-				border: 1px solid #0cc0df;
-				background-color: $main-bg-color;
-				cursor: pointer;
-			}
+			cursor: pointer;
 		}
 	}
+}
 
-	.card_wrapper_bid {
-		border: 2px solid #0cc0df;
-		padding: 0.5rem 1rem;
-		border-radius: 8px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: 0.5rem;
-		position: relative;
-		width: 50%;
-		transition: all 0.35s ease-in-out;
+.interface_actions_place {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	width: 100%;
+	margin-top: 0.25rem;
 
-		p:nth-of-type(1) {
-			position: absolute;
-			transform: translateY(-1.75rem);
-			font-size: 12px;
-			top: 1rem;
-			background-color: #0cc0df;
-			border-radius: 8px;
-			color: black;
-			padding: 0.25rem 0.75rem;
-			font-weight: 400;
-			letter-spacing: 0.05rem;
-			transition: all 0.35s ease-in-out;
-
-			&:hover {
-				cursor: pointer;
-				color: transparent;
-
-				&::before {
-					content: 'Place Bid';
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					position: absolute;
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-					background-color: $main-bg-color;
-					color: #0cc0df;
-					border-radius: inherit;
-					z-index: 1;
-					font-weight: 400;
-					letter-spacing: inherit;
-					border: 2px solid #0cc0df;
-				}
-			}
-
-			// ACTIVATE BID INTERFACE
-		}
-
-		p:nth-of-type(2) {
-			padding: 0.65rem 0 0.25rem 0;
-			font-weight: 400;
-		}
+	input {
+		background-color: $alt-bg-color;
+		outline: none;
+		border: 2px solid $main-bg-color;
+		border-radius: 4px;
+		width: 110px;
+		padding: 0.35rem 0.85rem;
+		color: white;
 	}
-	// END OF BID WRAPPER
 
-	.card_wrapper_time {
-		font-size: 12px;
-		text-align: right;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: 0.5rem;
+	button {
+		background-color: $alt-bg-color;
+		border: 2px solid $main-bg-color;
+		width: 35px;
+		height: 35px;
+		padding: 0.75rem;
+	}
 
-		p:nth-of-type(1) {
-			font-weight: 400;
-		}
-
-		p:nth-of-type(2) {
-			font-size: 16px;
-			font-weight: 400;
-			letter-spacing: 0.2rem;
-		}
+	.interface_actions_place_confirm {
+		height: 100%;
+		width: 100%;
 	}
 }

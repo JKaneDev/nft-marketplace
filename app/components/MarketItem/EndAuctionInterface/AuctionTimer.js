@@ -2,7 +2,7 @@ import React from 'react';
 import Countdown from 'react-countdown-now';
 import moment from 'moment';
 
-import Style from '../EndAuctionInterface/EndAuctionInterface.module.scss';
+import Style from './AuctionTimer.module.scss';
 
 function AuctionTimer({ startTime, auctionDuration, handleEndAuction }) {
 	// Convert startTime and auctionDuration from string to number
@@ -16,22 +16,18 @@ function AuctionTimer({ startTime, auctionDuration, handleEndAuction }) {
 	const renderer = ({ hours, minutes, seconds, completed }) => {
 		if (completed) {
 			// Render a completed state
-			return <p>00:00:00</p>;
+			return <p className={Style.interface_info_countdown}>00:00:00</p>;
 		} else {
 			// Render a countdown
 			return (
-				<span>
+				<span className={Style.interface_info_countdown}>
 					{hours}:{minutes}:{seconds}
 				</span>
 			);
 		}
 	};
 
-	return (
-		<div className={Style.interface_info_countdown}>
-			<Countdown date={endTime} renderer={renderer} onComplete={handleEndAuction} />
-		</div>
-	);
+	return <Countdown date={endTime} renderer={renderer} onComplete={handleEndAuction} />;
 }
 
 export default AuctionTimer;
