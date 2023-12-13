@@ -14,7 +14,7 @@ import Style from './Browse.module.scss';
 import { createContractInstance, listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
-import { FaSearch, FaCaretDown, FaTshirt } from 'react-icons/fa';
+import { FaSearch, FaCaretDown } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import { AuctionCard, StaticSaleCard } from '../../componentindex';

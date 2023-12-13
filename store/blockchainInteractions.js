@@ -1,7 +1,12 @@
 import { ethers } from 'ethers';
 import { connectSuccess, connectFailure } from './connectSlices';
 import { setError, setMarketplaceContract } from './marketplaceSlices';
-import { setAuctionFactoryContract, addAuction, setAuctions, removeAuction } from './auctionFactorySlices';
+import {
+	setAuctionFactoryContract,
+	addAuction,
+	setAuctions,
+	removeAuction,
+} from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import {
 	uploadImageToFirebase,
@@ -20,7 +25,9 @@ export const connectToEthereum = async (dispatch) => {
 	try {
 		if (typeof window.ethereum !== 'undefined') {
 			// Request account access
-			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+			const accounts = await window.ethereum.request({
+				method: 'eth_requestAccounts',
+			});
 
 			// Update state with the current account
 			dispatch(connectSuccess({ account: accounts[0] }));
@@ -60,7 +67,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f';
+	const address = '0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429';
 
 	try {
 		const signer = await getSigner();
@@ -71,14 +78,16 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 		return marketplace;
 	} catch (error) {
-		console.log('Marketplace contract not deployed to the current network. Please select another with MetaMask.');
+		console.log(
+			'Marketplace contract not deployed to the current network. Please select another with MetaMask.',
+		);
 		dispatch(setError(error.message));
 	}
 };
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d';
+	const address = '0x3aAde2dCD2Df6a8cAc689EE797591b2913658659';
 
 	try {
 		const signer = await getSigner();
@@ -115,7 +124,12 @@ const pinToIpfs = async (cid) => {
 };
 
 const uploadToFirebase = async (metadata, metadataToUpload, tokenId, seller) => {
-	const firebaseImageUrl = await uploadImageToFirebase(metadata.image, metadataToUpload.displayName, tokenId, seller);
+	const firebaseImageUrl = await uploadImageToFirebase(
+		metadata.image,
+		metadataToUpload.displayName,
+		tokenId,
+		seller,
+	);
 	await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
 };
 
@@ -151,7 +165,8 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 
 		const marketItemCreatedLog = receipt.logs.find(
 			(log) =>
-				log.topics[0] === ethers.id('MarketItemCreated(uint256,address,address,address,uint256,uint256,bool,bool)'),
+				log.topics[0] ===
+				ethers.id('MarketItemCreated(uint256,address,address,address,uint256,uint256,bool,bool)'),
 		);
 		if (marketItemCreatedLog) {
 			const contractInterface = new ethers.Interface(abi);
@@ -195,7 +210,6 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 			};
 
 			try {
-				console.log(auctionData);
 				dispatch(addAuction(auctionData));
 
 				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
@@ -211,33 +225,42 @@ export const loadActiveAuctions = async (dispatch) => {
 	try {
 		// Reference to the auctions in Firebase
 		const auctionsRef = ref(realtimeDb, 'auctions');
-		console.log('load active - ref found', auctionsRef);
 
 		// Fetch the auctions data
 		const snapshot = await get(auctionsRef);
 		if (snapshot.exists()) {
 			const auctionsData = snapshot.val();
-			console.log('load active - snapshot received', auctionsData);
 
 			const fetchedAuctions = Object.entries(auctionsData).map(([nftId, auctionData]) => {
 				return { nftId, ...auctionData };
 			});
 
-			console.log('load active - fetched', fetchedAuctions);
-
 			dispatch(setAuctions(fetchedAuctions));
+		} else {
+			dispatch(setAuctions([]));
 		}
 	} catch (error) {
 		console.error('Error loading active auctions: ', error);
 	}
 };
 
-export const createAuction = async (auctionFactoryContract, startingPrice, auctionDuration, nftId, seller, abi) => {
+export const createAuction = async (
+	auctionFactoryContract,
+	startingPrice,
+	auctionDuration,
+	nftId,
+	seller,
+) => {
 	try {
 		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
 
-		const tx = await auctionFactoryContract.createAuction(startingPriceWei, auctionDurationInSeconds, nftId, seller);
+		const tx = await auctionFactoryContract.createAuction(
+			startingPriceWei,
+			auctionDurationInSeconds,
+			nftId,
+			seller,
+		);
 
 		const receipt = await tx.wait();
 
@@ -251,7 +274,8 @@ export const createAuction = async (auctionFactoryContract, startingPrice, aucti
 	}
 };
 
-export const getSellerAddress = async (marketplace, tokenId) => await marketplace.getSellerAddress(tokenId);
+export const getSellerAddress = async (marketplace, tokenId) =>
+	await marketplace.getSellerAddress(tokenId);
 
 export const purchaseNft = async (marketplace, id, user) => {
 	try {
@@ -271,7 +295,7 @@ export const purchaseNft = async (marketplace, id, user) => {
 	}
 };
 
-export const endAuction = async (id, sellerAddress, contractAddress) => {
+export const endAuction = async (id, contractAddress) => {
 	try {
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
@@ -282,21 +306,27 @@ export const endAuction = async (id, sellerAddress, contractAddress) => {
 	return;
 };
 
-export const listenForEndedAuctions = async (dispatch, contractAddress) => {
+export const listenForEndedAuctions = async (dispatch, seller, contractAddress) => {
 	try {
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 
-		auctionContract.on('AuctionEnded', async (nftId, highestBidder) => {
-			dispatch(removeAuction(nftId));
+		auctionContract.on('AuctionEnded', async (nftId, highestBidder, seller, nullAddress) => {
+			console.log('Auction Ended Event Emitted');
+
+			dispatch(removeAuction(nftId.toString()));
 
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 			await remove(auctionRef);
 
-			console.log(`Auction with ID ${nftId} has been removed.`);
+			await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
 
-			await toggleNFTListingStatus(sellerAddress.toLowerCase(), nftId.toString());
-			await changeNftOwnershipInFirebase(nftId.toString(), highestBidder.toString());
+			// if a bid was made on the auction, change ownership
+			if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
+				await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+			}
+
+			console.log(`Auction with ID ${nftId} has been removed.`);
 		});
 	} catch (error) {
 		console.error('AuctionEnded event not emitted');

@@ -1,22 +1,34 @@
 // EXTERNAL IMPORTS
 import React, { useState, useEffect } from 'react';
 import { RingLoader } from 'react-spinners';
-import { useSelector } from 'react-redux';
-import moment from 'moment';
+import { useSelector, useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import Style from './EndAuctionInterface.module.scss';
-import { endAuction } from '@/store/blockchainInteractions';
+import { endAuction, listenForEndedAuctions } from '@/store/blockchainInteractions';
 import { AuctionTimer } from '../../componentindex';
 
-const EndAuctionInterface = ({ auctionData }) => {
+const EndAuctionInterface = ({ id }) => {
+	const dispatch = useDispatch();
+
 	const [loading, setLoading] = useState(false);
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
+	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
+
+	useEffect(() => {
+		const loadAuctionEndedListener = async () => {
+			if (auction) {
+				await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
+			}
+		};
+		loadAuctionEndedListener();
+	}, []);
 
 	const handleEndAuction = async () => {
 		try {
 			setLoading(true);
 
-			await endAuction(auctionData.nftId, auctionData.sellerAddress, auctionData.auctionAddress);
+			await endAuction(auction.nftId, auction.auctionAddress);
 
 			setLoading(false);
 		} catch (error) {
@@ -30,8 +42,8 @@ const EndAuctionInterface = ({ auctionData }) => {
 			<div className={Style.interface_info}>
 				<p>Ending:</p>
 				<AuctionTimer
-					startTime={auctionData.startTime}
-					auctionDuration={auctionData.auctionDuration}
+					startTime={auction.startTime}
+					auctionDuration={auction.auctionDuration}
 					handleEndAuction={handleEndAuction}
 				/>
 			</div>
@@ -40,7 +52,11 @@ const EndAuctionInterface = ({ auctionData }) => {
 					<p>Current Bid:</p>
 					<p>1 ETH</p>
 				</div>
-				{loading ? <RingLoader size={30} color={'#fff'} /> : <button onClick={handleEndAuction}>End Auction</button>}
+				{loading ? (
+					<RingLoader size={30} color={'#fff'} />
+				) : (
+					<button onClick={handleEndAuction}>End Auction</button>
+				)}
 			</div>
 		</div>
 	);

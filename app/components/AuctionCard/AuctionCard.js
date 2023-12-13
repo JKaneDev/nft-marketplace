@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { FaHeart, FaCheck } from 'react-icons/fa';
 
@@ -10,9 +10,15 @@ import { FaHeart, FaCheck } from 'react-icons/fa';
 import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
 import { AuctionTimer } from '../componentindex';
-import { endAuction } from '@/store/blockchainInteractions';
+import {
+	endAuction,
+	listenForEndedAuctions,
+	loadActiveAuctions,
+} from '@/store/blockchainInteractions';
 
 const AuctionCard = ({ id, image, name }) => {
+	const dispatch = useDispatch();
+
 	const [loading, setLoading] = useState(false);
 	const [bidding, setBidding] = useState(false);
 	const [bidAmount, setBidAmount] = useState(null);
@@ -20,11 +26,32 @@ const AuctionCard = ({ id, image, name }) => {
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auctionData = auctions.find((auction) => auction.nftId === id);
 
+	// Listen for auction events
+	useEffect(() => {
+		const loadAuctionEventListeners = async () => {
+			if (auctions.length > 0) {
+				const auction = auctions.find((auction) => auction.nftId === id);
+				if (auction) {
+					await listenForEndedAuctions(
+						dispatch,
+						auction.sellerAddress,
+						auction.auctionAddress,
+					);
+				}
+			}
+		};
+		loadAuctionEventListeners();
+	}, []);
+
 	const handleEndAuction = async () => {
 		try {
 			setLoading(true);
 
-			await endAuction(auctionData.nftId, auctionData.sellerAddress, auctionData.auctionAddress);
+			await endAuction(
+				auctionData.nftId,
+				auctionData.sellerAddress,
+				auctionData.auctionAddress,
+			);
 
 			setLoading(false);
 		} catch (error) {
@@ -77,7 +104,10 @@ const AuctionCard = ({ id, image, name }) => {
 						<RingLoader size={30} color={'#fff'} />
 					) : bidding ? (
 						<div className={Style.interface_actions_place}>
-							<input type='text' onChange={(e) => setBidAmount(e.target.value)} />
+							<input
+								type='text'
+								onChange={(e) => setBidAmount(e.target.value)}
+							/>
 							<button>
 								<FaCheck className={Style.interface_actions_place_confirm} />
 							</button>

@@ -26,22 +26,34 @@ const auctionFactorySlice = createSlice({
 			state.contractDetails = null;
 		},
 		addAuction: (state, action) => {
-			if (!state.auctions.includes(action.payload)) {
-				state.auctions.push(action.payload);
+			const auctionExists = state.auctions.some(
+				(auction) =>
+					auction.nftId === action.payload.nftId &&
+					auction.startTime === action.payload.startTime,
+			);
+
+			if (!auctionExists) {
+				state.auctions = [...state.auctions, action.payload];
 			} else {
 				console.log('Auction already exists in store');
 			}
 		},
 		removeAuction: (state, action) => {
-			if (state.auctions.includes(action.payload)) {
-				state.auctions = state.auctions.filter((auction) => auction.nftId !== action.payload);
+			const auctionExists = state.auctions.some(
+				(auction) =>
+					auction.nftId === action.payload.nftId &&
+					auction.startTime === action.payload.startTime,
+			);
+			if (auctionExists) {
+				state.auctions = state.auctions.filter(
+					(auction) => auction.nftId !== action.payload,
+				);
 			} else {
 				console.log('Auction did not exist');
 			}
 		},
 		setAuctions: (state, action) => {
-			console.log('Load auctions payload: ', action.payload);
-			state.auctions.push(action.payload);
+			state.auctions = action.payload;
 		},
 	},
 });

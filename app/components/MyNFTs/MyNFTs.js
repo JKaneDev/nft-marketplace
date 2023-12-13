@@ -12,10 +12,22 @@ import { useDispatch } from 'react-redux';
 import Style from './MyNFTs.module.scss';
 import { MarketItem } from '../componentindex';
 import images from '../../../assets/index';
-import { loadActiveAuctions } from '@/store/blockchainInteractions';
+import {
+	loadActiveAuctions,
+	listenForCreatedAuctions,
+	createContractInstance,
+} from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaShare, FaCaretDown, FaSearch } from 'react-icons/fa';
+import {
+	FaFacebookF,
+	FaInstagram,
+	FaLinkedinIn,
+	FaTwitter,
+	FaShare,
+	FaCaretDown,
+	FaSearch,
+} from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import Fuse from 'fuse.js';
@@ -30,6 +42,9 @@ const MyNFTs = () => {
 	const [userData, setUserData] = useState(null);
 	const dropdownRef = useRef(null);
 
+	const auctionFactoryDetails = useSelector(
+		(state) => state.auctionFactory.contractDetails,
+	);
 	const user = useSelector((state) => state.connection.account);
 	const dispatch = useDispatch();
 
@@ -81,7 +96,15 @@ const MyNFTs = () => {
 	}, []);
 
 	useEffect(() => {
-		loadActiveAuctions(dispatch);
+		const loadAuctionFactoryFunctions = async () => {
+			const auctionFactoryContract = await createContractInstance(
+				auctionFactoryDetails,
+			);
+			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			await loadActiveAuctions(dispatch);
+		};
+
+		loadAuctionFactoryFunctions();
 	}, []);
 
 	const handleCategoriesDropdownToggle = () => {
@@ -164,11 +187,19 @@ const MyNFTs = () => {
 						height={120}
 					/>
 				) : (
-					<Image src={images.placeholder} alt="user's profile pic" className={Style.main_profile_image} />
+					<Image
+						src={images.placeholder}
+						alt="user's profile pic"
+						className={Style.main_profile_image}
+					/>
 				)}
 				<div className={Style.main_profile_info}>
 					<h1>{userData && userData.name ? userData.name : 'Username'}</h1>
-					<p>{userData && userData.description ? userData.description : 'Description of marketplace user goes here'}</p>
+					<p>
+						{userData && userData.description
+							? userData.description
+							: 'Description of marketplace user goes here'}
+					</p>
 					<div className={Style.main_profile_info_socials}>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -178,7 +209,10 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaFacebookF size={18} className={Style.main_profile_info_socials_wrapper_icons} />
+							<FaFacebookF
+								size={18}
+								className={Style.main_profile_info_socials_wrapper_icons}
+							/>
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -188,7 +222,10 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaInstagram size={18} className={Style.main_profile_info_socials_wrapper_icons} />
+							<FaInstagram
+								size={18}
+								className={Style.main_profile_info_socials_wrapper_icons}
+							/>
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -198,7 +235,10 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaLinkedinIn size={18} className={Style.main_profile_info_socials_wrapper_icons} />
+							<FaLinkedinIn
+								size={18}
+								className={Style.main_profile_info_socials_wrapper_icons}
+							/>
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -208,7 +248,10 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaTwitter size={18} className={Style.main_profile_info_socials_wrapper_icons} />
+							<FaTwitter
+								size={18}
+								className={Style.main_profile_info_socials_wrapper_icons}
+							/>
 						</div>
 					</div>
 
@@ -222,9 +265,14 @@ const MyNFTs = () => {
 					<FaSearch className={Style.main_profile_search_input_icon} />
 					<input type='text' onChange={handleSearchQuery} value={searchQuery} />
 				</div>
-				<button onClick={handleCategoriesDropdownToggle} className={Style.main_profile_search_btn}>
+				<button
+					onClick={handleCategoriesDropdownToggle}
+					className={Style.main_profile_search_btn}
+				>
 					<p>{currentCategory ? currentCategory : 'Select Category'}</p>
-					<FaCaretDown className={isCategoriesOpen ? Style.rotate_up : Style.rotate_down} />
+					<FaCaretDown
+						className={isCategoriesOpen ? Style.rotate_up : Style.rotate_down}
+					/>
 				</button>
 				{isCategoriesOpen && (
 					<div className={Style.dropdown_content_category}>
@@ -242,7 +290,10 @@ const MyNFTs = () => {
 						))}
 					</div>
 				)}
-				<button onClick={handleFilterDropdownToggle} className={Style.main_profile_search_btn}>
+				<button
+					onClick={handleFilterDropdownToggle}
+					className={Style.main_profile_search_btn}
+				>
 					<RiFilterLine size={20.5} />
 				</button>
 
@@ -264,7 +315,11 @@ const MyNFTs = () => {
 				)}
 			</div>
 			<div className={Style.main_profile_view}>
-				<MdRestartAlt size={28} className={Style.main_profile_view_reset} onClick={handleResetFilter} />
+				<MdRestartAlt
+					size={28}
+					className={Style.main_profile_view_reset}
+					onClick={handleResetFilter}
+				/>
 				<>
 					{filteredNFTs &&
 						filteredNFTs.map((nft) => (

@@ -1,14 +1,30 @@
 import { db, storage } from '../../firebaseConfig';
-import { doc, updateDoc, getDocs, query, getDoc, deleteField, collection } from 'firebase/firestore';
+import {
+	doc,
+	updateDoc,
+	getDocs,
+	query,
+	getDoc,
+	deleteField,
+	collection,
+} from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-export const uploadImageToFirebase = async (image, displayName, tokenId, walletAddress) => {
+export const uploadImageToFirebase = async (
+	image,
+	displayName,
+	tokenId,
+	walletAddress,
+) => {
 	try {
 		// Create a unique file name using displayName and tokenId
 		const fileName = `${displayName}_${tokenId}`;
 
 		// Create a reference to the Firebase Storage
-		const imageRef = ref(storage, `OwnedNFTImages/${walletAddress}/${fileName}`);
+		const imageRef = ref(
+			storage,
+			`OwnedNFTImages/${walletAddress}/${fileName}`,
+		);
 
 		// Upload the image
 		await uploadBytes(imageRef, image);
@@ -25,7 +41,12 @@ export const uploadImageToFirebase = async (image, displayName, tokenId, walletA
 	}
 };
 
-export const updateFirebaseWithNFT = async (firebaseImageUrl, metadata, tokenId, userWalletAddress) => {
+export const updateFirebaseWithNFT = async (
+	firebaseImageUrl,
+	metadata,
+	tokenId,
+	userWalletAddress,
+) => {
 	try {
 		// Define the NFT metadata object for Firebase
 		const nftDataForFirebase = {
@@ -122,7 +143,7 @@ export const changeNftOwnershipInFirebase = async (id, buyer) => {
 		});
 
 		// Step 3: Add NFT to buyer's ownedNFTs map
-		const buyerRef = doc(db, 'users', buyer.account);
+		const buyerRef = doc(db, 'users', buyer);
 		await updateDoc(buyerRef, {
 			[`ownedNFTs.${id}`]: nftData,
 		});
