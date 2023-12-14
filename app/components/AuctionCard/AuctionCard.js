@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { FaHeart, FaCheck } from 'react-icons/fa';
+import { RingLoader } from 'react-spinners';
 
 // INTERNAL IMPORTS
 import Style from './AuctionCard.module.scss';
@@ -12,8 +13,10 @@ import images from '../../../assets/index';
 import { AuctionTimer } from '../componentindex';
 import {
 	endAuction,
+	listenForBidEvents,
 	listenForEndedAuctions,
 	loadActiveAuctions,
+	placeBid,
 } from '@/store/blockchainInteractions';
 
 const AuctionCard = ({ id, image, name }) => {
@@ -24,7 +27,7 @@ const AuctionCard = ({ id, image, name }) => {
 	const [bidAmount, setBidAmount] = useState(null);
 
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
-	const auctionData = auctions.find((auction) => auction.nftId === id);
+	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
 
 	// Listen for auction events
 	useEffect(() => {
@@ -32,11 +35,8 @@ const AuctionCard = ({ id, image, name }) => {
 			if (auctions.length > 0) {
 				const auction = auctions.find((auction) => auction.nftId === id);
 				if (auction) {
-					await listenForEndedAuctions(
-						dispatch,
-						auction.sellerAddress,
-						auction.auctionAddress,
-					);
+					await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
+					await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
 				}
 			}
 		};
@@ -47,11 +47,7 @@ const AuctionCard = ({ id, image, name }) => {
 		try {
 			setLoading(true);
 
-			await endAuction(
-				auctionData.nftId,
-				auctionData.sellerAddress,
-				auctionData.auctionAddress,
-			);
+			await endAuction(auction.nftId, auction.sellerAddress, auction.auctionAddress);
 
 			setLoading(false);
 		} catch (error) {
@@ -63,8 +59,15 @@ const AuctionCard = ({ id, image, name }) => {
 		setBidding(!bidding);
 	};
 
-	const handleAuctionBid = (amount) => {
-		return;
+	const handleAuctionBid = async () => {
+		try {
+			setLoading(true);
+			await placeBid(auction.auctionAddress, bidAmount);
+
+			setLoading(false);
+		} catch (error) {
+			console.error('Failed to place bid on auction.');
+		}
 	};
 
 	return (
@@ -90,8 +93,8 @@ const AuctionCard = ({ id, image, name }) => {
 				<div className={Style.interface_info}>
 					<p>Ending:</p>
 					<AuctionTimer
-						startTime={auctionData.startTime}
-						auctionDuration={auctionData.auctionDuration}
+						startTime={auction.startTime}
+						auctionDuration={auction.auctionDuration}
 						handleEndAuction={handleEndAuction}
 					/>
 				</div>
@@ -106,9 +109,10 @@ const AuctionCard = ({ id, image, name }) => {
 						<div className={Style.interface_actions_place}>
 							<input
 								type='text'
+								placeholder='E.g. 1.25'
 								onChange={(e) => setBidAmount(e.target.value)}
 							/>
-							<button>
+							<button onClick={handleAuctionBid}>
 								<FaCheck className={Style.interface_actions_place_confirm} />
 							</button>
 						</div>

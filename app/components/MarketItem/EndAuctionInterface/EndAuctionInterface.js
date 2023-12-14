@@ -8,7 +8,7 @@ import Style from './EndAuctionInterface.module.scss';
 import { endAuction, listenForEndedAuctions } from '@/store/blockchainInteractions';
 import { AuctionTimer } from '../../componentindex';
 
-const EndAuctionInterface = ({ id }) => {
+const EndAuctionInterface = ({ id, setAuctionEnded }) => {
 	const dispatch = useDispatch();
 
 	const [loading, setLoading] = useState(false);
@@ -31,6 +31,10 @@ const EndAuctionInterface = ({ id }) => {
 			await endAuction(auction.nftId, auction.auctionAddress);
 
 			setLoading(false);
+
+			setTimeout(() => {
+				// setAuctionEnded(true);
+			}, 1500);
 		} catch (error) {
 			console.error('Error ending auction');
 		}

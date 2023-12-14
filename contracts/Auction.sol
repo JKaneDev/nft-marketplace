@@ -83,8 +83,8 @@ contract Auction is ReentrancyGuard {
                 if (highestBidder != address(0)) {
                         // Calculate sale allocations
                         uint256 royaltyAmount = (highestBid * royaltyPercentage) / 100;
-                        uint256 sellerAmount = highestBid - royaltyAmount;
                         uint256 marketplaceFee = (highestBid * 2) / 100;
+                        uint256 sellerAmount = highestBid - royaltyAmount - marketplaceFee;
 
                         // Send sale amount to seller
                         (bool sellerAmountSent, ) = payable(seller).call{value: sellerAmount}("");

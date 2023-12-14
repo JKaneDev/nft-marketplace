@@ -6,6 +6,7 @@ import {
 	addAuction,
 	setAuctions,
 	removeAuction,
+	bid,
 } from './auctionFactorySlices';
 import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import {
@@ -19,7 +20,7 @@ import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
 import AuctionFactory from '../abis/contracts/AuctionFactory.sol/AuctionFactory.json';
 import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import { realtimeDb } from '../firebaseConfig';
-import { get, ref, set, remove } from 'firebase/database';
+import { get, ref, set, remove, update } from 'firebase/database';
 
 export const connectToEthereum = async (dispatch) => {
 	try {
@@ -67,7 +68,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429';
+	const address = '0x6F6f570F45833E249e27022648a26F4076F48f78';
 
 	try {
 		const signer = await getSigner();
@@ -87,7 +88,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x3aAde2dCD2Df6a8cAc689EE797591b2913658659';
+	const address = '0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9';
 
 	try {
 		const signer = await getSigner();
@@ -207,6 +208,7 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 				auctionDuration: auctionDuration.toString(),
 				sellerAddress: seller,
 				auctionAddress: auctionAddress,
+				currentBid: null,
 			};
 
 			try {
@@ -301,7 +303,7 @@ export const endAuction = async (id, contractAddress) => {
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 		await auctionContract.endAuction(id);
 	} catch (error) {
-		console.error('Error calling smart contract endAuction');
+		console.error('Error calling smart contract endAuction', error);
 	}
 	return;
 };
@@ -330,5 +332,44 @@ export const listenForEndedAuctions = async (dispatch, seller, contractAddress) 
 		});
 	} catch (error) {
 		console.error('AuctionEnded event not emitted');
+	}
+};
+
+export const placeBid = async (auctionAddress, amount) => {
+	try {
+		const signer = await getSigner();
+		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
+		await auction.bid({ value: ethers.parseEther(amount) });
+	} catch (error) {
+		console.error('Error placing bid on auction', error);
+	}
+	return;
+};
+
+export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
+	try {
+		const signer = await getSigner();
+		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
+
+		auction.on('Bid', async (bidder, bidAmount) => {
+			const bidData = {
+				bidder: bidder,
+				currentBid: ethers.formatEther(bidAmount),
+				address: auctionAddress,
+			};
+
+			dispatch(bid(bidData));
+
+			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+			update(auctionRef, { currentBid: bidData.currentBid })
+				.then(() => {
+					console.log('DB updated with bid!');
+				})
+				.catch((error) => {
+					console.error('Error updating current bid: ', error);
+				});
+		});
+	} catch (error) {
+		console.error('Failed to update current bid in database', error);
 	}
 };

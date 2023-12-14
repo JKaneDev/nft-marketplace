@@ -5,34 +5,28 @@ import Style from './MarketItem.module.scss';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
-import {
-	createAuction,
-	createContractInstance,
-} from '@/store/blockchainInteractions';
+import { createAuction, createContractInstance } from '@/store/blockchainInteractions';
 import { useSelector, useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
-import {
-	NFTInfo,
-	AuctionInterface,
-	EndAuctionInterface,
-} from '../componentindex';
+import { NFTInfo, AuctionInterface, EndAuctionInterface } from '../componentindex';
 
 const MarketItem = ({ id, name, image, price, category, isListed }) => {
 	const dispatch = useDispatch();
 
 	const user = useSelector((state) => state.connection.account);
-	const auctionFactoryDetails = useSelector(
-		(state) => state.auctionFactory.contractDetails,
-	);
+	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
+	const [loading, setLoading] = useState(false);
 	const [isInfoVisible, setIsInfoVisible] = useState(false);
+
 	const [startingPrice, setStartingPrice] = useState('');
 	const [duration, setDuration] = useState('');
+
 	const [auctionActive, setAuctionActive] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [auctionStarted, setAuctionStarted] = useState(false);
+	const [auctionEnded, setAuctionEnded] = useState(false);
 
 	useEffect(() => {
 		checkForActiveAuction(id);
@@ -43,6 +37,12 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 			window.location.reload();
 		}
 	}, [auctionStarted]);
+
+	useEffect(() => {
+		if (auctionEnded === true) {
+			window.location.reload();
+		}
+	}, [auctionEnded]);
 
 	const handleShowAuctionInfo = (e) => {
 		setIsInfoVisible(!isInfoVisible);
@@ -83,7 +83,7 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 			</div>
 
 			{isListed && auctionActive ? (
-				<EndAuctionInterface id={id} />
+				<EndAuctionInterface id={id} setAuctionEnded={setAuctionEnded} />
 			) : isListed ? (
 				<NFTInfo id={id} name={name} price={price} category={category} />
 			) : (

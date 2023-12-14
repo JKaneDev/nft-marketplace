@@ -28,8 +28,7 @@ const auctionFactorySlice = createSlice({
 		addAuction: (state, action) => {
 			const auctionExists = state.auctions.some(
 				(auction) =>
-					auction.nftId === action.payload.nftId &&
-					auction.startTime === action.payload.startTime,
+					auction.nftId === action.payload.nftId && auction.startTime === action.payload.startTime,
 			);
 
 			if (!auctionExists) {
@@ -41,19 +40,29 @@ const auctionFactorySlice = createSlice({
 		removeAuction: (state, action) => {
 			const auctionExists = state.auctions.some(
 				(auction) =>
-					auction.nftId === action.payload.nftId &&
-					auction.startTime === action.payload.startTime,
+					auction.nftId === action.payload.nftId && auction.startTime === action.payload.startTime,
 			);
 			if (auctionExists) {
-				state.auctions = state.auctions.filter(
-					(auction) => auction.nftId !== action.payload,
-				);
+				state.auctions = state.auctions.filter((auction) => auction.nftId !== action.payload);
 			} else {
 				console.log('Auction did not exist');
 			}
 		},
 		setAuctions: (state, action) => {
 			state.auctions = action.payload;
+		},
+		bid: (state, action) => {
+			const { bidder, currentBid, address } = action.payload;
+			const updatedAuctions = state.auctions.map((auction) => {
+				if (auction.auctionAddress === address) {
+					return { ...auction, currentBid };
+				}
+				return auction;
+			});
+			return {
+				...state,
+				auctions: updatedAuctions,
+			};
 		},
 	},
 });
@@ -65,5 +74,6 @@ export const {
 	addAuction,
 	setAuctions,
 	removeAuction,
+	bid,
 } = auctionFactorySlice.actions;
 export default auctionFactorySlice.reducer;

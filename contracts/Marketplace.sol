@@ -56,6 +56,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         owner = payable(msg.sender);
     }
 
+    receive() external payable {}
+    
+    fallback() external payable {}
+
     function withdrawFunds() public onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, 'No funds to withdraw');

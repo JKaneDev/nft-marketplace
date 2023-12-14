@@ -11,7 +11,11 @@ import { get, ref, set, remove } from 'firebase/database';
 
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
-import { createContractInstance, listenForCreatedAuctions, loadActiveAuctions } from '@/store/blockchainInteractions';
+import {
+	createContractInstance,
+	listenForCreatedAuctions,
+	loadActiveAuctions,
+} from '@/store/blockchainInteractions';
 
 // EXTERNAL IMPORTS
 import { FaSearch, FaCaretDown } from 'react-icons/fa';
@@ -173,7 +177,6 @@ const Browse = () => {
 				break;
 			case 'Live Auctions':
 				nfts = itemsToRender.auctionItems;
-				console.log('Live Auctions: ', nfts);
 				break;
 			default:
 				nfts = itemsToRender.marketplaceItems;
@@ -212,7 +215,9 @@ const Browse = () => {
 					<p>{currentCategory ? currentCategory : 'Select Category'}</p>
 					<FaCaretDown
 						className={
-							isCategoriesOpen ? Style.browse_wrapper_category_rotateup : Style.browse_wrapper_category_rotatedown
+							isCategoriesOpen
+								? Style.browse_wrapper_category_rotateup
+								: Style.browse_wrapper_category_rotatedown
 						}
 					/>
 				</button>
@@ -253,10 +258,16 @@ const Browse = () => {
 				)}
 			</div>
 			<div className={Style.browse_auctions}>
-				<MdRestartAlt size={28} className={Style.browse_auctions_reset} onClick={handleResetFilter} />
+				<MdRestartAlt
+					size={28}
+					className={Style.browse_auctions_reset}
+					onClick={handleResetFilter}
+				/>
 				<>
 					{filteredNFTs && currentFilter === 'Live Auctions' ? (
-						filteredNFTs.map((nft) => <AuctionCard key={nft.id} id={nft.id} image={nft.image} name={nft.name} />)
+						filteredNFTs.map((nft) => (
+							<AuctionCard key={nft.id} id={nft.id} image={nft.image} name={nft.name} />
+						))
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
 						filteredNFTs.map((nft) => (
 							<StaticSaleCard

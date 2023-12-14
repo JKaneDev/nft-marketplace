@@ -1,5 +1,5 @@
 // EXTERNAL IMPORTS
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Style from './StaticSaleCard.module.scss';
 import Image from 'next/image';
 import { FaHeart } from 'react-icons/fa';
@@ -9,24 +9,66 @@ import images from '../../../../assets/index';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { useSelector } from 'react-redux';
-import {
-	createContractInstance,
-	getSigner,
-	purchaseNft,
-} from '@/store/blockchainInteractions';
+import { createContractInstance, purchaseNft } from '@/store/blockchainInteractions';
+import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 const StaticSaleCard = ({ id, name, image, category, price }) => {
 	const user = useSelector((state) => state.connection.account);
-	const marketplaceDetails = useSelector(
-		(state) => state.marketplace.contractDetails,
-	);
+	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const [purchasing, setPurchasing] = useState(false);
 	const [inWatchlist, setInWatchlist] = useState(false);
 
+	useEffect(() => {
+		const checkWatchlistStatus = async () => {
+			const userRef = doc(db, 'users', user.account);
+			const userDoc = await getDoc(userRef);
+			if (userDoc.exists()) {
+				const data = userDoc.data();
+				data.watchlist[id] ? setInWatchlist(true) : setInWatchlist(false);
+			}
+		};
+		checkWatchlistStatus();
+	}, []);
+
 	const handleNftPurchase = async () => {
+		setPurchasing(true);
 		const marketplace = await createContractInstance(marketplaceDetails);
 		await purchaseNft(marketplace, id, user.account);
+		setTimeout(() => {
+			setPurchasing(false);
+		}, 1500);
+	};
+
+	const handleWatchlistToggle = async () => {
+		const userRef = doc(db, 'users', user.account);
+
+		if (!inWatchlist) {
+			const nftData = {
+				id: id,
+				name: name,
+				image: image,
+				category: category,
+				price,
+			};
+
+			if (userRef) {
+				await updateDoc(userRef, {
+					[`watchlist.${id}`]: nftData,
+				});
+				setInWatchlist(true);
+				console.log(`Watchlist item ${name} added`);
+			} else {
+				console.log('Reference to user does not exist');
+			}
+		} else {
+			await updateDoc(userRef, {
+				[`watchlist.${id}`]: deleteField(),
+			});
+			setInWatchlist(false);
+			console.log(`Watchlist item ${name} removed`);
+		}
 	};
 
 	return (
@@ -39,9 +81,13 @@ const StaticSaleCard = ({ id, name, image, category, price }) => {
 					width={330}
 					height={330}
 				/>
-				<div className={Style.card_img_wrapper}>
-					<FaHeart size={18} className={Style.card_img_like} />
-				</div>
+				<button className={Style.card_img_wrapper} onClick={handleWatchlistToggle}>
+					<FaHeart
+						size={18}
+						className={Style.card_img_like}
+						color={inWatchlist ? 'red' : 'white'}
+					/>
+				</button>
 				<div className={Style.card_img_name}>
 					<p>{name ? name : 'Placeholder NFT'}</p>
 				</div>
