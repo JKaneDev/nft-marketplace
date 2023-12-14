@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IMarketplace.sol";
+import "./Auction.sol";
 import "hardhat/console.sol";
 
 contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
@@ -275,5 +276,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         idToMarketItem[tokenId].sold = true;
 
         emit NFTTransferred(tokenId, winner);
+    }
+
+    function triggerEndAuction(address auctionContractAddress, uint256 tokenId) public {
+        Auction auctionContract = Auction(auctionContractAddress);
+        auctionContract.endAuction(tokenId);
     }
 }

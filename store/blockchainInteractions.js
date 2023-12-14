@@ -308,6 +308,10 @@ export const endAuction = async (id, contractAddress) => {
 	return;
 };
 
+export const callEndAuctionOnComplete = async (auctionAddress, nftId) => {
+	return;
+};
+
 export const listenForEndedAuctions = async (dispatch, seller, contractAddress) => {
 	try {
 		const signer = await getSigner();
@@ -316,22 +320,37 @@ export const listenForEndedAuctions = async (dispatch, seller, contractAddress) 
 		auctionContract.on('AuctionEnded', async (nftId, highestBidder, seller, nullAddress) => {
 			console.log('Auction Ended Event Emitted');
 
-			dispatch(removeAuction(nftId.toString()));
-
+			// Reference to the auction in the 'auctions' node
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-			await remove(auctionRef);
 
-			await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
+			// Retrieve auction data
+			const snapshot = await get(auctionRef);
+			if (snapshot.exists()) {
+				const auctionData = snapshot.val();
 
-			// if a bid was made on the auction, change ownership
-			if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
-				await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+				// Add the auction data to 'endedAuctions' node
+				const endedAuctionRef = ref(realtimeDb, `endedAuctions/${nftId}`);
+				await set(endedAuctionRef, auctionData);
+
+				// Remove auction from 'auctions' node
+				dispatch(removeAuction(nftId.toString()));
+				await remove(auctionRef);
+
+				// Additional logic for NFT listing status and ownership change
+				await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
+
+				// If a bid was made on the auction, change ownership
+				if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
+					await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+				}
+
+				console.log(`Auction with ID ${nftId} has been moved to ended auctions.`);
+			} else {
+				console.log(`Auction data for ID ${nftId} not found.`);
 			}
-
-			console.log(`Auction with ID ${nftId} has been removed.`);
 		});
 	} catch (error) {
-		console.error('AuctionEnded event not emitted');
+		console.error('Error handling AuctionEnded event:', error);
 	}
 };
 

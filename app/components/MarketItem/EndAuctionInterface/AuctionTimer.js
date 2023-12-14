@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import Style from './AuctionTimer.module.scss';
 
-function AuctionTimer({ startTime, auctionDuration, handleEndAuction }) {
+function AuctionTimer({ startTime, auctionDuration, handleEndTimeReached }) {
 	// Convert startTime and auctionDuration from string to number
 	const startTimeNum = parseInt(startTime, 10);
 	const durationNum = parseInt(auctionDuration, 10);
@@ -27,7 +27,7 @@ function AuctionTimer({ startTime, auctionDuration, handleEndAuction }) {
 		}
 	};
 
-	return <Countdown date={endTime} renderer={renderer} onComplete={handleEndAuction} />;
+	return <Countdown date={endTime} renderer={renderer} onComplete={handleEndTimeReached} />;
 }
 
 export default AuctionTimer;

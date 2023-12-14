@@ -41,6 +41,7 @@ contract Auction is ReentrancyGuard {
 
         function withdraw() public returns (bool) {
                 require(ended == true, 'User can only withdraw funds after auction has ended');
+                require(msg.sender != highestBidder, 'highestBidder cannot withdraw funds');
 
                 uint256 amount = pendingReturns[msg.sender];
 
@@ -61,21 +62,38 @@ contract Auction is ReentrancyGuard {
         function bid() public payable nonReentrant {
                 require(seller != msg.sender, 'Seller cannot bid on their own auction');
                 require(msg.value >= startingPrice, 'Bid must be greater than or equal to starting price');
-                require(msg.value > highestBid, 'Bid must be greater than current highest bid');
                 require(highestBidder != msg.sender, 'Bidder is already highest bidder');
 
-                if (highestBid != 0) {
-                        pendingReturns[highestBidder] += highestBid;
+                uint256 refundAmount = pendingReturns[msg.sender];
+
+                if (refundAmount > 0) {
+                        // Reset the pending return before sending to prevent re-entrancy attacks
+                        pendingReturns[msg.sender] = 0;
+
+                        // Send back the previous bid to the current bidder
+                        (bool refunded, ) = payable(msg.sender).call{value: refundAmount}("");
+                        require(refunded, "Failed to refund previous bid");
                 }
 
+                require(msg.value > highestBid, 'Bid must be greater than current highest bid');
+
+                address previousHighestBidder = highestBidder;
+                uint256 previousHighestBid = highestBid;
+
+                // Update the highest bid and bidder
                 highestBid = msg.value;
                 highestBidder = payable(msg.sender);
+
+                // Add the previous highest bid to pending returns, if there was a previous bid
+                if (previousHighestBidder != address(0)) {
+                    pendingReturns[previousHighestBidder] += previousHighestBid;
+                }
 
                 emit Bid(msg.sender, msg.value, address(this));
         }
 
         function endAuction(uint256 tokenId) public nonReentrant {
-                require(msg.sender == seller, 'Only NFT owner can end auction');
+                require(msg.sender == seller || msg.sender == marketplaceAddress, 'Only NFT owner or marketplace can end auction');
 
                 (uint256 royaltyPercentage, address payable originalOwner) = marketplaceContract.getRoyaltyData(tokenId);
 
@@ -101,6 +119,7 @@ contract Auction is ReentrancyGuard {
                         marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
 
                         auctionFactory.changeActiveStatus(tokenId);
+                        auctionFactory.removeActiveAuction(tokenId);
                 } else {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }

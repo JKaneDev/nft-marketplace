@@ -15,10 +15,9 @@ import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
 import { AuctionTimer } from '../componentindex';
 import {
-	endAuction,
+	callEndAuctionOnComplete,
 	listenForBidEvents,
 	listenForEndedAuctions,
-	loadActiveAuctions,
 	placeBid,
 } from '@/store/blockchainInteractions';
 
@@ -29,6 +28,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 	const [bidding, setBidding] = useState(false);
 	const [bidAmount, setBidAmount] = useState(null);
 	const [inWatchlist, setInWatchlist] = useState(false);
+	const [auctionComplete, setAuctionComplete] = useState(false);
 
 	const user = useSelector((state) => state.connection.account);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
@@ -60,13 +60,16 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 		checkWatchlistStatus();
 	}, []);
 
-	const handleEndAuction = async () => {
+	const handleEndTimeReached = async () => {
 		try {
 			setLoading(true);
 
-			await endAuction(auction.nftId, auction.sellerAddress, auction.auctionAddress);
+			await callEndAuctionOnComplete(auction.auctionAddress, id);
 
-			setLoading(false);
+			setTimeout(() => {
+				setLoading(false);
+				setAuctionComplete(true);
+			}, 1500);
 		} catch (error) {
 			console.error('Error ending auction');
 		}
@@ -123,6 +126,8 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 		}
 	};
 
+	const handleWithdrawFunds = async () => {};
+
 	return (
 		<div className={Style.card}>
 			<div className={Style.card_img}>
@@ -146,37 +151,45 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 			</div>
 
 			<div className={Style.interface}>
-				<p className={Style.interface_active}>Auction Active</p>
-				<div className={Style.interface_info}>
-					<p>Ending:</p>
-					<AuctionTimer
-						startTime={auction.startTime}
-						auctionDuration={auction.auctionDuration}
-						handleEndAuction={handleEndAuction}
-					/>
-				</div>
-				<div className={Style.interface_actions}>
-					<div className={Style.interface_actions_bid}>
-						<p>Current Bid:</p>
-						<p>{auction.currentBid} ETH</p>
+				{auctionComplete ? (
+					<div className={Style.interface_complete}>
+						<p>Auction Complete</p>
 					</div>
-					{loading ? (
-						<RingLoader size={30} color={'#fff'} />
-					) : bidding ? (
-						<div className={Style.interface_actions_place}>
-							<input
-								type='text'
-								placeholder='E.g. 1.25'
-								onChange={(e) => setBidAmount(e.target.value)}
+				) : (
+					<>
+						<p className={Style.interface_active}>Auction Active</p>
+						<div className={Style.interface_info}>
+							<p>Ending:</p>
+							<AuctionTimer
+								startTime={auction.startTime}
+								auctionDuration={auction.auctionDuration}
+								handleEndTimeReached={handleEndTimeReached}
 							/>
-							<button onClick={handleAuctionBid}>
-								<FaCheck className={Style.interface_actions_place_confirm} />
-							</button>
 						</div>
-					) : (
-						<button onClick={handleSetBid}>Place Bid</button>
-					)}
-				</div>
+						<div className={Style.interface_actions}>
+							<div className={Style.interface_actions_bid}>
+								<p>Current Bid:</p>
+								<p>{auction.currentBid} ETH</p>
+							</div>
+							{loading ? (
+								<RingLoader size={30} color={'#fff'} />
+							) : bidding ? (
+								<div className={Style.interface_actions_place}>
+									<input
+										type='text'
+										placeholder='E.g. 1.25'
+										onChange={(e) => setBidAmount(e.target.value)}
+									/>
+									<button onClick={handleAuctionBid}>
+										<FaCheck className={Style.interface_actions_place_confirm} />
+									</button>
+								</div>
+							) : (
+								<button onClick={handleSetBid}>Place Bid</button>
+							)}
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	);
