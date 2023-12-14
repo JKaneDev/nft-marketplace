@@ -114,7 +114,10 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 			setLoading(true);
 			await placeBid(auction.auctionAddress, bidAmount);
 
-			setLoading(false);
+			setTimeout(() => {
+				setLoading(false);
+				handleSetBid();
+			}, 1500);
 		} catch (error) {
 			console.error('Failed to place bid on auction.');
 		}
@@ -155,7 +158,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 				<div className={Style.interface_actions}>
 					<div className={Style.interface_actions_bid}>
 						<p>Current Bid:</p>
-						<p>1 ETH</p>
+						<p>{auction.currentBid} ETH</p>
 					</div>
 					{loading ? (
 						<RingLoader size={30} color={'#fff'} />
