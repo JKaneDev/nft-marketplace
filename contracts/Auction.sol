@@ -15,8 +15,10 @@ contract Auction is ReentrancyGuard {
         address payable seller;
         uint256 startingPrice;
         address payable highestBidder;
+        address payable penultimateBidder;
         uint256 highestBid;
         bool ended;
+
 
         mapping(address => uint256) public pendingReturns;
 
@@ -63,6 +65,9 @@ contract Auction is ReentrancyGuard {
                 require(seller != msg.sender, 'Seller cannot bid on their own auction');
                 require(msg.value >= startingPrice, 'Bid must be greater than or equal to starting price');
                 require(highestBidder != msg.sender, 'Bidder is already highest bidder');
+
+                // Update the penultimate bidder
+                penultimateBidder = highestBidder;
 
                 uint256 refundAmount = pendingReturns[msg.sender];
 
@@ -115,6 +120,15 @@ contract Auction is ReentrancyGuard {
                         // Send marketplace fee to marketplace contract
                         (bool feesSent, ) = payable(marketplaceAddress).call{value: marketplaceFee}("");
                         require(feesSent, "Failed to send fees to marketplace contract");
+
+                        // Refund to penultimate bidder
+                        if (penultimateBidder != address(0) && pendingReturns[penultimateBidder] > 0) {
+                                uint256 refundAmount = pendingReturns[penultimateBidder];
+                                pendingReturns[penultimateBidder] = 0;
+
+                                (bool sent, ) = penultimateBidder.call{value: refundAmount}("");
+                                require(sent, "Failed to send refund to the penultimate bidder");
+                        }
 
                         marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
 
