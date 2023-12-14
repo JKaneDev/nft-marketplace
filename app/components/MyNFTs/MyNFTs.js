@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import Style from './MyNFTs.module.scss';
-import { MarketItem } from '../componentindex';
+import { MarketItem, AuctionCard, StaticSaleCard } from '../componentindex';
 import images from '../../../assets/index';
 import {
 	loadActiveAuctions,
@@ -34,19 +34,20 @@ import Fuse from 'fuse.js';
 import { useSelector } from 'react-redux';
 
 const MyNFTs = () => {
+	const dispatch = useDispatch();
+
 	const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState(null);
 	const [currentFilter, setCurrentFilter] = useState('Currently Listed');
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
+	const [activeAuctions, setActiveAuctions] = useState([]);
 	const dropdownRef = useRef(null);
 
-	const auctionFactoryDetails = useSelector(
-		(state) => state.auctionFactory.contractDetails,
-	);
 	const user = useSelector((state) => state.connection.account);
-	const dispatch = useDispatch();
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
+	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
@@ -95,16 +96,21 @@ const MyNFTs = () => {
 		};
 	}, []);
 
+	// LOAD AUCTION LISTENERS
 	useEffect(() => {
 		const loadAuctionFactoryFunctions = async () => {
-			const auctionFactoryContract = await createContractInstance(
-				auctionFactoryDetails,
-			);
+			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
 			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 			await loadActiveAuctions(dispatch);
 		};
 
 		loadAuctionFactoryFunctions();
+	}, []);
+
+	// GET IDS FROM ACTIVE AUCTIONS
+	useEffect(() => {
+		const auctionIds = auctions.map((auction) => auction.nftId);
+		setActiveAuctions(auctionIds);
 	}, []);
 
 	const handleCategoriesDropdownToggle = () => {
@@ -126,7 +132,6 @@ const MyNFTs = () => {
 	};
 
 	const handleFilterSelect = (filter) => {
-		console.log('Filter:', filter, 'Type:', typeof filter);
 		setCurrentFilter(filter);
 	};
 
@@ -144,14 +149,14 @@ const MyNFTs = () => {
 		if (!userData || !userData.ownedNFTs) return [];
 
 		let nfts = Object.values(userData.ownedNFTs);
+		let watchlist = Object.values(userData.watchlist);
 
 		switch (currentFilter) {
 			case 'Currently Owned':
 				nfts = nfts.filter((nft) => !nft.isListed);
 				break;
 			case 'Watchlist':
-				nfts = userData.watchlist;
-				break;
+				nfts = watchlist;
 			case 'Currently Listed':
 				nfts = nfts.filter((nft) => nft.isListed);
 				break;
@@ -209,10 +214,7 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaFacebookF
-								size={18}
-								className={Style.main_profile_info_socials_wrapper_icons}
-							/>
+							<FaFacebookF size={18} className={Style.main_profile_info_socials_wrapper_icons} />
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -222,10 +224,7 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaInstagram
-								size={18}
-								className={Style.main_profile_info_socials_wrapper_icons}
-							/>
+							<FaInstagram size={18} className={Style.main_profile_info_socials_wrapper_icons} />
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -235,10 +234,7 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaLinkedinIn
-								size={18}
-								className={Style.main_profile_info_socials_wrapper_icons}
-							/>
+							<FaLinkedinIn size={18} className={Style.main_profile_info_socials_wrapper_icons} />
 						</div>
 						<div
 							className={Style.main_profile_info_socials_wrapper}
@@ -248,10 +244,7 @@ const MyNFTs = () => {
 								}
 							}}
 						>
-							<FaTwitter
-								size={18}
-								className={Style.main_profile_info_socials_wrapper_icons}
-							/>
+							<FaTwitter size={18} className={Style.main_profile_info_socials_wrapper_icons} />
 						</div>
 					</div>
 
@@ -265,14 +258,9 @@ const MyNFTs = () => {
 					<FaSearch className={Style.main_profile_search_input_icon} />
 					<input type='text' onChange={handleSearchQuery} value={searchQuery} />
 				</div>
-				<button
-					onClick={handleCategoriesDropdownToggle}
-					className={Style.main_profile_search_btn}
-				>
+				<button onClick={handleCategoriesDropdownToggle} className={Style.main_profile_search_btn}>
 					<p>{currentCategory ? currentCategory : 'Select Category'}</p>
-					<FaCaretDown
-						className={isCategoriesOpen ? Style.rotate_up : Style.rotate_down}
-					/>
+					<FaCaretDown className={isCategoriesOpen ? Style.rotate_up : Style.rotate_down} />
 				</button>
 				{isCategoriesOpen && (
 					<div className={Style.dropdown_content_category}>
@@ -290,10 +278,7 @@ const MyNFTs = () => {
 						))}
 					</div>
 				)}
-				<button
-					onClick={handleFilterDropdownToggle}
-					className={Style.main_profile_search_btn}
-				>
+				<button onClick={handleFilterDropdownToggle} className={Style.main_profile_search_btn}>
 					<RiFilterLine size={20.5} />
 				</button>
 
@@ -322,17 +307,18 @@ const MyNFTs = () => {
 				/>
 				<>
 					{filteredNFTs &&
-						filteredNFTs.map((nft) => (
-							<MarketItem
-								key={nft.id}
-								id={nft.id}
-								name={nft.name}
-								image={nft.image}
-								category={nft.category}
-								price={nft.price}
-								isListed={nft.isListed}
-							/>
-						))}
+						filteredNFTs.map((nft) => {
+							if (currentFilter === 'Currently Owned' || currentFilter === 'Currently Listed') {
+								return <MarketItem key={nft.id} {...nft} />;
+							} else if (currentFilter === 'Watchlist') {
+								const isAtAuction = activeAuctions.includes(nft.id);
+								return isAtAuction ? (
+									<AuctionCard key={nft.id} {...nft} />
+								) : (
+									<StaticSaleCard key={nft.id} {...nft} />
+								);
+							}
+						})}
 				</>
 			</div>
 		</div>

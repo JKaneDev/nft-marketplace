@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Style from './StaticSaleCard.module.scss';
 import Image from 'next/image';
 import { FaHeart } from 'react-icons/fa';
+import { RingLoader } from 'react-spinners';
 
 // INTERNAL IMPORTS
 import images from '../../../../assets/index';
@@ -13,7 +14,7 @@ import { createContractInstance, purchaseNft } from '@/store/blockchainInteracti
 import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 
-const StaticSaleCard = ({ id, name, image, category, price }) => {
+const StaticSaleCard = ({ id, name, image, category, price, isListed }) => {
 	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
@@ -38,6 +39,7 @@ const StaticSaleCard = ({ id, name, image, category, price }) => {
 		await purchaseNft(marketplace, id, user.account);
 		setTimeout(() => {
 			setPurchasing(false);
+			handleWatchlistToggle();
 		}, 1500);
 	};
 
@@ -50,7 +52,8 @@ const StaticSaleCard = ({ id, name, image, category, price }) => {
 				name: name,
 				image: image,
 				category: category,
-				price,
+				price: price,
+				isListed: isListed,
 			};
 
 			if (userRef) {

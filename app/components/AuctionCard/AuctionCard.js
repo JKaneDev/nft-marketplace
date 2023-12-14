@@ -3,9 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
-
 import { FaHeart, FaCheck } from 'react-icons/fa';
 import { RingLoader } from 'react-spinners';
+
+// BLOCKCHAIN + BACKEND IMPORTS
+import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 // INTERNAL IMPORTS
 import Style from './AuctionCard.module.scss';
@@ -19,13 +22,15 @@ import {
 	placeBid,
 } from '@/store/blockchainInteractions';
 
-const AuctionCard = ({ id, image, name }) => {
+const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 	const dispatch = useDispatch();
 
 	const [loading, setLoading] = useState(false);
 	const [bidding, setBidding] = useState(false);
 	const [bidAmount, setBidAmount] = useState(null);
+	const [inWatchlist, setInWatchlist] = useState(false);
 
+	const user = useSelector((state) => state.connection.account);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
 
@@ -43,6 +48,18 @@ const AuctionCard = ({ id, image, name }) => {
 		loadAuctionEventListeners();
 	}, []);
 
+	useEffect(() => {
+		const checkWatchlistStatus = async () => {
+			const userRef = doc(db, 'users', user.account);
+			const userDoc = await getDoc(userRef);
+			if (userDoc.exists()) {
+				const data = userDoc.data();
+				data.watchlist[id] ? setInWatchlist(true) : setInWatchlist(false);
+			}
+		};
+		checkWatchlistStatus();
+	}, []);
+
 	const handleEndAuction = async () => {
 		try {
 			setLoading(true);
@@ -52,6 +69,39 @@ const AuctionCard = ({ id, image, name }) => {
 			setLoading(false);
 		} catch (error) {
 			console.error('Error ending auction');
+		}
+	};
+
+	const handleWatchlistToggle = async () => {
+		const userRef = doc(db, 'users', user.account);
+
+		if (!inWatchlist) {
+			const nftData = {
+				id: id,
+				name: name,
+				image: image,
+				category: category,
+				price: price,
+				isListed: isListed,
+			};
+
+			if (userRef) {
+				console.log('User Ref found: ', userRef);
+				console.log('Data object: ', nftData);
+				await updateDoc(userRef, {
+					[`watchlist.${id}`]: nftData,
+				});
+				setInWatchlist(true);
+				console.log(`Watchlist item ${name} added`);
+			} else {
+				console.log('Reference to user does not exist');
+			}
+		} else {
+			await updateDoc(userRef, {
+				[`watchlist.${id}`]: deleteField(),
+			});
+			setInWatchlist(false);
+			console.log(`Watchlist item ${name} removed`);
 		}
 	};
 
@@ -80,9 +130,13 @@ const AuctionCard = ({ id, image, name }) => {
 					height={330}
 					className={Style.card_img_image}
 				/>
-				<div className={Style.card_img_wrapper}>
-					<FaHeart size={18} className={Style.card_img_like} />
-				</div>
+				<button className={Style.card_img_wrapper} onClick={handleWatchlistToggle}>
+					<FaHeart
+						size={18}
+						className={Style.card_img_like}
+						color={inWatchlist ? 'red' : 'white'}
+					/>
+				</button>
 				<div className={Style.card_img_name}>
 					<p>{name}</p>
 				</div>

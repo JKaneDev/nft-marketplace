@@ -48,7 +48,7 @@ $font-color: #fefefe;
 
 		.card_img_like {
 			color: white;
-			transition: all 0.35s ease;
+			transition: all 0.35s ease-in-out;
 
 			&:hover {
 				color: red;

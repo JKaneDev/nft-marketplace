@@ -266,7 +266,15 @@ const Browse = () => {
 				<>
 					{filteredNFTs && currentFilter === 'Live Auctions' ? (
 						filteredNFTs.map((nft) => (
-							<AuctionCard key={nft.id} id={nft.id} image={nft.image} name={nft.name} />
+							<AuctionCard
+								key={nft.id}
+								id={nft.id}
+								image={nft.image}
+								name={nft.name}
+								category={nft.category}
+								price={nft.price}
+								isListed={nft.isListed}
+							/>
 						))
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
 						filteredNFTs.map((nft) => (
@@ -277,6 +285,7 @@ const Browse = () => {
 								image={nft.image}
 								category={nft.category}
 								price={nft.price}
+								isListed={nft.isListed}
 							/>
 						))
 					) : (
