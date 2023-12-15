@@ -41,6 +41,15 @@ $alt-bg-color: #2b2b2b;
 			background-color: #202020;
 			cursor: pointer;
 		}
+
+		&:active,
+		&:focus {
+			background-color: #202020;
+		}
+
+		.main_select_options.selected {
+			background-color: #202020;
+		}
 	}
 
 	.main_select_filter {
@@ -107,4 +116,34 @@ $alt-bg-color: #2b2b2b;
 .rotate_up {
 	transform: rotate(180deg);
 	transition: transform 0.3s ease-in-out;
+}
+
+.main_watchlist {
+	position: relative;
+	width: 1100px;
+	margin: 0;
+	padding: 1rem;
+	display: grid;
+	gap: 2rem;
+	grid-template-columns: repeat(auto-fit, minmax(330px, 330px));
+
+	@media (min-width: 1626px) {
+		width: 1250px;
+	}
+
+	.main_profile_view_reset {
+		right: 0px;
+		top: -31px;
+		position: absolute;
+		transition: all 0.35s ease-in-out;
+
+		@media (min-width: 1626px) {
+			right: -50px;
+		}
+
+		&:hover {
+			cursor: pointer;
+			color: #0cc0df;
+		}
+	}
 }

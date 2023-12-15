@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaHeart, FaCheck } from 'react-icons/fa';
 import { RingLoader } from 'react-spinners';
+import { ethers } from 'ethers';
 
 // BLOCKCHAIN + BACKEND IMPORTS
 import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
@@ -31,6 +32,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 	const [auctionComplete, setAuctionComplete] = useState(false);
 
 	const user = useSelector((state) => state.connection.account);
+	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
 
@@ -64,11 +66,12 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 		try {
 			setLoading(true);
 
-			await callEndAuctionOnComplete(auction.auctionAddress, id);
+			setAuctionComplete(true);
+
+			await callEndAuctionOnComplete(marketplaceDetails, auction.auctionAddress, id);
 
 			setTimeout(() => {
 				setLoading(false);
-				setAuctionComplete(true);
 			}, 1500);
 		} catch (error) {
 			console.error('Error ending auction');
@@ -126,8 +129,6 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 		}
 	};
 
-	const handleWithdrawFunds = async () => {};
-
 	return (
 		<div className={Style.card}>
 			<div className={Style.card_img}>
@@ -153,7 +154,16 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 			<div className={Style.interface}>
 				{auctionComplete ? (
 					<div className={Style.interface_complete}>
-						<p>Auction Complete</p>
+						<p>Auction Ended</p>
+						<span>
+							<p>{auction.currentBid ? 'Winning Bid:' : 'Starting Price - No Bids:'}</p>
+							<p>
+								{auction.currentBid
+									? auction.currentBid
+									: ethers.formatEther(auction.startingPrice)}
+								ETH
+							</p>
+						</span>
 					</div>
 				) : (
 					<>
@@ -169,7 +179,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 						<div className={Style.interface_actions}>
 							<div className={Style.interface_actions_bid}>
 								<p>Current Bid:</p>
-								<p>{auction.currentBid} ETH</p>
+								<p>{auction.currentBid ? auction.currentBid : '0'} ETH</p>
 							</div>
 							{loading ? (
 								<RingLoader size={30} color={'#fff'} />

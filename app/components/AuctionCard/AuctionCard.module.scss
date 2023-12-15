@@ -179,6 +179,47 @@ $font-color: #fefefe;
 	width: 330px;
 	position: relative;
 
+	.interface_complete {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		text-align: center;
+		border: 2px solid $main-bg-color;
+		border-radius: 8px;
+		border-top-left-radius: 14px;
+		border-top-right-radius: 14px;
+		height: 425px;
+		width: 335px;
+		box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+		transition: all 0.35s ease-in-out;
+		z-index: 1000;
+		position: absolute;
+		top: -350px;
+		right: -2px;
+		background-color: $main-bg-color;
+		opacity: 0.75;
+
+		p {
+			font-size: 18px;
+		}
+
+		span {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.25rem;
+
+			p:nth-of-type(1) {
+				font-weight: 600;
+			}
+
+			p {
+				font-size: 12px;
+			}
+		}
+	}
+
 	.interface_active {
 		position: absolute;
 		top: -335px;

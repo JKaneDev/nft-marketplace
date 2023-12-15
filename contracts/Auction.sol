@@ -133,7 +133,6 @@ contract Auction is ReentrancyGuard {
                         marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
 
                         auctionFactory.changeActiveStatus(tokenId);
-                        auctionFactory.removeActiveAuction(tokenId);
                 } else {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }

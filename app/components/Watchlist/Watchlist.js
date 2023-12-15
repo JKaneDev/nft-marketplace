@@ -1,16 +1,32 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { FaCaretDown } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+
+// BLOCKCHAIN + BACKEND IMPORTS
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
 
 // INTERNAL IMPORTS
 import Style from './Watchlist.module.scss';
-import { AuctionCard } from '../componentindex';
-import { FaCaretDown } from 'react-icons/fa';
+import { AuctionCard, StaticSaleCard } from '../componentindex';
+import { RingLoader } from 'react-spinners';
+import { useMemo } from 'react';
 
 const Watchlist = () => {
+	const dispatch = useDispatch();
 	const dropdownRef = useRef(null);
 
+	const [loading, setLoading] = useState(false);
 	const [filterOpen, setFilterOpen] = useState(false);
+	const [selectedTab, setSelectedTab] = useState('My Watchlist');
+	const [category, setCategory] = useState(null);
+	const [activeAuctions, setActiveAuctions] = useState([]);
+	const [watchlist, setWatchlist] = useState([]);
+
+	const user = useSelector((state) => state.connection.account);
+	const auctions = useSelector((state) => state.auctionFactory.auctions);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -24,8 +40,46 @@ const Watchlist = () => {
 		};
 	}, []);
 
+	useEffect(() => {
+		const getWatchlist = async () => {
+			try {
+				if (user) {
+					setLoading(true);
+					const ref = doc(db, 'users', user.account);
+					const document = await getDoc(ref);
+					if (document.exists()) {
+						const data = document.data();
+						const watchlist = Object.values(data.watchlist);
+						console.log('Watchlist: ', watchlist);
+						setWatchlist(watchlist);
+					}
+					setLoading(false);
+				}
+			} catch (error) {
+				console.error('Error setting watchlist to state: ', error);
+			}
+		};
+
+		// set watchlist to state
+		getWatchlist();
+
+		// Check for active auctions and set them to state
+		const auctionIds = auctions.map((auction) => auction.nftId);
+		setActiveAuctions(auctionIds);
+	}, []);
+
+	const filteredWatchlist = useMemo(() => {}, [category]);
+
 	const handleFilterDropdownToggle = () => {
 		setFilterOpen(!filterOpen);
+	};
+
+	const handleCategorySelect = (category) => {
+		setCurrentCategory(category);
+	};
+
+	const handleTabToggle = (tabName) => {
+		setSelectedTab(tabName);
 	};
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
@@ -34,8 +88,22 @@ const Watchlist = () => {
 		<div className={Style.main}>
 			<h1>Watchlist</h1>
 			<div className={Style.main_select} ref={dropdownRef}>
-				<button className={Style.main_select_options}>Most Popular</button>
-				<button className={Style.main_select_options}>My Watchlist</button>
+				<button
+					className={`${Style.main_select_options} ${
+						selectedTab === 'My Watchlist' ? 'selected' : ''
+					}`}
+					onClick={() => handleTabToggle('My Watchlist')}
+				>
+					My Watchlist
+				</button>
+				<button
+					className={`${Style.main_select_options} ${
+						selectedTab === 'Most Popular' ? 'selected' : ''
+					}`}
+					onClick={() => handleTabToggle('Most Popular')}
+				>
+					Most Popular
+				</button>
 				<button className={Style.main_select_filter} onClick={handleFilterDropdownToggle}>
 					<span>Filter</span>
 					<FaCaretDown className={filterOpen ? Style.rotate_up : Style.rotate_down} />
@@ -43,13 +111,35 @@ const Watchlist = () => {
 				{filterOpen && (
 					<div className={Style.main_select_dropdown}>
 						{categories.map((category, index) => (
-							<button key={index} className={Style.main_select_dropdown_options}>
+							<button
+								key={index}
+								className={Style.main_select_dropdown_options}
+								onClick={() => handleCategorySelect(category)}
+							>
 								{category}
 							</button>
 						))}
 					</div>
 				)}
 			</div>
+			<>
+				{loading ? (
+					<>
+						<RingLoader size={50} color='#fff' />
+					</>
+				) : (
+					<div className={Style.main_watchlist}>
+						{watchlist.map((nft) => {
+							const isAtAuction = activeAuctions.includes(nft.id);
+							return isAtAuction ? (
+								<AuctionCard key={nft.id} {...nft} />
+							) : (
+								<StaticSaleCard key={nft.id} {...nft} />
+							);
+						})}
+					</div>
+				)}
+			</>
 		</div>
 	);
 };

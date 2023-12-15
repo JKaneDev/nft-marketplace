@@ -39,7 +39,9 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed }) => {
 		await purchaseNft(marketplace, id, user.account);
 		setTimeout(() => {
 			setPurchasing(false);
-			handleWatchlistToggle();
+			if (inWatchlist) {
+				handleWatchlistToggle();
+			}
 		}, 1500);
 	};
 

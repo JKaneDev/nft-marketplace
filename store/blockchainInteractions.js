@@ -68,7 +68,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x6F6f570F45833E249e27022648a26F4076F48f78';
+	const address = '0x19cEcCd6942ad38562Ee10bAfd44776ceB67e923';
 
 	try {
 		const signer = await getSigner();
@@ -88,7 +88,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9';
+	const address = '0xD42912755319665397FF090fBB63B1a31aE87Cee';
 
 	try {
 		const signer = await getSigner();
@@ -308,8 +308,13 @@ export const endAuction = async (id, contractAddress) => {
 	return;
 };
 
-export const callEndAuctionOnComplete = async (auctionAddress, nftId) => {
-	return;
+export const callEndAuctionOnComplete = async (marketplaceDetails, auctionAddress, nftId) => {
+	try {
+		const marketplace = await createContractInstance(marketplaceDetails);
+		await marketplace.triggerEndAuction(auctionAddress, nftId);
+	} catch (error) {
+		console.error('Error ending auction on timeout: ', error);
+	}
 };
 
 export const listenForEndedAuctions = async (dispatch, seller, contractAddress) => {

@@ -6,9 +6,9 @@ export const validateInput = (data) => {
 		errors.image = 'Please select an image';
 	}
 
-	// Validate displayName
+	// Validate display name
 	if (data.displayName) {
-		const validNamePattern = /^[a-zA-Z\s]{1,20}$/; // Adjust regex as needed
+		const validNamePattern = /^[a-zA-Z\s&-]{1,20}$/;
 		if (!validNamePattern.test(data.displayName)) {
 			errors.displayName = 'Text Only. 20 Characters Max*';
 		}
@@ -16,7 +16,7 @@ export const validateInput = (data) => {
 
 	// Validate description
 	if (data.description) {
-		const validDescription = /^[a-zA-Z0-9\s]{1,200}$/;
+		const validDescription = /^[a-zA-Z0-9\s&-]{1,200}$/;
 		if (!validDescription.test(data.description)) {
 			errors.description = '200 Alphanumeric Characters max.';
 		}
@@ -32,7 +32,7 @@ export const validateInput = (data) => {
 
 	// Validate properties
 	if (data.properties) {
-		const validProperties = /^([a-zA-Z-]+)(,\s*[a-zA-Z-]+)*$/;
+		const validProperties = /^([a-zA-Z-]+)(,\s*[a-zA-Z-]+)*\s*$/;
 		if (!validProperties.test(data.properties)) {
 			errors.properties = 'Comma separated words only';
 		}

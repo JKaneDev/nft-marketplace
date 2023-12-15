@@ -177,6 +177,7 @@ const MyNFTs = () => {
 
 		// Perform fuzzy search
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
+
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
 	}, [userData, currentCategory, currentFilter, searchQuery]);
 
