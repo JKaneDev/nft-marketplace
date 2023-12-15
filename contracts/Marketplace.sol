@@ -168,6 +168,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         console.log('Resell transfer succeeded');
     }
 
+    function delistMarketItem(uint256 tokenId) public {
+        require(msg.sender == idToMarketItem[tokenId].seller, 'Only token seller can delist');
+
+        idToMarketItem[tokenId].owner = payable(msg.sender);
+        idToMarketItem[tokenId].sold = true;
+
+        _itemsSold.increment();
+    }
+
     function createMarketSale(uint256 tokenId) public payable {
         uint256 price = idToMarketItem[tokenId].price;
 

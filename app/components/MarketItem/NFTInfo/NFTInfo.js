@@ -16,9 +16,10 @@ import { db } from '../../../../firebaseConfig';
 import { doc, updateDoc } from 'firebase/firestore';
 import { toggleNFTListingStatus } from '@/pages/api/firebase';
 
-const NFTInfo = ({ id, price, category }) => {
+const NFTInfo = ({ id, price, category, resetUserData }) => {
 	const [updatingPrice, setUpdatingPrice] = useState(false);
 	const [updatedPrice, setUpdatedPrice] = useState(null);
+	const [finalPrice, setFinalPrice] = useState(null);
 	const [loading, setLoading] = useState(false);
 
 	const user = useSelector((state) => state.connection.account);
@@ -38,15 +39,18 @@ const NFTInfo = ({ id, price, category }) => {
 			[nftPath]: updatedPrice,
 		});
 
+		setFinalPrice(updatedPrice);
+
 		setLoading(false);
 		togglePriceUpdate();
-
-		window.location.reload();
 	};
 
 	const handleDelistNft = async () => {
 		const marketplace = await createContractInstance(marketplaceDetails);
-		await toggleNFTListingStatus(user.account, id);
+		const tx = await marketplace.delistMarketItem(id);
+		const receipt = tx.wait();
+		if (receipt) await toggleNFTListingStatus(user.account, id);
+		resetUserData();
 	};
 
 	const togglePriceUpdate = () => {
@@ -66,11 +70,15 @@ const NFTInfo = ({ id, price, category }) => {
 				<p>Price:</p>
 				{updatingPrice ? (
 					<div className={Style.wrapper_price_input}>
-						<input type='text' onChange={(e) => setUpdatedPrice(e.target.value)} value={updatedPrice} />
+						<input
+							type='text'
+							onChange={(e) => setUpdatedPrice(e.target.value)}
+							value={updatedPrice}
+						/>
 						<Image src={images.eth} className={Style.wrapper_price_input_eth} alt='ETH symbol' />
 					</div>
 				) : (
-					<p className={Style.wrapper_price_current_price}>{price} ETH</p>
+					<p className={Style.wrapper_price_current_price}>{finalPrice ? finalPrice : price} ETH</p>
 				)}
 			</div>
 			<div className={Style.wrapper_info}>

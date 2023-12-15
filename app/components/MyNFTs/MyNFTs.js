@@ -51,34 +51,6 @@ const MyNFTs = () => {
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				if (user) {
-					const userRef = doc(db, 'users', user.account);
-					const docSnap = await getDoc(userRef);
-					if (docSnap.exists()) {
-						const data = docSnap.data();
-						setUserData({
-							name: data.displayName,
-							description: data.description,
-							walletAddress: data.walletAddress,
-							website: data.website,
-							facebook: data.facebookHandle,
-							twitter: data.twitterHandle,
-							instagram: data.instagramHandle,
-							linkedIn: data.linkedInHandle,
-							profilePicture: data.profilePicture,
-							ownedNFTs: data.ownedNFTs,
-							watchlist: data.watchlist,
-						});
-					} else {
-						console.log("Document doesn't exist in database");
-					}
-				}
-			} catch (error) {
-				console.log('Error fetching user data: ', error);
-			}
-		};
 		fetchUserData();
 	}, []);
 
@@ -112,6 +84,35 @@ const MyNFTs = () => {
 		const auctionIds = auctions.map((auction) => auction.nftId);
 		setActiveAuctions(auctionIds);
 	}, []);
+
+	const fetchUserData = async () => {
+		try {
+			if (user) {
+				const userRef = doc(db, 'users', user.account);
+				const docSnap = await getDoc(userRef);
+				if (docSnap.exists()) {
+					const data = docSnap.data();
+					setUserData({
+						name: data.displayName,
+						description: data.description,
+						walletAddress: data.walletAddress,
+						website: data.website,
+						facebook: data.facebookHandle,
+						twitter: data.twitterHandle,
+						instagram: data.instagramHandle,
+						linkedIn: data.linkedInHandle,
+						profilePicture: data.profilePicture,
+						ownedNFTs: data.ownedNFTs,
+						watchlist: data.watchlist,
+					});
+				} else {
+					console.log("Document doesn't exist in database");
+				}
+			}
+		} catch (error) {
+			console.log('Error fetching user data: ', error);
+		}
+	};
 
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
@@ -310,7 +311,7 @@ const MyNFTs = () => {
 					{filteredNFTs &&
 						filteredNFTs.map((nft) => {
 							if (currentFilter === 'Currently Owned' || currentFilter === 'Currently Listed') {
-								return <MarketItem key={nft.id} {...nft} />;
+								return <MarketItem key={nft.id} {...nft} resetUserData={fetchUserData} />;
 							} else if (currentFilter === 'Watchlist') {
 								const isAtAuction = activeAuctions.includes(nft.id);
 								return isAtAuction ? (

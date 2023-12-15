@@ -6,7 +6,11 @@ import { RingLoader } from 'react-spinners';
 
 // BLOCKCHAIN + STORAGE + STATE IMPORTS
 import { useSelector, useDispatch } from 'react-redux';
-import { connectToEthereum, initiateMintSequence, createContractInstance } from '@/store/blockchainInteractions';
+import {
+	connectToEthereum,
+	initiateMintSequence,
+	createContractInstance,
+} from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
 import Style from './CreateNFT.module.scss';
@@ -91,7 +95,13 @@ const CreateNFT = () => {
 		try {
 			console.log('Create nft called');
 			const marketplace = await createContractInstance(marketplaceDetails);
-			await initiateMintSequence(metadata, marketplace, nftData.royalties, marketplaceDetails.abi, user);
+			await initiateMintSequence(
+				metadata,
+				marketplace,
+				nftData.royalties,
+				marketplaceDetails.abi,
+				user,
+			);
 
 			setTimeout(() => {
 				resetNftData();
@@ -107,7 +117,7 @@ const CreateNFT = () => {
 		<div className={Style.main}>
 			{loading ? (
 				<div className={Style.main_loading_overlay}>
-					<RingLoader />
+					<RingLoader size={75} color='#fff' />
 				</div>
 			) : (
 				<></>
@@ -116,7 +126,12 @@ const CreateNFT = () => {
 				<h1>Create an NFT</h1>
 				<p>Once your item is minted you won't be able to change any of it's information</p>
 				<div className={Style.main_upload_container} onClick={triggerFileInput}>
-					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={setImageToState} />
+					<input
+						type='file'
+						id='fileInput'
+						style={{ display: 'none' }}
+						onChange={setImageToState}
+					/>
 					{nftData.imagePreview ? (
 						<img src={nftData.imagePreview} alt='Uploaded Preview' />
 					) : (
@@ -172,7 +187,11 @@ const CreateNFT = () => {
 				</div>
 
 				<div className={Style.main_info_wrapper}>
-					<Image src={images.percentage} className={Style.main_info_wrapper_percentage} alt='% Symbol' />
+					<Image
+						src={images.percentage}
+						className={Style.main_info_wrapper_percentage}
+						alt='% Symbol'
+					/>
 					<p>Royalties</p>
 					<input
 						type='text'
@@ -205,7 +224,9 @@ const CreateNFT = () => {
 						placeholder='ETH Amount: E.g. 2.5'
 						onChange={(e) => handleInputChange('price', e.target.value)}
 					/>
-					{validationErrors.price && <span className={Style.main_info_wrapper_error}>{validationErrors.price}</span>}
+					{validationErrors.price && (
+						<span className={Style.main_info_wrapper_error}>{validationErrors.price}</span>
+					)}
 				</div>
 				<div className={Style.main_info_wrapper} id={Style.categories}>
 					<p className={Style.main_info_wrapper_title}>Categories</p>

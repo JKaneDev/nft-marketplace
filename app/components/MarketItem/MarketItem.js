@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import images from '../../../assets/index';
 import { NFTInfo, AuctionInterface, EndAuctionInterface } from '../componentindex';
 
-const MarketItem = ({ id, name, image, price, category, isListed }) => {
+const MarketItem = ({ id, name, image, price, category, isListed, resetUserData }) => {
 	const dispatch = useDispatch();
 
 	const user = useSelector((state) => state.connection.account);
@@ -85,7 +85,13 @@ const MarketItem = ({ id, name, image, price, category, isListed }) => {
 			{isListed && auctionActive ? (
 				<EndAuctionInterface id={id} setAuctionEnded={setAuctionEnded} />
 			) : isListed ? (
-				<NFTInfo id={id} name={name} price={price} category={category} />
+				<NFTInfo
+					id={id}
+					name={name}
+					price={price}
+					category={category}
+					resetUserData={resetUserData}
+				/>
 			) : (
 				// <span>Hello</span>
 				<AuctionInterface

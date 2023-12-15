@@ -68,7 +68,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x19cEcCd6942ad38562Ee10bAfd44776ceB67e923';
+	const address = '0xB2b580ce436E6F77A5713D80887e14788Ef49c9A';
 
 	try {
 		const signer = await getSigner();
@@ -88,7 +88,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xD42912755319665397FF090fBB63B1a31aE87Cee';
+	const address = '0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab';
 
 	try {
 		const signer = await getSigner();
