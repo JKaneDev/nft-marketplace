@@ -4,9 +4,15 @@ $alt-bg-color: #2b2b2b;
 .main {
 	display: flex;
 	flex-direction: column;
+	margin: 0 auto;
 	gap: 3rem;
 	padding: 3rem;
 	height: calc(100vh - 74.8px);
+	width: 1250px;
+
+	@media (min-width: 1626px) {
+		width: 1450px;
+	}
 
 	h1 {
 		font-size: 44px;
@@ -22,6 +28,7 @@ $alt-bg-color: #2b2b2b;
 	padding: 1rem 0;
 	border-bottom: 1px solid #202020;
 	position: relative;
+	width: 100%;
 
 	.main_select_options {
 		display: flex;
@@ -120,7 +127,7 @@ $alt-bg-color: #2b2b2b;
 
 .main_watchlist {
 	position: relative;
-	width: 1100px;
+	width: 100%;
 	margin: 0;
 	padding: 1rem;
 	display: grid;

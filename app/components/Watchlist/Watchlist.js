@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { FaCaretDown } from 'react-icons/fa';
+import { MdRestartAlt } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 
 // BLOCKCHAIN + BACKEND IMPORTS
@@ -12,7 +13,6 @@ import { db } from '@/firebaseConfig';
 import Style from './Watchlist.module.scss';
 import { AuctionCard, StaticSaleCard } from '../componentindex';
 import { RingLoader } from 'react-spinners';
-import { useMemo } from 'react';
 
 const Watchlist = () => {
 	const dispatch = useDispatch();
@@ -68,14 +68,16 @@ const Watchlist = () => {
 		setActiveAuctions(auctionIds);
 	}, []);
 
-	const filteredWatchlist = useMemo(() => {}, [category]);
-
 	const handleFilterDropdownToggle = () => {
 		setFilterOpen(!filterOpen);
 	};
 
 	const handleCategorySelect = (category) => {
-		setCurrentCategory(category);
+		setCategory(category);
+	};
+
+	const handleResetFilter = () => {
+		setCategory(null);
 	};
 
 	const handleTabToggle = (tabName) => {
@@ -83,6 +85,17 @@ const Watchlist = () => {
 	};
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
+
+	const filteredWatchlist = useMemo(() => {
+		let categorizedWatchlist;
+
+		if (category) {
+			categorizedWatchlist = watchlist.filter((nft) => nft.category === category);
+			return categorizedWatchlist;
+		}
+
+		return watchlist;
+	}, [watchlist, category]);
 
 	return (
 		<div className={Style.main}>
@@ -129,7 +142,12 @@ const Watchlist = () => {
 					</>
 				) : (
 					<div className={Style.main_watchlist}>
-						{watchlist.map((nft) => {
+						<MdRestartAlt
+							size={28}
+							className={Style.main_profile_view_reset}
+							onClick={handleResetFilter}
+						/>
+						{filteredWatchlist.map((nft) => {
 							const isAtAuction = activeAuctions.includes(nft.id);
 							return isAtAuction ? (
 								<AuctionCard key={nft.id} {...nft} />
