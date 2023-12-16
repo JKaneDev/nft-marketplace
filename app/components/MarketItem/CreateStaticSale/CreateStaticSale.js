@@ -56,7 +56,7 @@ const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 				</div>
 			</div>
 			<div className={Style.wrapper_info}>
-				<p>{category}</p>
+				<p>{`Last Sale: ${price}`}</p>
 				{settingPrice && loading ? (
 					<RingLoader size={30} color={'#fff'} />
 				) : (

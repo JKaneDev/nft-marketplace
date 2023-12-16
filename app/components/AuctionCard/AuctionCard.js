@@ -178,8 +178,13 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 						</div>
 						<div className={Style.interface_actions}>
 							<div className={Style.interface_actions_bid}>
-								<p>Current Bid:</p>
-								<p>{auction.currentBid ? auction.currentBid : '0'} ETH</p>
+								<p>{auction.currentBid ? 'Current Bid:' : 'Starting Price:'}</p>
+								<p>
+									{auction.currentBid
+										? auction.currentBid
+										: ethers.formatEther(auction.startingPrice)}
+									ETH
+								</p>
 							</div>
 							{loading ? (
 								<RingLoader size={30} color={'#fff'} />

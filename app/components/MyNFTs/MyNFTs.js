@@ -171,7 +171,7 @@ const MyNFTs = () => {
 
 		// Set up fuzzy search
 		const fuse = new Fuse(nfts, {
-			keys: ['name', 'properties'],
+			keys: ['name', 'properties', 'description'],
 			includeScore: true,
 			threshold: 0.3,
 		});
