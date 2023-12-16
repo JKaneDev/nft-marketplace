@@ -24,7 +24,7 @@ contract Auction is ReentrancyGuard {
 
         event AuctionCreated(address auctionAddress);
         event Bid(address bidder, uint256 bidAmount, address auctionAddress);
-        event AuctionEnded(uint256 nftId, address highestBidder, address seller, address nullAddress);
+        event AuctionEnded(uint256 nftId, address highestBidder, address seller, address nullAddress, uint256 highestBid);
 
         constructor(uint256 _nftId, uint256 _startingPrice, address _seller, address _marketplaceAddress, address _auctionFactoryAddress) {
                 marketplaceAddress = _marketplaceAddress;
@@ -137,6 +137,6 @@ contract Auction is ReentrancyGuard {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
                 }
 
-                emit AuctionEnded(nftId, highestBidder, seller, address(0));
+                emit AuctionEnded(nftId, highestBidder, seller, address(0), highestBid);
         }
 }

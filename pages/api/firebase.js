@@ -10,21 +10,13 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-export const uploadImageToFirebase = async (
-	image,
-	displayName,
-	tokenId,
-	walletAddress,
-) => {
+export const uploadImageToFirebase = async (image, displayName, tokenId, walletAddress) => {
 	try {
 		// Create a unique file name using displayName and tokenId
 		const fileName = `${displayName}_${tokenId}`;
 
 		// Create a reference to the Firebase Storage
-		const imageRef = ref(
-			storage,
-			`OwnedNFTImages/${walletAddress}/${fileName}`,
-		);
+		const imageRef = ref(storage, `OwnedNFTImages/${walletAddress}/${fileName}`);
 
 		// Upload the image
 		await uploadBytes(imageRef, image);
@@ -151,5 +143,21 @@ export const changeNftOwnershipInFirebase = async (id, buyer) => {
 		console.log('NFT ownership updated successfully in Firebase.');
 	} catch (error) {
 		console.error('Error updating NFT ownership in Firebase:', error);
+	}
+};
+
+export const changePrice = async (nftId, seller, newPrice) => {
+	try {
+		const userRef = doc(db, 'users', seller);
+		const userDoc = await getDoc(userRef);
+		const data = userDoc.data();
+
+		await updateDoc(userRef, {
+			[`ownedNFTs.${nftId}.price`]: newPrice,
+		});
+
+		console.log('NFT updated with new price: ', nftId, newPrice);
+	} catch (error) {
+		console.error('Error updating nft with new price: ', error);
 	}
 };

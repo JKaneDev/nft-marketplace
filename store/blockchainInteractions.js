@@ -68,7 +68,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xB2b580ce436E6F77A5713D80887e14788Ef49c9A';
+	const address = '0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E';
 
 	try {
 		const signer = await getSigner();
@@ -88,7 +88,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xB377a2EeD7566Ac9fCb0BA673604F9BF875e2Bab';
+	const address = '0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B';
 
 	try {
 		const signer = await getSigner();
@@ -322,38 +322,39 @@ export const listenForEndedAuctions = async (dispatch, seller, contractAddress) 
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 
-		auctionContract.on('AuctionEnded', async (nftId, highestBidder, seller, nullAddress) => {
-			console.log('Auction Ended Event Emitted');
+		auctionContract.on(
+			'AuctionEnded',
+			async (nftId, highestBidder, seller, nullAddress, highestBid) => {
+				console.log('Auction Ended Event Emitted');
 
-			// Reference to the auction in the 'auctions' node
-			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+				// Reference to the auction in the 'auctions' node
+				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 
-			// Retrieve auction data
-			const snapshot = await get(auctionRef);
-			if (snapshot.exists()) {
-				const auctionData = snapshot.val();
+				// Retrieve auction data
+				const snapshot = await get(auctionRef);
+				if (snapshot.exists()) {
+					// Remove auction from 'auctions' node
+					dispatch(removeAuction(nftId.toString()));
+					await remove(auctionRef);
 
-				// Add the auction data to 'endedAuctions' node
-				const endedAuctionRef = ref(realtimeDb, `endedAuctions/${nftId}`);
-				await set(endedAuctionRef, auctionData);
+					// Additional logic for NFT listing status and ownership change
+					await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
 
-				// Remove auction from 'auctions' node
-				dispatch(removeAuction(nftId.toString()));
-				await remove(auctionRef);
+					// If a bid was made on the auction, change ownership
+					if (
+						seller.toLowerCase() !== highestBidder.toLowerCase() &&
+						highestBidder !== nullAddress
+					) {
+						await changePrice(nftId, seller.toLowerCase(), ethers.formatEther(highestBid));
+						await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+					}
 
-				// Additional logic for NFT listing status and ownership change
-				await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
-
-				// If a bid was made on the auction, change ownership
-				if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
-					await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+					console.log(`Auction with ID ${nftId} has been moved to ended auctions.`);
+				} else {
+					console.log(`Auction data for ID ${nftId} not found.`);
 				}
-
-				console.log(`Auction with ID ${nftId} has been moved to ended auctions.`);
-			} else {
-				console.log(`Auction data for ID ${nftId} not found.`);
-			}
-		});
+			},
+		);
 	} catch (error) {
 		console.error('Error handling AuctionEnded event:', error);
 	}
