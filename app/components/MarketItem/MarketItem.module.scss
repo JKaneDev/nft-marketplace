@@ -18,6 +18,47 @@ $font-color: #fefefe;
 	width: 335px;
 	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 	transition: all 0.35s ease-in-out;
+	position: relative;
+
+	.toggle {
+		position: absolute;
+		z-index: 1001;
+		background-color: $main-bg-color;
+		left: 10px;
+		top: 10px;
+		border-radius: 8px;
+		border: 1px solid $main-bg-color;
+
+		.toggle_btns {
+			background-color: $alt-bg-color;
+			height: 30px;
+			width: 35px;
+			transition: all 0.35s ease-in-out;
+
+			&:hover {
+				background-color: $main-bg-color;
+				cursor: pointer;
+			}
+
+			&.selected {
+				background-color: $main-bg-color;
+			}
+		}
+
+		.toggle_btns:nth-of-type(1) {
+			border-right: 1px solid #202020;
+		}
+
+		.toggle_btns:nth-of-type(2) {
+			border-left: 1px solid #202020;
+		}
+
+		.toggle_icons {
+			color: white;
+			height: 16px;
+			width: 16px;
+		}
+	}
 
 	&:hover {
 		transform: scale(1.05);

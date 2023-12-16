@@ -10,7 +10,13 @@ import { useSelector, useDispatch } from 'react-redux';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
-import { NFTInfo, AuctionInterface, EndAuctionInterface } from '../componentindex';
+import {
+	NFTInfo,
+	AuctionInterface,
+	EndAuctionInterface,
+	CreateStaticSale,
+} from '../componentindex';
+import SaleToggle from './SaleToggle';
 
 const MarketItem = ({ id, name, image, price, category, isListed, resetUserData }) => {
 	const dispatch = useDispatch();
@@ -24,9 +30,9 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 	const [startingPrice, setStartingPrice] = useState('');
 	const [duration, setDuration] = useState('');
 
+	const [saleType, setSaleType] = useState('auction');
 	const [auctionActive, setAuctionActive] = useState(false);
 	const [auctionStarted, setAuctionStarted] = useState(false);
-	const [auctionEnded, setAuctionEnded] = useState(false);
 
 	useEffect(() => {
 		checkForActiveAuction(id);
@@ -37,12 +43,6 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 			window.location.reload();
 		}
 	}, [auctionStarted]);
-
-	useEffect(() => {
-		if (auctionEnded === true) {
-			window.location.reload();
-		}
-	}, [auctionEnded]);
 
 	const handleShowAuctionInfo = (e) => {
 		setIsInfoVisible(!isInfoVisible);
@@ -68,6 +68,7 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 
 	return (
 		<div className={Style.card}>
+			<>{!isListed ? <SaleToggle saleType={saleType} setSaleType={setSaleType} /> : <></>}</>
 			<div className={Style.card_img}>
 				<Image
 					src={image ? image : images.placeholder}
@@ -83,7 +84,7 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 			</div>
 
 			{isListed && auctionActive ? (
-				<EndAuctionInterface id={id} setAuctionEnded={setAuctionEnded} />
+				<EndAuctionInterface id={id} />
 			) : isListed ? (
 				<NFTInfo
 					id={id}
@@ -92,8 +93,15 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 					category={category}
 					resetUserData={resetUserData}
 				/>
+			) : saleType === 'static' ? (
+				<CreateStaticSale
+					id={id}
+					name={name}
+					price={price}
+					category={category}
+					resetUserData={resetUserData}
+				/>
 			) : (
-				// <span>Hello</span>
 				<AuctionInterface
 					loading={loading}
 					isInfoVisible={isInfoVisible}

@@ -18,8 +18,10 @@ import StaticSaleCard from './MarketItem/StaticSaleCard/StaticSaleCard';
 import AuctionInterface from './MarketItem/AuctionInterface/AuctionInterface';
 import EndAuctionInterface from './MarketItem/EndAuctionInterface/EndAuctionInterface';
 import AuctionTimer from './MarketItem/EndAuctionInterface/AuctionTimer';
+import CreateStaticSale from './MarketItem/CreateStaticSale/CreateStaticSale';
 
 export {
+	CreateStaticSale,
 	AuctionTimer,
 	AuctionInterface,
 	EndAuctionInterface,

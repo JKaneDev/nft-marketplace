@@ -80,6 +80,11 @@ $font-color: #fefefe;
 		color: white;
 		font-size: 14px;
 		letter-spacing: 0.1rem;
+
+		&::placeholder {
+			font-weight: 100;
+			font-size: 12px;
+		}
 	}
 
 	p:nth-of-type(1) {
@@ -92,7 +97,7 @@ $font-color: #fefefe;
 		background-color: #0cc0df;
 		border-radius: 8px;
 		color: black;
-		padding: 0.2rem 0.75rem;
+		padding: 0.15rem 0.75rem;
 		font-weight: 400;
 		letter-spacing: 0.05rem;
 		transition: all 0.35s ease-in-out;

@@ -171,6 +171,9 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     function delistMarketItem(uint256 tokenId) public {
         require(msg.sender == idToMarketItem[tokenId].seller, 'Only token seller can delist');
 
+        // Transfer the NFT back to the seller
+        _transfer(address(this), msg.sender, tokenId);
+
         idToMarketItem[tokenId].owner = payable(msg.sender);
         idToMarketItem[tokenId].sold = true;
 
