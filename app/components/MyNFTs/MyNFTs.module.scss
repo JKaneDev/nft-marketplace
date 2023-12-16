@@ -284,11 +284,13 @@ $elem-border-alt: 2px solid #303030;
 	margin: 0;
 	padding: 1rem;
 	display: grid;
+	align-self: center;
+	justify-content: center;
 	gap: 2rem;
 	grid-template-columns: repeat(auto-fit, minmax(330px, 330px));
 
 	@media (min-width: 1626px) {
-		width: 1250px;
+		width: 1450px;
 	}
 
 	.main_profile_view_reset {
@@ -298,7 +300,7 @@ $elem-border-alt: 2px solid #303030;
 		transition: all 0.35s ease-in-out;
 
 		@media (min-width: 1626px) {
-			right: -50px;
+			right: 50px;
 		}
 
 		&:hover {

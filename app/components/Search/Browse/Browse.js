@@ -5,9 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import Fuse from 'fuse.js';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { db, realtimeDb } from '@/firebaseConfig';
+import { db } from '@/firebaseConfig';
 import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
-import { get, ref, set, remove } from 'firebase/database';
 
 // INTERNAL IMPORTS
 import Style from './Browse.module.scss';
@@ -189,7 +188,7 @@ const Browse = () => {
 
 		// Set up fuzzy search
 		const fuse = new Fuse(nfts, {
-			keys: ['name', 'properties'],
+			keys: ['name', 'properties', 'description'],
 			includeScore: true,
 			threshold: 0.3,
 		});
