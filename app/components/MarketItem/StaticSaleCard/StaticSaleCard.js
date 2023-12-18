@@ -14,12 +14,13 @@ import { createContractInstance, purchaseNft } from '@/store/blockchainInteracti
 import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 
-const StaticSaleCard = ({ id, name, image, category, price, isListed }) => {
+const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserData }) => {
 	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const [purchasing, setPurchasing] = useState(false);
 	const [inWatchlist, setInWatchlist] = useState(false);
+	const [purchaseComplete, setPurchaseComplete] = useState(false);
 
 	useEffect(() => {
 		const checkWatchlistStatus = async () => {
@@ -33,12 +34,19 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed }) => {
 		checkWatchlistStatus();
 	}, []);
 
+	useEffect(() => {
+		if (purchaseComplete) {
+			resetUserData();
+		}
+	}, [purchaseComplete]);
+
 	const handleNftPurchase = async () => {
 		setPurchasing(true);
 		const marketplace = await createContractInstance(marketplaceDetails);
 		await purchaseNft(marketplace, id, user.account);
 		setTimeout(() => {
 			setPurchasing(false);
+			setPurchaseComplete(true);
 			if (inWatchlist) {
 				handleWatchlistToggle();
 			}

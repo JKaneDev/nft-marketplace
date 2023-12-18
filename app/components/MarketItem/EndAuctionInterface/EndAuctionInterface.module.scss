@@ -85,7 +85,7 @@ $font-color: #fefefe;
 	justify-content: center;
 	gap: 0.5rem;
 	position: relative;
-	width: 50%;
+	width: 45%;
 	transition: all 0.35s ease-in-out;
 
 	p:nth-of-type(1) {
@@ -128,7 +128,7 @@ $font-color: #fefefe;
 	justify-content: flex-start;
 	align-items: center;
 	gap: 0.25rem;
-	width: 50%;
+	width: 55%;
 	padding-bottom: 0.25rem;
 	position: absolute;
 	top: 2.5px;
@@ -141,7 +141,7 @@ $font-color: #fefefe;
 		font-size: 12px;
 
 		p:nth-of-type(1) {
-			font-weight: 500;
+			font-weight: 400;
 		}
 	}
 

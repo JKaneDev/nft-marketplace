@@ -3,6 +3,7 @@ $alt-bg-color: #2b2b2b;
 
 .auction {
 	width: 100%;
+	height: 100vh;
 	padding: clamp(3rem, 5rem, 10rem);
 	display: flex;
 	align-items: center;
@@ -12,7 +13,7 @@ $alt-bg-color: #2b2b2b;
 }
 
 .auction_container {
-	height: 100%;
+	height: 80%;
 	padding: 3rem 3rem;
 	border: 2px solid #0cc0df;
 	gap: 2rem;
@@ -25,6 +26,11 @@ $alt-bg-color: #2b2b2b;
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+
+	.loader {
+		place-self: center;
+		margin: auto;
+	}
 
 	.auction_container_title {
 		display: flex;
@@ -85,7 +91,7 @@ $alt-bg-color: #2b2b2b;
 			grid-column: 2/-1;
 			grid-row: 1/2;
 			margin: 0;
-			font-weight: 400;
+			font-weight: 300;
 			letter-spacing: 0.05rem;
 			font-size: 16px;
 		}
@@ -119,15 +125,16 @@ $alt-bg-color: #2b2b2b;
 			border-radius: 8px;
 			padding: 0.25rem 0.75rem;
 			position: absolute;
-			top: -1rem;
+			top: -0.9rem;
+			left: 0.75rem;
 		}
 
 		p:nth-of-type(2) {
-			letter-spacing: 0.15rem;
+			letter-spacing: 0.1rem;
 			font-weight: 200;
-			font-size: 18px;
-			margin-left: 1rem;
-			margin-top: 0.25rem;
+			font-size: 16px;
+			margin-left: 0.75rem;
+			margin-top: 0.4rem;
 		}
 	}
 
@@ -149,7 +156,8 @@ $alt-bg-color: #2b2b2b;
 			gap: 1rem;
 
 			p {
-				font-weight: 200;
+				font-weight: 100;
+				letter-spacing: 0.05rem;
 			}
 		}
 
@@ -162,6 +170,7 @@ $alt-bg-color: #2b2b2b;
 			border: 1px solid #202020;
 			padding: 2rem 3rem;
 			border-radius: 8px;
+			width: 100%;
 		}
 
 		.auction_container_time_display {
@@ -223,6 +232,7 @@ $alt-bg-color: #2b2b2b;
 	z-index: 999;
 	min-width: 500px;
 	max-width: 575px;
+	height: 50%;
 	flex: 1;
 	border-radius: 22px;
 	background-color: #0f0f0f;

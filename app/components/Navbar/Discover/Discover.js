@@ -3,13 +3,18 @@ import Link from 'next/link';
 
 import { BsGrid3X3GapFill, BsFillPersonFill, BsFillEyeFill } from 'react-icons/bs';
 import { FaWallet, FaBlog, FaPlug } from 'react-icons/fa';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
 // INTERNAL IMPORTS
 import Style from './Discover.module.scss';
-import { Button } from '../../componentindex';
 
 const Discover = ({ onHideSubMenu }) => {
 	const discover = [
+		{
+			name: 'Marketplace',
+			link: 'search-marketplace',
+			icon: 'StoreFrontIcon',
+		},
 		{
 			name: 'My Collection',
 			link: 'my-collection',
@@ -34,6 +39,7 @@ const Discover = ({ onHideSubMenu }) => {
 	];
 
 	const iconMap = {
+		StoreFrontIcon: <StorefrontIcon className={Style.icons} />,
 		BsGrid3X3GapFill: <BsGrid3X3GapFill className={Style.icons} />,
 		BsFillPersonFill: <BsFillPersonFill className={Style.icons} />,
 		BsFillEyeFill: <BsFillEyeFill className={Style.icons} />,

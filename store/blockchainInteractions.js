@@ -68,7 +68,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E';
+	const address = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82';
 
 	try {
 		const signer = await getSigner();
@@ -88,7 +88,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B';
+	const address = '0x9A676e781A523b5d0C0e43731313A708CB607508';
 
 	try {
 		const signer = await getSigner();
@@ -107,6 +107,9 @@ export const createContractInstance = async (contractDetails) => {
 	const signer = await getSigner();
 	return new ethers.Contract(contractDetails.address, contractDetails.abi, signer);
 };
+
+export const getSellerAddress = async (marketplace, tokenId) =>
+	await marketplace.getSellerAddress(tokenId);
 
 const pinToIpfs = async (cid) => {
 	try {
@@ -196,7 +199,39 @@ const extractMarketItemEventData = (parsedLog) => {
 	};
 };
 
+export const createAuction = async (
+	auctionFactoryContract,
+	startingPrice,
+	auctionDuration,
+	nftId,
+	seller,
+) => {
+	try {
+		const startingPriceWei = ethers.parseEther(startingPrice);
+		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
+
+		const tx = await auctionFactoryContract.createAuction(
+			startingPriceWei,
+			auctionDurationInSeconds,
+			nftId,
+			seller,
+		);
+
+		const receipt = await tx.wait();
+
+		if (receipt) {
+			await toggleNFTListingStatus(seller.toLowerCase(), nftId);
+		}
+
+		return receipt;
+	} catch (error) {
+		console.error('Error creating new auction: ', error);
+	}
+};
+
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
+	console.log('Setting auction created listener!');
+
 	auctionFactoryContract.on(
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
@@ -246,39 +281,6 @@ export const loadActiveAuctions = async (dispatch) => {
 	}
 };
 
-export const createAuction = async (
-	auctionFactoryContract,
-	startingPrice,
-	auctionDuration,
-	nftId,
-	seller,
-) => {
-	try {
-		const startingPriceWei = ethers.parseEther(startingPrice);
-		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
-
-		const tx = await auctionFactoryContract.createAuction(
-			startingPriceWei,
-			auctionDurationInSeconds,
-			nftId,
-			seller,
-		);
-
-		const receipt = await tx.wait();
-
-		if (receipt) {
-			await toggleNFTListingStatus(seller.toLowerCase(), nftId);
-		}
-
-		return receipt;
-	} catch (error) {
-		console.error('Error creating new auction: ', error);
-	}
-};
-
-export const getSellerAddress = async (marketplace, tokenId) =>
-	await marketplace.getSellerAddress(tokenId);
-
 export const purchaseNft = async (marketplace, id, user) => {
 	try {
 		const seller = await getSellerAddress(marketplace, id);
@@ -320,6 +322,10 @@ export const callEndAuctionOnComplete = async (marketplaceDetails, auctionAddres
 export const listenForEndedAuctions = async (dispatch, seller, contractAddress) => {
 	try {
 		const signer = await getSigner();
+
+		console.log('Auction Address: ', contractAddress);
+		console.log('Auction ABI: ', Auction.abi);
+		console.log('Signer: ', signer);
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 
 		auctionContract.on(

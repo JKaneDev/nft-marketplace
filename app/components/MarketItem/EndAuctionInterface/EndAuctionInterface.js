@@ -25,6 +25,7 @@ const EndAuctionInterface = ({ id }) => {
 	useEffect(() => {
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
+				console.log('Auction in state (ended listener): ', auction);
 				await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
 			}
 		};
@@ -68,9 +69,9 @@ const EndAuctionInterface = ({ id }) => {
 				<div className={Style.interface_complete}>
 					<p>Auction Ended</p>
 					<span>
-						<p>{auction.currentBid ? 'Winning Bid:' : 'Starting Price - No Bids:'}</p>
+						<p>{auction.currentBid ? 'Winning Bid:' : 'Starting Price:'}</p>
 						<p>
-							{auction.currentBid ? auction.currentBid : ethers.formatEther(auction.startingPrice)}
+							{auction.currentBid ? auction.currentBid : auction.startingPrice}
 							ETH
 						</p>
 					</span>
@@ -88,13 +89,8 @@ const EndAuctionInterface = ({ id }) => {
 					</div>
 					<div className={Style.interface_actions}>
 						<div className={Style.interface_actions_bid}>
-							<p>{auction.currentBid ? 'Current Bid: ' : 'Starting Price: '}</p>
-							<p>
-								{auction.currentBid
-									? auction.currentBid
-									: ethers.formatEther(auction.startingPrice)}{' '}
-								ETH
-							</p>
+							<p>{auction.currentBid ? 'Current Bid:' : 'Starting Price:'}</p>
+							<p>{auction.currentBid ? auction.currentBid : auction.startingPrice} ETH</p>
 						</div>
 						{loading ? (
 							<RingLoader size={30} color={'#fff'} />

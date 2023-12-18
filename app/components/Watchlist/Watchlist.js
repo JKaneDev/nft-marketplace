@@ -41,32 +41,31 @@ const Watchlist = () => {
 	}, []);
 
 	useEffect(() => {
-		const getWatchlist = async () => {
-			try {
-				if (user) {
-					setLoading(true);
-					const ref = doc(db, 'users', user.account);
-					const document = await getDoc(ref);
-					if (document.exists()) {
-						const data = document.data();
-						const watchlist = Object.values(data.watchlist);
-						console.log('Watchlist: ', watchlist);
-						setWatchlist(watchlist);
-					}
-					setLoading(false);
-				}
-			} catch (error) {
-				console.error('Error setting watchlist to state: ', error);
-			}
-		};
-
-		// set watchlist to state
 		getWatchlist();
+	}, []);
 
-		// Check for active auctions and set them to state
+	useEffect(() => {
 		const auctionIds = auctions.map((auction) => auction.nftId);
 		setActiveAuctions(auctionIds);
 	}, []);
+
+	const getWatchlist = async () => {
+		try {
+			if (user) {
+				setLoading(true);
+				const ref = doc(db, 'users', user.account);
+				const document = await getDoc(ref);
+				if (document.exists()) {
+					const data = document.data();
+					const watchlist = Object.values(data.watchlist);
+					setWatchlist(watchlist);
+				}
+				setLoading(false);
+			}
+		} catch (error) {
+			console.error('Error setting watchlist to state: ', error);
+		}
+	};
 
 	const handleFilterDropdownToggle = () => {
 		setFilterOpen(!filterOpen);
@@ -93,9 +92,7 @@ const Watchlist = () => {
 			categorizedWatchlist = watchlist.filter((nft) => nft.category === category);
 			return categorizedWatchlist;
 		}
-
-		return watchlist;
-	}, [watchlist, category]);
+	}, [category]);
 
 	return (
 		<div className={Style.main}>
@@ -147,14 +144,23 @@ const Watchlist = () => {
 							className={Style.main_profile_view_reset}
 							onClick={handleResetFilter}
 						/>
-						{filteredWatchlist.map((nft) => {
-							const isAtAuction = activeAuctions.includes(nft.id);
-							return isAtAuction ? (
-								<AuctionCard key={nft.id} {...nft} />
-							) : (
-								<StaticSaleCard key={nft.id} {...nft} />
-							);
-						})}
+						{filteredWatchlist
+							? filteredWatchlist.map((nft) => {
+									const isAtAuction = activeAuctions.includes(nft.id);
+									return isAtAuction ? (
+										<AuctionCard key={nft.id} {...nft} />
+									) : (
+										<StaticSaleCard key={nft.id} {...nft} resetUserData={getWatchlist} />
+									);
+							  })
+							: watchlist.map((nft) => {
+									const isAtAuction = activeAuctions.includes(nft.id);
+									return isAtAuction ? (
+										<AuctionCard key={nft.id} {...nft} />
+									) : (
+										<StaticSaleCard key={nft.id} {...nft} resetUserData={getWatchlist} />
+									);
+							  })}
 					</div>
 				)}
 			</>

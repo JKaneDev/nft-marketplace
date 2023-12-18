@@ -63,36 +63,37 @@ const Browse = () => {
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				if (user) {
-					const userRef = doc(db, 'users', user.account);
-					const docSnap = await getDoc(userRef);
-					if (docSnap.exists()) {
-						const data = docSnap.data();
-						setUserData({
-							name: data.displayName,
-							description: data.description,
-							walletAddress: data.walletAddress,
-							website: data.website,
-							facebook: data.facebookHandle,
-							twitter: data.twitterHandle,
-							instagram: data.instagramHandle,
-							linkedIn: data.linkedInHandle,
-							profilePicture: data.profilePicture,
-							ownedNFTs: data.ownedNFTs,
-							watchlist: data.watchlist,
-						});
-					} else {
-						console.log("Document doesn't exist in database");
-					}
-				}
-			} catch (error) {
-				console.log('Error fetching user data: ', error);
-			}
-		};
 		fetchUserData();
 	}, []);
+
+	const fetchUserData = async () => {
+		try {
+			if (user) {
+				const userRef = doc(db, 'users', user.account);
+				const docSnap = await getDoc(userRef);
+				if (docSnap.exists()) {
+					const data = docSnap.data();
+					setUserData({
+						name: data.displayName,
+						description: data.description,
+						walletAddress: data.walletAddress,
+						website: data.website,
+						facebook: data.facebookHandle,
+						twitter: data.twitterHandle,
+						instagram: data.instagramHandle,
+						linkedIn: data.linkedInHandle,
+						profilePicture: data.profilePicture,
+						ownedNFTs: data.ownedNFTs,
+						watchlist: data.watchlist,
+					});
+				} else {
+					console.log("Document doesn't exist in database");
+				}
+			}
+		} catch (error) {
+			console.log('Error fetching user data: ', error);
+		}
+	};
 
 	// HANDLE CATEGORY AND FILTER MENU TOGGLES
 	useEffect(() => {
@@ -273,6 +274,7 @@ const Browse = () => {
 								category={nft.category}
 								price={nft.price}
 								isListed={nft.isListed}
+								resetUserData={fetchUserData}
 							/>
 						))
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
@@ -285,6 +287,7 @@ const Browse = () => {
 								category={nft.category}
 								price={nft.price}
 								isListed={nft.isListed}
+								resetUserData={fetchUserData}
 							/>
 						))
 					) : (

@@ -22,7 +22,7 @@ import {
 	placeBid,
 } from '@/store/blockchainInteractions';
 
-const AuctionCard = ({ id, image, name, category, price, isListed }) => {
+const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData }) => {
 	const dispatch = useDispatch();
 
 	const [loading, setLoading] = useState(false);
@@ -61,6 +61,12 @@ const AuctionCard = ({ id, image, name, category, price, isListed }) => {
 		};
 		checkWatchlistStatus();
 	}, []);
+
+	useEffect(() => {
+		if (auctionComplete) {
+			resetUserData();
+		}
+	}, [auctionComplete]);
 
 	const handleEndTimeReached = async () => {
 		try {

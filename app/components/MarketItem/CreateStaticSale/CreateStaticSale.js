@@ -1,11 +1,11 @@
 // EXTERNAL IMPORTS
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { RingLoader } from 'react-spinners';
 import { ethers } from 'ethers';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { createContractInstance, resellMarketItem } from '@/store/blockchainInteractions';
+import { createContractInstance } from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
 import Style from './CreateStaticSale.module.scss';
@@ -16,7 +16,6 @@ import { toggleNFTListingStatus } from '@/pages/api/firebase';
 const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 	const [loading, setLoading] = useState(false);
 	const [newPrice, setNewPrice] = useState(null);
-	const [settingPrice, setSettingPrice] = useState(false);
 
 	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
@@ -38,10 +37,6 @@ const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 		}
 	};
 
-	const toggleSetPrice = () => {
-		setSettingPrice(!settingPrice);
-	};
-
 	return (
 		<div className={Style.wrapper}>
 			<div className={Style.wrapper_price}>
@@ -57,7 +52,7 @@ const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 			</div>
 			<div className={Style.wrapper_info}>
 				<p>{`Last Sale: ${price}`}</p>
-				{settingPrice && loading ? (
+				{loading ? (
 					<RingLoader size={30} color={'#fff'} />
 				) : (
 					<button onClick={handleResellMarketItem}>Relist NFT</button>

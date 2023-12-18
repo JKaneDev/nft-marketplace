@@ -76,11 +76,14 @@ export const toggleNFTListingStatus = async (seller, nftId) => {
 	try {
 		// Reference to the user's document
 		const userRef = doc(db, 'users', seller);
+		console.log('Listing status toggle (seller, nftId): ', seller, nftId, typeof nftId);
+		console.log('Listing status toggle (Reference): ', userRef);
 
 		// Get the current data of the user
 		const userDoc = await getDoc(userRef);
 		if (userDoc.exists()) {
 			const userData = userDoc.data();
+			console.log('Listing status toggle (Reference): ', userData);
 
 			// Check if the NFT exists in the map
 			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
