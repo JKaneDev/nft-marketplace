@@ -55,7 +55,7 @@ $elem-border-alt: 2px solid #303030;
 			flex: 1;
 			background-color: $alt-bg-color;
 			outline: none;
-			border: 2px solid $main-bg-color;
+			border: 2px solid $alt-bg-color;
 			padding: 0.75rem 2.5rem;
 			border-radius: 8px;
 			color: $font-color;
@@ -66,14 +66,18 @@ $elem-border-alt: 2px solid #303030;
 			letter-spacing: 0.05rem;
 
 			&:hover {
-				background-color: $main-bg-color;
+				background: none;
 				border: 2px solid #0cc0df;
 			}
 
 			&:active,
 			&:focus {
-				background-color: $main-bg-color;
+				background: none;
 				border: 2px solid #0cc0df;
+
+				&:hover {
+					background: none;
+				}
 			}
 
 			&::placeholder {
@@ -139,7 +143,7 @@ $elem-border-alt: 2px solid #303030;
 	transition: 0.15s all ease-in-out;
 
 	&:hover {
-		background-color: $main-bg-color;
+		background: none;
 		border: 2px solid #0cc0df;
 	}
 

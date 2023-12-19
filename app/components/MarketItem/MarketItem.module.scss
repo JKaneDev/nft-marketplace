@@ -19,6 +19,7 @@ $font-color: #fefefe;
 	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 	transition: all 0.35s ease-in-out;
 	position: relative;
+	background-color: $main-bg-color;
 
 	.toggle {
 		position: absolute;

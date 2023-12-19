@@ -26,11 +26,12 @@ $font-color: #fefefe;
 	max-width: 700px;
 	flex: 1;
 	border-radius: 8px;
-	background-color: #0f0f0f;
+	background-color: $main-bg-color;
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 
 	.loader {
 		place-self: center;
@@ -303,6 +304,7 @@ $font-color: #fefefe;
 	background-color: #0f0f0f;
 	border: 2px solid #0cc0df;
 	transform: translateX(-9%);
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 
 	.auction_nft_wrapper_image {
 		width: 100%;
