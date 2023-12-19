@@ -14,6 +14,7 @@ import {
 	updateFirebaseWithNFT,
 	toggleNFTListingStatus,
 	changeNftOwnershipInFirebase,
+	changePrice,
 } from '@/pages/api/firebase';
 import { validateInput } from '@/app/components/CreateNFT/utils';
 import Marketplace from '../abis/contracts/Marketplace.sol/Marketplace.json';
@@ -230,8 +231,6 @@ export const createAuction = async (
 };
 
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
-	console.log('Setting auction created listener!');
-
 	auctionFactoryContract.on(
 		'AuctionCreated',
 		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
@@ -322,17 +321,11 @@ export const callEndAuctionOnComplete = async (marketplaceDetails, auctionAddres
 export const listenForEndedAuctions = async (dispatch, seller, contractAddress) => {
 	try {
 		const signer = await getSigner();
-
-		console.log('Auction Address: ', contractAddress);
-		console.log('Auction ABI: ', Auction.abi);
-		console.log('Signer: ', signer);
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 
 		auctionContract.on(
 			'AuctionEnded',
 			async (nftId, highestBidder, seller, nullAddress, highestBid) => {
-				console.log('Auction Ended Event Emitted');
-
 				// Reference to the auction in the 'auctions' node
 				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 

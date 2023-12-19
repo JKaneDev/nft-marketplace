@@ -93,7 +93,11 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 			</div>
 
 			{isListed && auctionActive ? (
-				<EndAuctionInterface id={id} />
+				<EndAuctionInterface
+					id={id}
+					resetUserData={resetUserData}
+					setAuctionActive={setAuctionActive}
+				/>
 			) : isListed ? (
 				<NFTInfo
 					id={id}

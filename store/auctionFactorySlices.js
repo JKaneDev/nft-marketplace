@@ -26,7 +26,6 @@ const auctionFactorySlice = createSlice({
 			state.contractDetails = null;
 		},
 		addAuction: (state, action) => {
-			console.log('Add Auction Reducer: ', action.payload);
 			const auctionExists = state.auctions.some(
 				(auction) =>
 					auction.nftId === action.payload.nftId && auction.startTime === action.payload.startTime,

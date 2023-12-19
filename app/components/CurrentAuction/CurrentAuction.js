@@ -2,22 +2,40 @@ import React, { useState, useEffect } from 'react';
 import Style from './CurrentAuction.module.scss';
 import Image from 'next/image';
 
-import { FaArrowLeft, FaArrowRight, FaUserCircle } from 'react-icons/fa';
+import {
+	FaArrowLeft,
+	FaArrowRight,
+	FaUserCircle,
+	FaCheckCircle,
+	FaTimesCircle,
+} from 'react-icons/fa';
 import { MdTimer } from 'react-icons/md';
 
 // BLOCKCHAIN & BACKEND IMPORTS
 import { db } from '@/firebaseConfig';
-import { where, collection, query, getDocs } from 'firebase/firestore';
-import { callEndAuctionOnComplete } from '@/store/blockchainInteractions';
+import { collection, query, getDocs } from 'firebase/firestore';
+import {
+	callEndAuctionOnComplete,
+	placeBid,
+	listenForCreatedAuctions,
+	createContractInstance,
+	listenForBidEvents,
+	loadActiveAuctions,
+} from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { AuctionTimer } from '../componentindex';
 import { RingLoader } from 'react-spinners';
 
 const CurrentAuction = () => {
+	const dispatch = useDispatch();
+
+	const user = useSelector((state) => state.connection.account);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
+	const auctionFactoryLoaded = useSelector((state) => state.auctionFactory.isLoaded);
+	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
 	const [homepage, setHomepage] = useState(true);
@@ -28,6 +46,27 @@ const CurrentAuction = () => {
 	);
 	const [nftData, setNftData] = useState(null);
 	const [seller, setSeller] = useState(null);
+	const [sellerImage, setSellerImage] = useState(null);
+	const [sellerAccount, setSellerAccount] = useState(null);
+	const [bidAmount, setBidAmount] = useState(null);
+	const [bidding, setBidding] = useState(false);
+
+	useEffect(() => {
+		const loadListeners = async () => {
+			const contract = await createContractInstance(auctionFactoryDetails);
+			await loadActiveAuctions(dispatch);
+			await listenForCreatedAuctions(dispatch, contract);
+			await listenForBidEvents(dispatch, currentAuction.auctionAddress, currentAuction.nftId);
+		};
+
+		if (auctionFactoryLoaded && currentAuction) loadListeners();
+	}, [dispatch]);
+
+	useEffect(() => {
+		if (auctions.length > 0) {
+			setCurrentAuction(auctions[currentIndex]);
+		}
+	}, [currentIndex, auctions]);
 
 	useEffect(() => {
 		if (currentAuction) {
@@ -36,11 +75,17 @@ const CurrentAuction = () => {
 	}, [currentAuction]);
 
 	const togglePreviousAuction = () => {
-		setCurrentIndex((prevIndex) => (prevIndex - 1) % auctions.length);
+		setCurrentIndex((prevIndex) => {
+			const newIndex = (prevIndex - 1 + auctions.length) % auctions.length;
+			return newIndex;
+		});
 	};
 
 	const toggleNextAuction = () => {
-		setCurrentIndex((prevIndex) => (prevIndex + 1) % auctions.length);
+		setCurrentIndex((prevIndex) => {
+			const newIndex = (prevIndex + 1) % auctions.length;
+			return newIndex;
+		});
 	};
 
 	const getUserData = async (nftId) => {
@@ -49,18 +94,24 @@ const CurrentAuction = () => {
 			const usersRef = collection(db, 'users');
 			const querySnapshot = await getDocs(query(usersRef));
 			let seller;
+			let sellerAccount;
 			let nftData;
+			let sellerImage;
 
 			querySnapshot.forEach((doc) => {
 				const userData = doc.data();
 				if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
 					seller = userData.displayName;
+					sellerImage = userData.profilePicture;
+					sellerAccount = doc.id;
 					nftData = userData.ownedNFTs[nftId];
 				}
 			});
 
 			setNftData(nftData);
 			setSeller(seller);
+			setSellerImage(sellerImage);
+			setSellerAccount(sellerAccount);
 
 			setLoading(false);
 		} catch (error) {
@@ -72,7 +123,11 @@ const CurrentAuction = () => {
 		try {
 			setLoading(true);
 
-			await callEndAuctionOnComplete(marketplaceDetails, currentAuction.auctionAddress, id);
+			await callEndAuctionOnComplete(
+				marketplaceDetails,
+				currentAuction.auctionAddress,
+				currentAuction.nftId,
+			);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -83,6 +138,29 @@ const CurrentAuction = () => {
 		} catch (error) {
 			console.error('Error ending auction');
 		}
+	};
+
+	const handleAuctionBid = async () => {
+		try {
+			if (user.account === sellerAccount) {
+				window.alert('You are the owner of this NFT');
+				return;
+			}
+
+			setLoading(true);
+			await placeBid(currentAuction.auctionAddress, bidAmount);
+
+			setTimeout(() => {
+				setLoading(false);
+				toggleBidding();
+			}, 1500);
+		} catch (error) {
+			console.error('Failed to place bid on auction.');
+		}
+	};
+
+	const toggleBidding = () => {
+		setBidding(!bidding);
 	};
 
 	return (
@@ -109,7 +187,22 @@ const CurrentAuction = () => {
 						</div>
 						<div className={Style.auction_container_wrapper}>
 							<div className={Style.auction_container_wrapper_creator}>
-								<FaUserCircle size={38} className={Style.auction_container_wrapper_creator_img} />
+								<>
+									{currentAuction && sellerImage ? (
+										<Image
+											src={sellerImage}
+											alt='account image of nft seller'
+											className={Style.auction_container_wrapper_creator_img}
+											width={50}
+											height={50}
+										/>
+									) : (
+										<FaUserCircle
+											size={60}
+											className={Style.auction_container_wrapper_creator_img}
+										/>
+									)}
+								</>
 								<p>Creator</p>
 								<p>{seller ? seller : 'Unknown'}</p>
 							</div>
@@ -121,10 +214,17 @@ const CurrentAuction = () => {
 							</div>
 						</div>
 						<div className={Style.auction_container_bid}>
-							<p>{currentAuction && currentAuction.currentBid ? 'Current Bid:' : 'No Bids'}</p>
-							<p>
-								{currentAuction && currentAuction.currentBid ? currentAuction.currentBid : '0 ETH'}
-							</p>
+							<div className={Style.auction_container_bid_wrapper}>
+								<p>{currentAuction && currentAuction.currentBid ? 'Current Bid:' : 'No Bids'}</p>
+								<p>
+									{currentAuction && currentAuction.currentBid ? currentAuction.currentBid : '0'}
+								</p>
+								<Image
+									src={images.eth}
+									alt='eth symbol'
+									className={Style.auction_container_bid_wrapper_icon}
+								/>
+							</div>
 						</div>
 						<div className={Style.auction_container_time}>
 							<div className={Style.auction_container_time_duration}>
@@ -145,7 +245,27 @@ const CurrentAuction = () => {
 							</div>
 							<br />
 							<div className={Style.auction_container_interact}>
-								<button className={Style.auction_container_interact_btn}>Bid</button>
+								{bidding ? (
+									<div className={Style.auction_container_interact_confirm}>
+										<input
+											type='text'
+											onChange={(e) => setBidAmount(e.target.value)}
+											placeholder='ETH Amount'
+										/>
+										<div className={Style.auction_container_interact_confirm_wrapper}>
+											<button onClick={handleAuctionBid}>
+												<FaCheckCircle />
+											</button>
+											<button onClick={toggleBidding}>
+												<FaTimesCircle />
+											</button>
+										</div>
+									</div>
+								) : (
+									<button className={Style.auction_container_interact_btn} onClick={toggleBidding}>
+										Bid
+									</button>
+								)}
 							</div>
 						</div>
 					</>

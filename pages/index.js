@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import Style from '../styles/homepage.module.scss';
 import { Hero, Connect, CurrentAuction } from '../app/components/componentindex';
 import Layout from '../app/layout';
-import { loadAuctionFactoryContract, loadMarketplaceContract } from '@/store/blockchainInteractions';
+import {
+	loadAuctionFactoryContract,
+	loadMarketplaceContract,
+} from '@/store/blockchainInteractions';
 import { useDispatch } from 'react-redux';
 
 export const HomePage = () => {
@@ -18,7 +21,7 @@ export const HomePage = () => {
 	}, []);
 
 	return (
-		<div>
+		<>
 			<Layout>
 				<div className={Style.homeview}>
 					<Hero />
@@ -26,7 +29,7 @@ export const HomePage = () => {
 				</div>
 				<CurrentAuction />
 			</Layout>
-		</div>
+		</>
 	);
 };
 

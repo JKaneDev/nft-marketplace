@@ -1,5 +1,10 @@
 $main-bg-color: #0f0f0f;
 $alt-bg-color: #2b2b2b;
+$btn-color: #606060;
+$main-hover-color: #3a3a3a;
+$icon-color: #e8e8e8;
+$icon-bg-color: #1da1f2;
+$font-color: #fefefe;
 
 .auction {
 	width: 100%;
@@ -79,12 +84,14 @@ $alt-bg-color: #2b2b2b;
 		grid-template-rows: 1fr 1fr;
 		max-height: 60px;
 		max-width: 200px;
-		column-gap: 0.75rem;
+		column-gap: 1rem;
 
 		.auction_container_wrapper_creator_img {
 			grid-column: 1 / 2;
 			grid-row: 1 / -1;
 			margin: auto;
+			border-radius: 5rem;
+			border: 2px solid #0cc0df;
 		}
 
 		p:nth-of-type(1) {
@@ -135,6 +142,20 @@ $alt-bg-color: #2b2b2b;
 			font-size: 16px;
 			margin-left: 0.75rem;
 			margin-top: 0.4rem;
+		}
+
+		.auction_container_bid_wrapper {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			width: 100%;
+
+			.auction_container_bid_wrapper_icon {
+				height: 25px;
+				width: 25px;
+				filter: invert(14%) sepia(82%) saturate(9%) hue-rotate(18deg) brightness(140%) contrast(95%);
+				margin-left: auto;
+			}
 		}
 	}
 
@@ -224,13 +245,57 @@ $alt-bg-color: #2b2b2b;
 				border: 2px solid #0cc0df;
 			}
 		}
+
+		.auction_container_interact_confirm {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 0.5rem;
+		}
+
+		input {
+			width: 175px;
+			background-color: $alt-bg-color;
+			outline: none;
+			border: 2px solid $main-bg-color;
+			padding: 0.75rem 1rem;
+			border-radius: 8px;
+			color: $font-color;
+			font-size: 14px;
+			caret-color: white;
+			transition: all 0.35s ease-in-out;
+			font-weight: 200;
+			letter-spacing: 0.05rem;
+
+			&:hover {
+				background-color: $main-bg-color;
+				border: 2px solid #0cc0df;
+			}
+
+			&:active,
+			&:focus {
+				background-color: $main-bg-color;
+				border: 2px solid #0cc0df;
+			}
+
+			&::placeholder {
+				color: $btn-color;
+			}
+		}
+
+		.auction_container_interact_confirm_wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.5rem;
+		}
 	}
 
 	// END OF BUTTON WRAPPER
 }
 .auction_nft_wrapper {
 	z-index: 999;
-	min-width: 500px;
+	min-width: 525px;
 	max-width: 575px;
 	height: 50%;
 	flex: 1;

@@ -19,8 +19,10 @@ import AuctionInterface from './MarketItem/AuctionInterface/AuctionInterface';
 import EndAuctionInterface from './MarketItem/EndAuctionInterface/EndAuctionInterface';
 import AuctionTimer from './MarketItem/EndAuctionInterface/AuctionTimer';
 import CreateStaticSale from './MarketItem/CreateStaticSale/CreateStaticSale';
+import BackgroundVideo from './Background/BackgroundVideo';
 
 export {
+	BackgroundVideo,
 	CreateStaticSale,
 	AuctionTimer,
 	AuctionInterface,

@@ -11,9 +11,8 @@ import {
 	callEndAuctionOnComplete,
 } from '@/store/blockchainInteractions';
 import { AuctionTimer } from '../../componentindex';
-import { ethers } from 'ethers';
 
-const EndAuctionInterface = ({ id }) => {
+const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 	const dispatch = useDispatch();
 
 	const [loading, setLoading] = useState(false);
@@ -29,8 +28,17 @@ const EndAuctionInterface = ({ id }) => {
 				await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
 			}
 		};
-		loadAuctionEndedListener();
+		auctions ? loadAuctionEndedListener() : setTimeout(() => loadAuctionEndedListener(), 3000);
 	}, []);
+
+	useEffect(() => {
+		if (auctionComplete) {
+			setTimeout(() => {
+				setAuctionActive(false);
+				resetUserData();
+			}, 3000);
+		}
+	}, [auctionComplete]);
 
 	const handleEndAuction = async () => {
 		try {
@@ -41,7 +49,7 @@ const EndAuctionInterface = ({ id }) => {
 			setTimeout(() => {
 				setLoading(false);
 				setAuctionComplete(true);
-			}, 1500);
+			}, 3000);
 		} catch (error) {
 			console.error('Error ending auction');
 		}
@@ -51,13 +59,12 @@ const EndAuctionInterface = ({ id }) => {
 		try {
 			setLoading(true);
 
-			setAuctionComplete(true);
-
 			await callEndAuctionOnComplete(marketplaceDetails, auction.auctionAddress, id);
 
 			setTimeout(() => {
 				setLoading(false);
-			}, 1500);
+				setAuctionComplete(true);
+			}, 3000);
 		} catch (error) {
 			console.error('Error ending auction');
 		}
