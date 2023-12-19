@@ -62,8 +62,13 @@ import founder1 from './model-1.jpg';
 import founder2 from './model-2.jpg';
 import founder3 from './model-3.jpg';
 import founder4 from './model-4.jpg';
+import Hero from './hero-image.png';
 
 export default {
+	userMutant,
+	userPunk,
+	userAzuki,
+	Hero,
 	founder1,
 	founder2,
 	founder3,
