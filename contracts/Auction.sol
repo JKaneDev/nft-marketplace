@@ -8,21 +8,20 @@ import "hardhat/console.sol";
 
 contract Auction is ReentrancyGuard {
 
-        uint256 nftId;
-        address marketplaceAddress;
+        uint256 public nftId;
+        address public marketplaceAddress;
         IMarketplace marketplaceContract;
         AuctionFactory private auctionFactory;
-        address payable seller;
-        uint256 startingPrice;
-        address payable highestBidder;
+        address payable public seller;
+        uint256 public startingPrice;
+        address payable public highestBidder;
         address payable penultimateBidder;
-        uint256 highestBid;
+        uint256 public highestBid;
         bool ended;
 
 
         mapping(address => uint256) public pendingReturns;
 
-        event AuctionCreated(address auctionAddress);
         event Bid(address bidder, uint256 bidAmount, address auctionAddress);
         event AuctionEnded(uint256 nftId, address highestBidder, address seller, address nullAddress, uint256 highestBid);
 
@@ -33,8 +32,6 @@ contract Auction is ReentrancyGuard {
                 nftId = _nftId;
                 seller = payable(_seller);
                 startingPrice = _startingPrice;
-
-                emit AuctionCreated(address(this));
         }
 
         function getHighestBidder() public view returns (address) {

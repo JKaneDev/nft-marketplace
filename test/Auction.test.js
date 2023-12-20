@@ -12,11 +12,11 @@ describe('AuctionFactory', () => {
 	let factory;
 	let factoryAddress;
 	let accounts;
-	let deployer;
 	let account1;
 	let account2;
 	let marketItemCreatedEvent;
 
+	// Must deploy all app contracts before auction contract can be deployed
 	beforeEach(async () => {
 		accounts = await ethers.getSigners();
 		deployer = accounts[0];
@@ -57,7 +57,7 @@ describe('AuctionFactory', () => {
 	});
 
 	describe('Deployment', () => {
-		it.only('should deploy the auction contract', async () => {
+		it('should deploy the auction contract', async () => {
 			const Auction = await ethers.getContractFactory('Auction');
 			// Create auction contract with data parsed from event logs
 			auction = await Auction.deploy(
@@ -67,6 +67,54 @@ describe('AuctionFactory', () => {
 				marketplaceAddress,
 				factoryAddress,
 			);
+		});
+	});
+
+	describe('Contract state variable assignment', () => {
+		beforeEach(async () => {
+			const Auction = await ethers.getContractFactory('Auction');
+			auction = await Auction.deploy(
+				marketItemCreatedEvent.args[0],
+				ethers.parseEther('1.5'),
+				account1.address,
+				marketplaceAddress,
+				factoryAddress,
+			);
+		});
+
+		it('should set nftId correctly', async () => {
+			expect(await auction.nftId()).to.equal(marketItemCreatedEvent.args[0]);
+		});
+
+		it('should set startingPrice correctly', async () => {
+			expect(await auction.startingPrice()).to.equal(ethers.parseEther('1.5'));
+		});
+
+		it('should set seller correctly', async () => {
+			expect(await auction.seller()).to.equal(account1.address);
+		});
+
+		it('should set marketplaceAddress correctly', async () => {
+			expect(await auction.marketplaceAddress()).to.equal(marketplaceAddress);
+		});
+	});
+
+	describe('Bidding', () => {
+		beforeEach(async () => {
+			const Auction = await ethers.getContractFactory('Auction');
+			auction = await Auction.deploy(
+				marketItemCreatedEvent.args[0],
+				ethers.parseEther('1.5'),
+				account1.address,
+				marketplaceAddress,
+				factoryAddress,
+			);
+		});
+
+		it.only('Should a user to bid on an auction', async () => {
+			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+			expect(await auction.highestBidder()).to.equal(account2.address);
+			expect(await auction.highestBid()).to.equal(ethers.parseEther('1.5'));
 		});
 	});
 });
