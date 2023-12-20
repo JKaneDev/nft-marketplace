@@ -28,7 +28,28 @@ describe('Marketplace', () => {
 		});
 	});
 
-	describe('Creating NFTs and modifying properties', () => {
+	describe('Creating, Transacting & Modifying NFTs', () => {
+		let receipt;
+		let tokenId;
+		let royaltyPercentage;
+		let price;
+		let listingPrice;
+		let marketplaceAddress;
+
+		beforeEach(async () => {
+			tokenId = 1;
+			royaltyPercentage = ethers.parseEther('10');
+			price = ethers.parseEther('1');
+			listingPrice = ethers.parseEther('0.0025');
+			marketplaceAddress = await marketplace.getAddress();
+
+			const tx = await marketplace
+				.connect(account1)
+				.createToken(tokenId, royaltyPercentage, price, { value: listingPrice });
+
+			receipt = await tx.wait();
+		});
+
 		it('Should update listingPrice', async () => {
 			await marketplace.updateListingPrice(100, { from: deployer });
 			const listingPrice = await marketplace.listingPrice();
@@ -36,18 +57,7 @@ describe('Marketplace', () => {
 		});
 
 		it('should create a market item', async () => {
-			const tokenId = 1;
-			const royaltyPercentage = ethers.parseEther('10');
-			const price = ethers.parseEther('1');
-			const listingPrice = ethers.parseEther('0.0025');
-			const marketplaceAddress = await marketplace.getAddress();
-
-			const tx = await marketplace
-				.connect(account1)
-				.createToken(tokenId, royaltyPercentage, price, { value: listingPrice });
-
-			const receipt = await tx.wait();
-			const marketItemCreatedLog = receipt.logs.find(
+			marketItemCreatedLog = receipt.logs.find(
 				(log) =>
 					log.topics[0] ===
 					ethers.id('MarketItemCreated(uint256,address,address,address,uint256,uint256,bool)'),
@@ -62,6 +72,12 @@ describe('Marketplace', () => {
 			expect(parsedLog.args[4]).to.equal(royaltyPercentage);
 			expect(parsedLog.args[5]).to.equal(price);
 			expect(parsedLog.args[6]).to.be.false;
+		});
+
+		it('should allow seller to delist NFT', async () => {
+			await marketplace.connect(account1).delistMarketItem(tokenId);
+			const items = await marketplace.connect(account1).fetchMyNFT();
+			expect(items.length).to.equal(1);
 		});
 	});
 });
