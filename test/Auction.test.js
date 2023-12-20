@@ -112,65 +112,103 @@ describe('AuctionFactory', () => {
 				marketplaceAddress,
 				factoryAddress,
 			);
+
+			auctionAddress = await auction.getAddress();
 		});
 
-		it('Should a user to bid on an auction', async () => {
-			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
-			expect(await auction.highestBidder()).to.equal(account2.address);
-			expect(await auction.highestBid()).to.equal(ethers.parseEther('2'));
+		describe('Success', () => {
+			it('Should a user to bid on an auction', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				expect(await auction.highestBidder()).to.equal(account2.address);
+				expect(await auction.highestBid()).to.equal(ethers.parseEther('2'));
+			});
+
+			it('should set penultimate bidder correctly', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				expect(await auction.penultimateBidder()).to.equal(account2.address);
+			});
+
+			it('should set highest bidder correctly', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				expect(await auction.highestBidder()).to.equal(account3.address);
+			});
+
+			it('should set highest bid correctly', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				expect(await auction.highestBid()).to.equal(ethers.parseEther('3'));
+			});
+
+			it('should set pending returns correctly', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				expect(await auction.pendingReturns(account2.address)).to.equal(ethers.parseEther('2'));
+			});
+
+			it('should refund the penultimate bidder correctly', async () => {
+				const provider = ethers.provider;
+
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				const pendingReturn = await auction.pendingReturns(account2.address);
+				expect(pendingReturn).to.equal(ethers.parseEther('2'));
+
+				const initialBalance = await provider.getBalance(account3.address);
+
+				const tx = await auction.connect(account2).bid({ value: ethers.parseEther('4') });
+				const receipt = await tx.wait();
+				const gasUsed = receipt.gasUsed;
+				const txCost = gasUsed * tx.gasPrice;
+
+				const finalBalance = await provider.getBalance(account3.address);
+
+				const finalBalanceAdjusted = finalBalance + txCost;
+
+				expect(BigInt(finalBalanceAdjusted)).to.be.gt(initialBalance);
+			});
+
+			it('should emit a HighestBidIncreased event', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				const tx = await auction.connect(account2).bid({ value: ethers.parseEther('4') });
+				const receipt = await tx.wait();
+				const iface = new ethers.Interface(Auction.abi);
+				const events = receipt.logs.map((log) => iface.parseLog(log)).filter((log) => log != null);
+				const event = events.find((event) => event.name === 'Bid');
+				expect(event.args[0]).to.equal(account2.address);
+				expect(event.args[1]).to.equal(ethers.parseEther('4'));
+				expect(event.args[2]).to.equal(auctionAddress);
+			});
 		});
 
-		it('should disallow users from bidding on their own auctions', async () => {
-			await expect(
-				auction.connect(account1).bid({ value: ethers.parseEther('2') }),
-			).to.be.revertedWith('Seller cannot bid on their own auction');
-		});
+		describe('Failure', () => {
+			it('should disallow users from bidding on their own auctions', async () => {
+				await expect(
+					auction.connect(account1).bid({ value: ethers.parseEther('2') }),
+				).to.be.revertedWith('Seller cannot bid on their own auction');
+			});
 
-		it('should disallow users from bidding less than the starting price', async () => {
-			await expect(
-				auction.connect(account2).bid({ value: ethers.parseEther('1') }),
-			).to.be.revertedWith('Bid must be greater than or equal to starting price');
-		});
+			it('should disallow users from bidding less than the starting price', async () => {
+				await expect(
+					auction.connect(account2).bid({ value: ethers.parseEther('1') }),
+				).to.be.revertedWith('Bid must be greater than or equal to starting price');
+			});
 
-		it('should disallow bids from the current highest bidder', async () => {
-			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
-			await expect(
-				auction.connect(account2).bid({ value: ethers.parseEther('3') }),
-			).to.be.revertedWith('Bidder is already highest bidder');
-		});
+			it('should disallow bids from the current highest bidder', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await expect(
+					auction.connect(account2).bid({ value: ethers.parseEther('3') }),
+				).to.be.revertedWith('Bidder is already highest bidder');
+			});
 
-		it('should set penultimate bidder correctly', async () => {
-			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
-			await auction.connect(account3).bid({ value: ethers.parseEther('3') });
-			expect(await auction.penultimateBidder()).to.equal(account2.address);
-		});
-
-		it('should set pending returns correctly', async () => {
-			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
-			await auction.connect(account3).bid({ value: ethers.parseEther('3') });
-			expect(await auction.pendingReturns(account2.address)).to.equal(ethers.parseEther('2'));
-		});
-
-		it.only('should refund the penultimate bidder correctly', async () => {
-			const provider = ethers.provider;
-
-			await auction.connect(account2).bid({ value: ethers.parseEther('2') });
-			await auction.connect(account3).bid({ value: ethers.parseEther('3') });
-			const pendingReturn = await auction.pendingReturns(account2.address);
-			expect(pendingReturn).to.equal(ethers.parseEther('2'));
-
-			const initialBalance = await provider.getBalance(account3.address);
-
-			const tx = await auction.connect(account2).bid({ value: ethers.parseEther('4') });
-			const receipt = await tx.wait();
-			const gasUsed = receipt.gasUsed;
-			const txCost = gasUsed * tx.gasPrice;
-
-			const finalBalance = await provider.getBalance(account3.address);
-
-			const finalBalanceAdjusted = finalBalance + txCost;
-
-			expect(BigInt(finalBalanceAdjusted)).to.be.gt(initialBalance);
+			it('should disallow bids that are not greater than the highest bid', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await expect(
+					auction.connect(account3).bid({ value: ethers.parseEther('1.5') }),
+				).to.be.revertedWith('Bid must be greater than current highest bid');
+			});
 		});
 	});
 });
