@@ -91,9 +91,26 @@ describe('Marketplace', () => {
 			expect(price).to.equal(price);
 		});
 
-		it.only('should fetch the seller address', async () => {
+		it('should fetch the seller address', async () => {
 			const seller = await marketplace.connect(account1).getSellerAddress(tokenId);
 			expect(seller).to.equal(account1.address);
+		});
+
+		it('should allow the user to update the nft price', async () => {
+			await marketplace.connect(account1).updateNFTPrice(tokenId, ethers.parseEther('2'));
+			const price = await marketplace.connect(account1).getNFTPrice(tokenId);
+			expect(price).to.equal(ethers.parseEther('2'));
+		});
+
+		it.only('should disallow other users to update the users nft price', async () => {
+			await expect(
+				marketplace.connect(account2).updateNFTPrice(tokenId, ethers.parseEther('2')),
+			).to.be.revertedWith('Caller is not the owner');
+		});
+
+		it.only('should disallow the user from updating the price with 0', async () => {
+			await expect(marketplace.connect(account1).updateNFTPrice(tokenId, ethers.parseEther('0'))).to
+				.be.reverted;
 		});
 	});
 });

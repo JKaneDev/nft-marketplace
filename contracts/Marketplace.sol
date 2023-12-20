@@ -86,8 +86,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
         // Update the price
         idToMarketItem[tokenId].price = price;
-
-        console.log('Updated market item: ', idToMarketItem[tokenId].price);
     }
 
     function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
