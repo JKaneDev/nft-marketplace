@@ -80,10 +80,20 @@ describe('Marketplace', () => {
 			expect(items.length).to.equal(1);
 		});
 
-		it.only('should allow user to fetch royalty data', async () => {
+		it('should allow user to fetch royalty data', async () => {
 			const royaltyData = await marketplace.connect(account1).getRoyaltyData(tokenId);
 			expect(royaltyData[0]).to.equal(royaltyPercentage);
 			expect(royaltyData[1]).to.equal(account1.address);
+		});
+
+		it('should allow user to get nft price', async () => {
+			const price = await marketplace.connect(account1).getNFTPrice(tokenId);
+			expect(price).to.equal(price);
+		});
+
+		it.only('should fetch the seller address', async () => {
+			const seller = await marketplace.connect(account1).getSellerAddress(tokenId);
+			expect(seller).to.equal(account1.address);
 		});
 	});
 });
