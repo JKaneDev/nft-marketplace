@@ -79,5 +79,11 @@ describe('Marketplace', () => {
 			const items = await marketplace.connect(account1).fetchMyNFT();
 			expect(items.length).to.equal(1);
 		});
+
+		it.only('should allow user to fetch royalty data', async () => {
+			const royaltyData = await marketplace.connect(account1).getRoyaltyData(tokenId);
+			expect(royaltyData[0]).to.equal(royaltyPercentage);
+			expect(royaltyData[1]).to.equal(account1.address);
+		});
 	});
 });
