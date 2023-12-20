@@ -15,7 +15,7 @@ contract Auction is ReentrancyGuard {
         address payable public seller;
         uint256 public startingPrice;
         address payable public highestBidder;
-        address payable penultimateBidder;
+        address payable public penultimateBidder;
         uint256 public highestBid;
         bool ended;
 
