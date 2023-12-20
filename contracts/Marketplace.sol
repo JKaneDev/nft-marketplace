@@ -15,14 +15,13 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
 
-    uint256 listingPrice = 0.0025 ether;
+    uint256 public listingPrice = 0.0025 ether;
 
     address payable owner;
     address private auctionFactory;
     
     mapping (uint256 => MarketItem) private idToMarketItem;
 
-    
     event NFTTransferred(uint256 nftId, address auctionWinner);
     event FundsWithdrawn(uint256 amount, address targetWallet);
 
@@ -33,7 +32,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         address payable owner;
         uint256 royaltyPercentage;
         uint256 price;
-        bool auction;
         bool sold;
     }
 
@@ -44,9 +42,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         address owner,
         uint256 royaltyPercentage,
         uint256 price,
-        bool auction,
         bool sold
     );
+
+    
 
     modifier onlyOwner() {
         require (msg.sender == owner, "only owner of the contract can update the listing price");
@@ -116,7 +115,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // NFT is held in escrow in the marketplace
     function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
-        console.log('Create Market Item Function Caller: ', msg.sender);
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
         
@@ -127,7 +125,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
             payable(address(this)),
             royaltyPercentage,
             price,
-            false,
             false
         );
 
@@ -137,10 +134,9 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
             tokenId,
             msg.sender,
             msg.sender,
-            address(0),
+            address(this),
             royaltyPercentage,
             price,
-            false,
             false
         );
     }
@@ -149,10 +145,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     function resellMarketItem(uint256 tokenId, uint256 price, address seller) external payable override {
         console.log('Resell market item called');
         require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
-
-        if (msg.sender == auctionFactory) {
-            idToMarketItem[tokenId].auction = true;
-        }
 
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;
@@ -164,8 +156,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         }
 
         _transfer(seller, address(this), tokenId);
-
-        console.log('Resell transfer succeeded');
     }
 
     function delistMarketItem(uint256 tokenId) public {
