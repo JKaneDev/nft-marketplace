@@ -1,5 +1,4 @@
 const { ethers } = require('hardhat');
-const { BigNumber } = require('ethers');
 const Auction = require('../abis/contracts/Auction.sol/Auction.json');
 const AuctionFactory = require('../abis/contracts/AuctionFactory.sol/AuctionFactory.json');
 const Marketplace = require('../abis/contracts/Marketplace.sol/Marketplace.json');
@@ -36,6 +35,8 @@ describe('AuctionFactory', () => {
 		marketplaceAddress = await marketplace.getAddress();
 		factory = await AuctionFactory.deploy(marketplaceAddress);
 		factoryAddress = await factory.getAddress();
+
+		await marketplace.setAuctionFactoryAddress(factoryAddress);
 
 		/*
                      Mint NFT and create market item, then delist it so it can be listed
@@ -102,7 +103,7 @@ describe('AuctionFactory', () => {
 		});
 	});
 
-	describe.only('Bidding', () => {
+	describe('Bidding', () => {
 		beforeEach(async () => {
 			const Auction = await ethers.getContractFactory('Auction');
 			auction = await Auction.deploy(
@@ -209,6 +210,35 @@ describe('AuctionFactory', () => {
 					auction.connect(account3).bid({ value: ethers.parseEther('1.5') }),
 				).to.be.revertedWith('Bid must be greater than current highest bid');
 			});
+		});
+	});
+
+	describe('Ending Auction', () => {
+		let tokenId;
+		let auctionInstance;
+
+		beforeEach(async () => {
+			tokenId = marketItemCreatedEvent.args[0];
+
+			await marketplace.connect(account1).approve(marketplaceAddress, tokenId);
+			await factory
+				.connect(account1)
+				.createAuction(ethers.parseEther('1'), 3600, tokenId, account1.address);
+
+			// Get auction address from factory
+			const auction = await factory.auctions(tokenId);
+			const auctionAddress = auction.auctionAddress;
+			const Auction = await ethers.getContractFactory('Auction');
+
+			// Connect to auction contract
+			auctionInstance = Auction.attach(auctionAddress);
+		});
+
+		it.only('should end auction when there are no bids', async () => {
+			const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+			const receipt = await tx.wait();
+			if (receipt) await marketplace.connect(account1).revokeApproval(tokenId);
+			expect(await auctionInstance.ended()).to.equal(true);
 		});
 	});
 });

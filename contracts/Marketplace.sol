@@ -257,6 +257,16 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         auctionFactory = auctionFactoryAddress;
     }
 
+    function giveApproval(address approvee, uint256 tokenId) external {
+        require(msg.sender == ownerOf(tokenId), 'Only the owner can give approval');
+        approve(approvee, tokenId);
+    }
+
+    function revokeApproval(uint256 tokenId) external override {
+        require(msg.sender == ownerOf(tokenId), 'Only the owner can revoke approval');
+        approve(address(0), tokenId);
+    }
+
     function handleAuctionEnd(uint256 tokenId, address winner) external override {
         // Transfer NFT to intended recipient
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);

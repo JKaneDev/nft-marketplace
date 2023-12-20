@@ -17,7 +17,7 @@ contract Auction is ReentrancyGuard {
         address payable public highestBidder;
         address payable public penultimateBidder;
         uint256 public highestBid;
-        bool ended;
+        bool public ended;
 
 
         mapping(address => uint256) public pendingReturns;
@@ -130,8 +130,12 @@ contract Auction is ReentrancyGuard {
                         marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
 
                         auctionFactory.changeActiveStatus(tokenId);
+
+                        ended = true;
                 } else {
                         marketplaceContract.handleAuctionEnd(tokenId, seller);
+
+                        ended = true;
                 }
 
                 emit AuctionEnded(nftId, highestBidder, seller, address(0), highestBid);
