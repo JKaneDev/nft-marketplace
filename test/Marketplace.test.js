@@ -78,6 +78,7 @@ describe('Marketplace', () => {
 			await marketplace.connect(account1).delistMarketItem(tokenId);
 			const items = await marketplace.connect(account1).fetchMyNFT();
 			expect(items.length).to.equal(1);
+			expect(items[0].owner).to.equal(account1.address);
 		});
 
 		it('should allow user to fetch royalty data', async () => {

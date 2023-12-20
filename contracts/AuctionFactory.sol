@@ -13,10 +13,10 @@ contract AuctionFactory {
         Counters.Counter private _totalAuctions;
         Counters.Counter private _endedAuctions;
 
-        uint256[] private _activeAuctionIds;
+        uint256[] public _activeAuctionIds;
 
-        address payable owner;
-        address marketplaceAddress;
+        address payable public owner;
+        address public marketplaceAddress;
         IMarketplace marketplaceContract;
 
         constructor(address _marketplaceAddress) {
@@ -59,8 +59,6 @@ contract AuctionFactory {
 
                 // Transfer the NFT from the seller to escrow in the marketplace contract
                 marketplaceContract.resellMarketItem(nftId, startingPrice, seller);
-
-                console.log('Resell Market Item Called');
 
                 _totalAuctions.increment();
                 _activeAuctionIds.push(nftId);
