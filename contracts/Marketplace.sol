@@ -23,7 +23,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     mapping (uint256 => MarketItem) private idToMarketItem;
 
     event NFTTransferred(uint256 nftId, address auctionWinner);
-    event FundsWithdrawn(uint256 amount, address targetWallet);
 
     struct MarketItem {
         uint256 tokenId;
@@ -60,16 +59,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     
     fallback() external payable {}
 
-    function withdrawFunds() public onlyOwner {
-        uint256 balance = address(this).balance;
-        require(balance > 0, 'No funds to withdraw');
-
-        (bool sent, ) = payable(owner).call{value: balance}("");
-        require(sent, 'Failed to withdraw funds');
-
-        emit FundsWithdrawn(balance, msg.sender);
-    }
-
     function updateListingPrice(uint256 _listingPrice) public payable onlyOwner {
         listingPrice = _listingPrice;
     }
@@ -79,15 +68,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return item.price;
     }
 
-    function updateNFTPrice(uint256 tokenId, uint256 price) public {
-        require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist in marketplace");
-        require(idToMarketItem[tokenId].seller == msg.sender, "Caller is not the owner");
-        require(price > 0, "Price must be greater than zero");
-
-        // Update the price
-        idToMarketItem[tokenId].price = price;
-    }
-
     function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
         MarketItem memory nft = idToMarketItem[tokenId];
         return (nft.royaltyPercentage, nft.originalOwner);
@@ -95,6 +75,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     function getSellerAddress(uint256 tokenId) public view returns (address) {
         return idToMarketItem[tokenId].seller;
+    }
+
+    function updateNFTPrice(uint256 tokenId, uint256 price) public {
+        require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist in marketplace");
+        require(idToMarketItem[tokenId].seller == msg.sender, "Caller is not the owner");
+        require(price > 0, "Price must be greater than zero");
+
+        // Update the price
+        idToMarketItem[tokenId].price = price;
     }
 
     function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
@@ -141,7 +130,6 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
     // Allows the user to relist an item they own in the marketplace
     function resellMarketItem(uint256 tokenId, uint256 price, address seller) external payable override {
-        console.log('Resell market item called');
         require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
 
         idToMarketItem[tokenId].sold = false;
@@ -172,6 +160,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         uint256 price = idToMarketItem[tokenId].price;
 
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        require(msg.sender != idToMarketItem[tokenId].seller, "User cannot purchase their own NFT");
 
         idToMarketItem[tokenId].owner = payable(msg.sender);
         idToMarketItem[tokenId].sold = true;

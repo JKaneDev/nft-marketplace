@@ -102,15 +102,70 @@ describe('Marketplace', () => {
 			expect(price).to.equal(ethers.parseEther('2'));
 		});
 
-		it.only('should disallow other users to update the users nft price', async () => {
+		it('should disallow other users to update the users nft price', async () => {
 			await expect(
 				marketplace.connect(account2).updateNFTPrice(tokenId, ethers.parseEther('2')),
 			).to.be.revertedWith('Caller is not the owner');
 		});
 
-		it.only('should disallow the user from updating the price with 0', async () => {
+		it('should disallow the user from updating the price with 0', async () => {
 			await expect(marketplace.connect(account1).updateNFTPrice(tokenId, ethers.parseEther('0'))).to
 				.be.reverted;
+		});
+
+		it('should allow the user to relist their nft on the marketplace', async () => {
+			await marketplace.connect(account1).delistMarketItem(tokenId);
+			await marketplace
+				.connect(account1)
+				.resellMarketItem(tokenId, ethers.parseEther('2'), account1.address);
+			const price = await marketplace.connect(account1).getNFTPrice(tokenId);
+			const items = await marketplace.connect(account1).fetchMyNFT();
+			const marketItems = await marketplace.fetchMarketItems();
+			expect(marketItems.length).to.equal(1);
+			expect(marketItems[0].sold).to.equal(false);
+			expect(marketItems[0].owner).to.equal(marketplaceAddress);
+			expect(price).to.equal(ethers.parseEther('2'));
+			expect(items.length).to.equal(0);
+		});
+
+		it('should disallow unauthorized users to relist nft', async () => {
+			await marketplace.connect(account1).delistMarketItem(tokenId);
+			const marketItems = await marketplace.fetchMarketItems();
+			expect(marketItems.length).to.equal(0);
+			await expect(
+				marketplace
+					.connect(account2)
+					.resellMarketItem(tokenId, ethers.parseEther('2'), account1.address),
+			).to.be.revertedWith('Only owner can relist NFT');
+		});
+
+		it('should allow another user to purchase an nft', async () => {
+			await marketplace
+				.connect(account2)
+				.createMarketSale(tokenId, { value: ethers.parseEther('1') });
+			const account1Items = await marketplace.connect(account1).fetchMyNFT();
+			const account2Items = await marketplace.connect(account2).fetchMyNFT();
+			const marketItems = await marketplace.fetchMarketItems();
+			expect(marketItems.length).to.equal(0);
+			expect(account1Items.length).to.equal(0);
+			expect(account2Items.length).to.equal(1);
+			expect(account2Items[0].tokenId).to.equal(tokenId);
+			expect(account2Items[0].sold).to.equal(true);
+			expect(account2Items[0].owner).to.equal(account2.address);
+		});
+
+		it('should disallow users from purchasing their own NFTs', async () => {
+			await expect(
+				marketplace.connect(account1).createMarketSale(tokenId, { value: ethers.parseEther('1') }),
+			).to.be.revertedWith('User cannot purchase their own NFT');
+		});
+
+		it.only('should disallow sales that do not send the required amount of ether', async () => {
+			await expect(
+				marketplace
+					.connect(account2)
+					.createMarketSale(tokenId, { value: ethers.parseEther('0.5') }),
+			).to.be.revertedWith('Please submit the asking price in order to complete the purchase');
 		});
 	});
 });
