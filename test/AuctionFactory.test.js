@@ -89,7 +89,7 @@ describe('AuctionFactory', () => {
 		it('should retrieve active auction ids', async () => {
 			await factory
 				.connect(account1)
-				.createAuction(startingPrice, duration, BigInt(tokenId), account1.address);
+				.createAuction(startingPrice, duration, tokenId, account1.address);
 			const auctions = await factory.connect(account1).getActiveAuctionIds();
 			expect(auctions.length).to.equal(1);
 			expect(auctions).to.include(BigInt(tokenId));
@@ -98,7 +98,7 @@ describe('AuctionFactory', () => {
 		it('should change active status of auction', async () => {
 			await factory
 				.connect(account1)
-				.createAuction(startingPrice, duration, BigInt(tokenId), account1.address);
+				.createAuction(startingPrice, duration, tokenId, account1.address);
 			await factory.connect(account1).changeActiveStatus(tokenId);
 			const auctions = await factory.connect(account1).getActiveAuctionIds();
 			expect(auctions.length).to.equal(0);
