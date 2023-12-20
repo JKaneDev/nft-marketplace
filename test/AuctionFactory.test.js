@@ -85,5 +85,23 @@ describe('AuctionFactory', () => {
 			expect(event.args[3]).to.equal(duration);
 			expect(event.args[4]).to.equal(account1.address);
 		});
+
+		it('should retrieve active auction ids', async () => {
+			await factory
+				.connect(account1)
+				.createAuction(startingPrice, duration, BigInt(tokenId), account1.address);
+			const auctions = await factory.connect(account1).getActiveAuctionIds();
+			expect(auctions.length).to.equal(1);
+			expect(auctions).to.include(BigInt(tokenId));
+		});
+
+		it('should change active status of auction', async () => {
+			await factory
+				.connect(account1)
+				.createAuction(startingPrice, duration, BigInt(tokenId), account1.address);
+			await factory.connect(account1).changeActiveStatus(tokenId);
+			const auctions = await factory.connect(account1).getActiveAuctionIds();
+			expect(auctions.length).to.equal(0);
+		});
 	});
 });
