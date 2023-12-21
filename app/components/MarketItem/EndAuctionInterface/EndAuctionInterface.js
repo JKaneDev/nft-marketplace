@@ -43,6 +43,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 			setTimeout(() => {
 				setAuctionActive(false);
 				resetUserData();
+				setAuctionEnded(true);
 			}, 3000);
 		}
 	}, [auctionComplete]);

@@ -41,9 +41,11 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 	const [saleType, setSaleType] = useState('auction');
 	const [auctionActive, setAuctionActive] = useState(false);
 	const [auctionStarted, setAuctionStarted] = useState(false);
+	const [pendingEnded, setPendingEnded] = useState(false);
 
 	useEffect(() => {
 		checkForActiveAuction(id);
+		checkForPendingAuctionEnd(id);
 	}, []);
 
 	useEffect(() => {
@@ -69,6 +71,14 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 		setAuctionActive(isAuctionActive);
 	};
 
+	const checkForPendingAuctionEnd = async (id) => {
+		const endedAuctionsEnd = ref(realtimeDb, `endedAuctions/${id}`);
+		const snapshot = await get(endedAuctionsEnd);
+		const isPendingEnd = snapshot.exists();
+		console.log('Is pending end', isPendingEnd, name);
+		setPendingEnded(isPendingEnd);
+	};
+
 	const handleAuctionStart = async () => {
 		setLoading(true);
 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
@@ -89,7 +99,13 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 
 	return (
 		<div className={Style.card}>
-			<>{!isListed ? <SaleToggle saleType={saleType} setSaleType={setSaleType} /> : <></>}</>
+			<>
+				{!isListed && !pendingEnded ? (
+					<SaleToggle saleType={saleType} setSaleType={setSaleType} />
+				) : (
+					<></>
+				)}
+			</>
 			<div className={Style.card_img}>
 				<Image
 					src={image ? image : images.placeholder}

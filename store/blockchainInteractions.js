@@ -318,7 +318,7 @@ export const callAuctionEndTimeReached = async (dispatch, nftId, auctionAddress)
 
 			// Add AuctionEnded data to endedAuctions in realtime database
 			const endedAuctionsRef = ref(realtimeDb, 'endedAuctions');
-			await set(endedAuctionsRef, {
+			await update(endedAuctionsRef, {
 				[nftId]: {
 					nftId: nftId,
 					seller: data.sellerAddress,

@@ -20,8 +20,9 @@ import {
 import { FaSearch, FaCaretDown } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
-import { AuctionCard, StaticSaleCard } from '../../componentindex';
+import { AuctionCard, MarketItem, StaticSaleCard } from '../../componentindex';
 import { get, ref } from 'firebase/database';
+import { setAuctions } from '@/store/auctionFactorySlices';
 
 const Browse = () => {
 	const dispatch = useDispatch();
@@ -33,7 +34,8 @@ const Browse = () => {
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
-	const [allNFTs, setAllNFTs] = useState([]);
+	const [listedNFTs, setListedNFTs] = useState([]);
+	const [unlistedNFTs, setUnlistedNFTs] = useState([]);
 	const [endedAuctions, setEndedAuctions] = useState([]);
 
 	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
@@ -44,20 +46,19 @@ const Browse = () => {
 	useEffect(() => {
 		const fetchUsersNFTs = async () => {
 			const querySnapshot = await getDocs(collection(db, 'users'));
-			const fetchedNFTs = [];
 
 			querySnapshot.forEach((doc) => {
 				if (doc.id !== user) {
 					const userData = doc.data();
 					Object.values(userData.ownedNFTs).forEach((nft) => {
-						if (nft.isListed == true) {
-							fetchedNFTs.push(nft);
+						if (nft.isListed === true) {
+							setListedNFTs((prevListedNFTs) => [...prevListedNFTs, nft]);
+						} else {
+							setUnlistedNFTs((prevUnlistedNFTs) => [...prevUnlistedNFTs, nft]);
 						}
 					});
 				}
 			});
-
-			setAllNFTs(fetchedNFTs);
 		};
 
 		fetchUsersNFTs();
@@ -124,15 +125,8 @@ const Browse = () => {
 
 	// Load endedAuctions
 	useEffect(() => {
-		const checkAuctions = async () => {
-			const endedAuctions = (
-				await Promise.all(allNFTs.map((nft) => checkEndedAuction(nft)))
-			).filter((auction) => auction !== null);
-			console.log('Ended Auctions: ', endedAuctions);
-			setEndedAuctions(endedAuctions);
-		};
-		checkAuctions();
-	}, [auctions, allNFTs]);
+		checkEndedAuctions();
+	}, [listedNFTs]);
 
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
@@ -180,36 +174,46 @@ const Browse = () => {
 		}
 	};
 
-	const checkEndedAuction = async (nft) => {
+	const checkEndedAuctions = async () => {
 		const auctionsRef = ref(realtimeDb, 'endedAuctions');
 		const snapshot = await get(auctionsRef);
 		if (snapshot.exists()) {
 			const data = snapshot.val();
 			const auctions = Object.values(data);
-			const auction = auctions.find((auction) => auction.nftId === nft.id);
-			if (auction) return auction;
+			if (auctions) setEndedAuctions(auctions);
 		}
-		return null; // return null when no auction is found
+	};
+
+	const checkNFTsInEndedAuctions = (nfts, endedAuctions) => {
+		const nftIds = nfts.map((nft) => nft.id);
+		return endedAuctions.filter((auction) => nftIds.includes(auction.nftId));
 	};
 
 	const filteredNFTs = useMemo(() => {
-		let nfts = allNFTs;
+		let nfts = listedNFTs;
 
-		let itemsToRender = checkStaticSaleOrAuction(nfts, auctions);
-		let ended = endedAuctions;
+		let renderListed = checkStaticSaleOrAuction(nfts, auctions);
+		let ended = checkNFTsInEndedAuctions(unlistedNFTs, endedAuctions);
 
 		switch (currentFilter) {
 			case 'Marketplace':
-				nfts = itemsToRender.marketplaceItems;
+				nfts = renderListed.marketplaceItems;
 				break;
 			case 'Live Auctions':
-				nfts = itemsToRender.auctionItems;
+				nfts = renderListed.auctionItems;
 				break;
 			case 'Ended Auctions':
-				nfts = ended;
+				nfts = unlistedNFTs.filter(
+					(nft, index, self) =>
+						// prevent duplicates
+						self.findIndex((t) => t.id === nft.id) === index &&
+						// check if nft is in endedAuctions
+						endedAuctions.some((auction) => auction.nftId === nft.id),
+				);
+				console.log('After Filter: ', nfts);
 				break;
 			default:
-				nfts = itemsToRender.marketplaceItems;
+				nfts = renderListed.marketplaceItems;
 				break;
 		}
 
@@ -226,7 +230,7 @@ const Browse = () => {
 
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
-	}, [allNFTs, currentFilter, currentCategory, searchQuery]);
+	}, [listedNFTs, unlistedNFTs, currentFilter, currentCategory, searchQuery]);
 
 	return (
 		<div className={Style.browse}>
@@ -320,6 +324,8 @@ const Browse = () => {
 								resetUserData={fetchUserData}
 							/>
 						))
+					) : filteredNFTs && currentFilter === 'Ended Auctions' ? (
+						filteredNFTs.map((nft) => <MarketItem key={nft.id} {...nft} />)
 					) : (
 						<></>
 					)}
