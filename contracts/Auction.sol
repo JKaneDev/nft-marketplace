@@ -59,6 +59,7 @@ contract Auction is ReentrancyGuard {
         }
 
         function bid() public payable nonReentrant {
+                require(ended == false, 'Auction has ended');
                 require(seller != msg.sender, 'Seller cannot bid on their own auction');
                 require(msg.value >= startingPrice, 'Bid must be greater than or equal to starting price');
                 require(highestBidder != msg.sender, 'Bidder is already highest bidder');
@@ -102,6 +103,10 @@ contract Auction is ReentrancyGuard {
                 // Make fund transfer and initiate NFT transfer if a bid was made
                 if (highestBidder != address(0)) {
                         // Calculate sale allocations
+                        console.log('highestBid: ', highestBid);
+                        console.log('royaltyPercentage: ', royaltyPercentage);
+                        console.log('marketplaceFee: ', (highestBid * 2) / 100);
+
                         uint256 royaltyAmount = (highestBid * royaltyPercentage) / 100;
                         uint256 marketplaceFee = (highestBid * 2) / 100;
                         uint256 sellerAmount = highestBid - royaltyAmount - marketplaceFee;

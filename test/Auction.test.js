@@ -42,11 +42,9 @@ describe('AuctionFactory', () => {
                      Mint NFT and create market item, then delist it so it can be listed
                      in auction.
               */
-		const tx = await marketplace
-			.connect(account1)
-			.createToken(1, ethers.parseEther('10'), ethers.parseEther('1'), {
-				value: ethers.parseEther('0.0025'),
-			});
+		const tx = await marketplace.connect(account1).createToken(1, 10, ethers.parseEther('1'), {
+			value: ethers.parseEther('0.0025'),
+		});
 
 		const receipt = await tx.wait(); // wait for tx receipt before proceeding
 
@@ -185,6 +183,19 @@ describe('AuctionFactory', () => {
 		});
 
 		describe('Failure', () => {
+			it.only('should disallow bids if the auction has ended', async () => {
+				await auction.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auction.connect(account3).bid({ value: ethers.parseEther('3') });
+				const tx = await auction.connect(account1).endAuction(marketItemCreatedEvent.args[0]);
+				const receipt = await tx.wait();
+				if (receipt)
+					await marketplace.connect(account3).revokeApproval(marketItemCreatedEvent.args[0]);
+				await auction.connect(account2).bid({ value: ethers.parseEther('4') });
+				await expect(
+					auction.connect(account3).bid({ value: ethers.parseEther('5') }),
+				).to.be.revertedWith('Auction has ended');
+			});
+
 			it('should disallow users from bidding on their own auctions', async () => {
 				await expect(
 					auction.connect(account1).bid({ value: ethers.parseEther('2') }),
@@ -234,11 +245,95 @@ describe('AuctionFactory', () => {
 			auctionInstance = Auction.attach(auctionAddress);
 		});
 
-		it.only('should end auction when there are no bids', async () => {
-			const tx = await auctionInstance.connect(account1).endAuction(tokenId);
-			const receipt = await tx.wait();
-			if (receipt) await marketplace.connect(account1).revokeApproval(tokenId);
-			expect(await auctionInstance.ended()).to.equal(true);
+		describe('Success', () => {
+			it('should end auction when there are no bids', async () => {
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account1).revokeApproval(tokenId);
+				expect(await auctionInstance.ended()).to.equal(true);
+			});
+
+			it('should end auction when there is a bid', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				expect(await auctionInstance.ended()).to.equal(true);
+			});
+
+			it('should end auction automatically after duration has elapsed', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				await ethers.provider.send('evm_increaseTime', [3601]);
+				await ethers.provider.send('evm_mine');
+				expect(await auctionInstance.ended()).to.equal(true);
+			});
+
+			it('should transfer the NFT to the highest bidder on auction end', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				expect(await marketplace.ownerOf(tokenId)).to.equal(account2.address);
+			});
+
+			it('should transfer the highest bid to the seller on auction end', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const initialBalance = await ethers.provider.getBalance(account1.address);
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				const finalBalance = await ethers.provider.getBalance(account1.address);
+				expect(BigInt(finalBalance)).to.be.gt(initialBalance);
+			});
+
+			it('should transfer fee to marketplace on auction end', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const initialBalance = await ethers.provider.getBalance(marketplaceAddress);
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				const finalBalance = await ethers.provider.getBalance(marketplaceAddress);
+				expect(BigInt(finalBalance)).to.be.gt(initialBalance);
+			});
+
+			it('should refund the penultimate bidder on auction end', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				await auctionInstance.connect(account3).bid({ value: ethers.parseEther('3') });
+				const initialBalance = await ethers.provider.getBalance(account2.address);
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account3).revokeApproval(tokenId);
+				const finalBalance = await ethers.provider.getBalance(account2.address);
+				expect(BigInt(finalBalance)).to.be.gt(initialBalance);
+			});
+
+			it('should change active status of auction in auction factory on auction end', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				const auction = await factory.auctions(tokenId);
+				const activeAuctionIds = await factory.getActiveAuctionIds();
+				expect(auction.active).to.equal(false);
+				expect(activeAuctionIds.length).to.equal(0);
+			});
+
+			it('should emit an AuctionEnded event', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				const tx = await auctionInstance.connect(account1).endAuction(tokenId);
+				const receipt = await tx.wait();
+				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				const iface = new ethers.Interface(Auction.abi);
+				const events = receipt.logs.map((log) => iface.parseLog(log)).filter((log) => log != null);
+				const event = events.find((event) => event.name === 'AuctionEnded');
+				expect(event.args[0]).to.equal(tokenId);
+				expect(event.args[1]).to.equal(account2.address);
+				expect(event.args[2]).to.equal(account1.address);
+				expect(event.args[3]).to.equal('0x0000000000000000000000000000000000000000');
+				expect(event.args[4]).to.equal(ethers.parseEther('2'));
+			});
 		});
+
+		describe('Failure', () => {});
 	});
 });
