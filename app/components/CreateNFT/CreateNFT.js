@@ -104,10 +104,9 @@ const CreateNFT = () => {
 			);
 
 			setTimeout(() => {
+				setLoading(false);
 				resetNftData();
-			}, 1500);
-
-			setLoading(false);
+			}, 3000);
 		} catch (error) {
 			console.error('Error in createNFT: ', error);
 		}

@@ -276,9 +276,4 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
         emit NFTTransferred(tokenId, winner);
     }
-
-    function triggerEndAuction(address auctionContractAddress, uint256 tokenId) public {
-        Auction auctionContract = Auction(auctionContractAddress);
-        auctionContract.endAuction(tokenId);
-    }
 }

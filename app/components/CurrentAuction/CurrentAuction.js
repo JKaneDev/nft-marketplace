@@ -15,12 +15,12 @@ import { MdTimer } from 'react-icons/md';
 import { db } from '@/firebaseConfig';
 import { collection, query, getDocs } from 'firebase/firestore';
 import {
-	callEndAuctionOnComplete,
 	placeBid,
 	listenForCreatedAuctions,
 	createContractInstance,
 	listenForBidEvents,
 	loadActiveAuctions,
+	callAuctionEndTimeReached,
 } from '@/store/blockchainInteractions';
 
 // INTERNAL IMPORTS
@@ -123,10 +123,10 @@ const CurrentAuction = () => {
 		try {
 			setLoading(true);
 
-			await callEndAuctionOnComplete(
-				marketplaceDetails,
-				currentAuction.auctionAddress,
+			await callAuctionEndTimeReached(
+				dispatch,
 				currentAuction.nftId,
+				currentAuction.auctionAddress,
 			);
 
 			setTimeout(() => {

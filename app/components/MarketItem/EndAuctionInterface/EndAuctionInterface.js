@@ -8,7 +8,7 @@ import Style from './EndAuctionInterface.module.scss';
 import {
 	endAuction,
 	listenForEndedAuctions,
-	callEndAuctionOnComplete,
+	callAuctionEndTimeReached,
 } from '@/store/blockchainInteractions';
 import { AuctionTimer } from '../../componentindex';
 
@@ -24,8 +24,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 	useEffect(() => {
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				console.log('Auction in state (ended listener): ', auction);
-				await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
+				await listenForEndedAuctions(dispatch, auction.auctionAddress);
 			}
 		};
 		auctions ? loadAuctionEndedListener() : setTimeout(() => loadAuctionEndedListener(), 3000);
@@ -44,7 +43,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		try {
 			setLoading(true);
 
-			await endAuction(auction.nftId, auction.auctionAddress);
+			await endAuction(auction.auctionAddress);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -59,7 +58,9 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		try {
 			setLoading(true);
 
-			await callEndAuctionOnComplete(marketplaceDetails, auction.auctionAddress, id);
+			console.log('id', id, typeof id);
+
+			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
 
 			setTimeout(() => {
 				setLoading(false);

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Fuse from 'fuse.js';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { db } from '@/firebaseConfig';
+import { db, realtimeDb } from '@/firebaseConfig';
 import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 
 // INTERNAL IMPORTS
@@ -21,6 +21,7 @@ import { FaSearch, FaCaretDown } from 'react-icons/fa';
 import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import { AuctionCard, StaticSaleCard } from '../../componentindex';
+import { get, ref } from 'firebase/database';
 
 const Browse = () => {
 	const dispatch = useDispatch();
@@ -33,6 +34,7 @@ const Browse = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
 	const [allNFTs, setAllNFTs] = useState([]);
+	const [endedAuctions, setEndedAuctions] = useState([]);
 
 	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
@@ -120,6 +122,18 @@ const Browse = () => {
 		loadAuctionFactoryFunctions();
 	}, []);
 
+	// Load endedAuctions
+	useEffect(() => {
+		const checkAuctions = async () => {
+			const endedAuctions = (
+				await Promise.all(allNFTs.map((nft) => checkEndedAuction(nft)))
+			).filter((auction) => auction !== null);
+			console.log('Ended Auctions: ', endedAuctions);
+			setEndedAuctions(endedAuctions);
+		};
+		checkAuctions();
+	}, [auctions, allNFTs]);
+
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
 		setIsFilterOpen(false);
@@ -132,7 +146,7 @@ const Browse = () => {
 
 	const categories = ['Digital Art', 'Gaming', 'Sport', 'Photography', 'Music'];
 
-	const filterOptions = ['Marketplace', 'Live Auctions'];
+	const filterOptions = ['Marketplace', 'Live Auctions', 'Ended Auctions'];
 
 	const handleCategorySelect = (category) => {
 		setCurrentCategory(category);
@@ -166,10 +180,23 @@ const Browse = () => {
 		}
 	};
 
+	const checkEndedAuction = async (nft) => {
+		const auctionsRef = ref(realtimeDb, 'endedAuctions');
+		const snapshot = await get(auctionsRef);
+		if (snapshot.exists()) {
+			const data = snapshot.val();
+			const auctions = Object.values(data);
+			const auction = auctions.find((auction) => auction.nftId === nft.id);
+			if (auction) return auction;
+		}
+		return null; // return null when no auction is found
+	};
+
 	const filteredNFTs = useMemo(() => {
 		let nfts = allNFTs;
 
 		let itemsToRender = checkStaticSaleOrAuction(nfts, auctions);
+		let ended = endedAuctions;
 
 		switch (currentFilter) {
 			case 'Marketplace':
@@ -177,6 +204,9 @@ const Browse = () => {
 				break;
 			case 'Live Auctions':
 				nfts = itemsToRender.auctionItems;
+				break;
+			case 'Ended Auctions':
+				nfts = ended;
 				break;
 			default:
 				nfts = itemsToRender.marketplaceItems;

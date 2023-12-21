@@ -11,6 +11,8 @@ import {
 	loadActiveAuctions,
 } from '@/store/blockchainInteractions';
 import { useDispatch, useSelector } from 'react-redux';
+import { realtimeDb } from '../../../firebaseConfig';
+import { ref, get } from 'firebase/database';
 
 // INTERNAL IMPORTS
 import images from '../../../assets/index';
@@ -59,9 +61,10 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 		setIsInfoVisible(!isInfoVisible);
 	};
 
-	const checkForActiveAuction = () => {
-		const auctionIds = auctions.map((auction) => auction.nftId);
-		const isAuctionActive = auctionIds.includes(id);
+	const checkForActiveAuction = async (id) => {
+		const auctionRef = ref(realtimeDb, `auctions/${id}`);
+		const snapshot = await get(auctionRef);
+		const isAuctionActive = snapshot.exists();
 		setAuctionActive(isAuctionActive);
 	};
 
@@ -116,7 +119,11 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 				/>
 			) : (
 				<AuctionInterface
+					id={id}
+					resetUserData={resetUserData}
 					loading={loading}
+					setLoading={setLoading}
+					setAuctionActive={setAuctionActive}
 					isInfoVisible={isInfoVisible}
 					setStartingPrice={setStartingPrice}
 					setDuration={setDuration}

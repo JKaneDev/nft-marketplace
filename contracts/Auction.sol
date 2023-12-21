@@ -17,6 +17,8 @@ contract Auction is ReentrancyGuard {
         address payable public highestBidder;
         address payable public penultimateBidder;
         uint256 public highestBid;
+        uint256 public auctionEndTime;
+        bool public durationElapsed;
         bool public ended;
 
 
@@ -25,13 +27,14 @@ contract Auction is ReentrancyGuard {
         event Bid(address bidder, uint256 bidAmount, address auctionAddress);
         event AuctionEnded(uint256 nftId, address highestBidder, address seller, address nullAddress, uint256 highestBid);
 
-        constructor(uint256 _nftId, uint256 _startingPrice, address _seller, address _marketplaceAddress, address _auctionFactoryAddress) {
+        constructor(uint256 _nftId, uint256 _startingPrice, uint256 auctionDuration, address _seller, address _marketplaceAddress, address _auctionFactoryAddress) {
                 marketplaceAddress = _marketplaceAddress;
                 marketplaceContract = IMarketplace(marketplaceAddress);
                 auctionFactory = AuctionFactory(_auctionFactoryAddress);
                 nftId = _nftId;
                 seller = payable(_seller);
                 startingPrice = _startingPrice;
+                auctionEndTime = block.timestamp + auctionDuration;
         }
 
         function getHighestBidder() public view returns (address) {
@@ -59,7 +62,7 @@ contract Auction is ReentrancyGuard {
         }
 
         function bid() public payable nonReentrant {
-                require(ended == false, 'Auction has ended');
+                require(ended == false && durationElapsed == false, 'Auction has ended');
                 require(seller != msg.sender, 'Seller cannot bid on their own auction');
                 require(msg.value >= startingPrice, 'Bid must be greater than or equal to starting price');
                 require(highestBidder != msg.sender, 'Bidder is already highest bidder');
@@ -95,18 +98,20 @@ contract Auction is ReentrancyGuard {
                 emit Bid(msg.sender, msg.value, address(this));
         }
 
-        function endAuction(uint256 tokenId) public nonReentrant {
-                require(msg.sender == seller || msg.sender == marketplaceAddress, 'Only NFT owner or marketplace can end auction');
+        function confirmAuctionEnd() public {
+                require(block.timestamp >= auctionEndTime, "Auction has not ended yet");
+                durationElapsed = true;
+        }
 
-                (uint256 royaltyPercentage, address payable originalOwner) = marketplaceContract.getRoyaltyData(tokenId);
+        function endAuction() public nonReentrant {
+                require(durationElapsed || msg.sender == seller || msg.sender == marketplaceAddress, 'Cannot end auction if not seller or if end time has not been reached');
+
+                (uint256 royaltyPercentage, address payable originalOwner) = marketplaceContract.getRoyaltyData(nftId);
 
                 // Make fund transfer and initiate NFT transfer if a bid was made
                 if (highestBidder != address(0)) {
-                        // Calculate sale allocations
-                        console.log('highestBid: ', highestBid);
-                        console.log('royaltyPercentage: ', royaltyPercentage);
-                        console.log('marketplaceFee: ', (highestBid * 2) / 100);
 
+                        // Calculate sale allocations
                         uint256 royaltyAmount = (highestBid * royaltyPercentage) / 100;
                         uint256 marketplaceFee = (highestBid * 2) / 100;
                         uint256 sellerAmount = highestBid - royaltyAmount - marketplaceFee;
@@ -132,13 +137,13 @@ contract Auction is ReentrancyGuard {
                                 require(sent, "Failed to send refund to the penultimate bidder");
                         }
 
-                        marketplaceContract.handleAuctionEnd(tokenId, highestBidder);
+                        marketplaceContract.handleAuctionEnd(nftId, highestBidder);
 
-                        auctionFactory.changeActiveStatus(tokenId);
+                        auctionFactory.changeActiveStatus(nftId);
 
                         ended = true;
                 } else {
-                        marketplaceContract.handleAuctionEnd(tokenId, seller);
+                        marketplaceContract.handleAuctionEnd(nftId, seller);
 
                         ended = true;
                 }

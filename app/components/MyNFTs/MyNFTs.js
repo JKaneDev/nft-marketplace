@@ -72,7 +72,6 @@ const MyNFTs = () => {
 	useEffect(() => {
 		const loadAuctionFactoryFunctions = async () => {
 			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-
 			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 			await loadActiveAuctions(dispatch);
 		};

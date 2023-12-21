@@ -38,12 +38,10 @@ const auctionFactorySlice = createSlice({
 			}
 		},
 		removeAuction: (state, action) => {
-			const auctionExists = state.auctions.some(
-				(auction) =>
-					auction.nftId === action.payload.nftId && auction.startTime === action.payload.startTime,
-			);
+			const auctionExists = state.auctions.some((auction) => auction.nftId === action.payload);
 			if (auctionExists) {
 				state.auctions = state.auctions.filter((auction) => auction.nftId !== action.payload);
+				console.log('Auction removed from store');
 			} else {
 				console.log('Auction did not exist');
 			}

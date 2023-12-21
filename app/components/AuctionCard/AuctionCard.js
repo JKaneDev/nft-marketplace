@@ -16,7 +16,7 @@ import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
 import { AuctionTimer } from '../componentindex';
 import {
-	callEndAuctionOnComplete,
+	callAuctionEndTimeReached,
 	listenForBidEvents,
 	listenForEndedAuctions,
 	placeBid,
@@ -42,7 +42,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 			if (auctions.length > 0) {
 				const auction = auctions.find((auction) => auction.nftId === id);
 				if (auction) {
-					await listenForEndedAuctions(dispatch, auction.sellerAddress, auction.auctionAddress);
+					await listenForEndedAuctions(dispatch, auction.auctionAddress);
 					await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
 				}
 			}
@@ -74,7 +74,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 
 			setAuctionComplete(true);
 
-			await callEndAuctionOnComplete(marketplaceDetails, auction.auctionAddress, id);
+			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -164,9 +164,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 						<span>
 							<p>{auction.currentBid ? 'Winning Bid:' : 'Starting Price - No Bids:'}</p>
 							<p>
-								{auction.currentBid
-									? auction.currentBid
-									: ethers.formatEther(auction.startingPrice)}
+								{auction.currentBid ? auction.currentBid : auction.startingPrice}
 								ETH
 							</p>
 						</span>
@@ -186,9 +184,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 							<div className={Style.interface_actions_bid}>
 								<p>{auction.currentBid ? 'Current Bid:' : 'Starting Price:'}</p>
 								<p>
-									{auction.currentBid
-										? auction.currentBid
-										: ethers.formatEther(auction.startingPrice)}
+									{auction.currentBid ? auction.currentBid : auction.startingPrice}
 									ETH
 								</p>
 							</div>

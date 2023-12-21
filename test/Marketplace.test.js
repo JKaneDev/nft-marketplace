@@ -161,7 +161,7 @@ describe('Marketplace', () => {
 			).to.be.revertedWith('User cannot purchase their own NFT');
 		});
 
-		it.only('should disallow sales that do not send the required amount of ether', async () => {
+		it('should disallow sales that do not send the required amount of ether', async () => {
 			await expect(
 				marketplace
 					.connect(account2)

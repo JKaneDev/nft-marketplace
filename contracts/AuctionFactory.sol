@@ -45,7 +45,7 @@ contract AuctionFactory {
 
                 uint256 currentTimestamp = block.timestamp;
 
-                Auction newAuction = new Auction(nftId, startingPrice, seller, marketplaceAddress, address(this));
+                Auction newAuction = new Auction(nftId, startingPrice, auctionDuration, seller, marketplaceAddress, address(this));
 
                 auctions[nftId] = AuctionItem(
                         address(newAuction), 
