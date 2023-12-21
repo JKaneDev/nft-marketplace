@@ -187,6 +187,7 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 
 export const createAuction = async (
 	auctionFactoryContract,
+	marketplace,
 	startingPrice,
 	auctionDuration,
 	nftId,
@@ -195,6 +196,10 @@ export const createAuction = async (
 	try {
 		const startingPriceWei = ethers.parseEther(startingPrice);
 		const auctionDurationInSeconds = parseInt(auctionDuration, 10) * 60;
+
+		const marketplaceAddress = await marketplace.getAddress();
+
+		await marketplace.giveApproval(marketplaceAddress, nftId);
 
 		const tx = await auctionFactoryContract.createAuction(
 			startingPriceWei,

@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { RingLoader } from 'react-spinners';
 import { useSelector, useDispatch } from 'react-redux';
 
+// BLOCKCHAIN + BACKEND + REDUX IMPORTS
+import { ref, get } from 'firebase/database';
+import { realtimeDb } from '@/firebaseConfig';
+
 // INTERNAL IMPORTS
 import Style from './EndAuctionInterface.module.scss';
 import {
@@ -20,6 +24,10 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
+
+	useEffect(() => {
+		checkIfEndTimeReached(id);
+	}, []);
 
 	useEffect(() => {
 		const loadAuctionEndedListener = async () => {
@@ -68,6 +76,19 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 			}, 3000);
 		} catch (error) {
 			console.error('Error ending auction');
+		}
+	};
+
+	const checkIfEndTimeReached = async (id) => {
+		const auctionsRef = ref(realtimeDb, 'auctions');
+		const snapshot = await get(auctionsRef);
+		if (snapshot.exists()) {
+			const data = snapshot.val();
+			const auctions = Object.values(data);
+			const auction = auctions.find((auction) => auction.nftId === id);
+			if (auction.startTime * 1000 + auction.auctionDuration * 1000 < Date.now()) {
+				handleEndTimeReached();
+			}
 		}
 	};
 

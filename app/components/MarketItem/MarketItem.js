@@ -28,6 +28,7 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 	const dispatch = useDispatch();
 
 	const user = useSelector((state) => state.connection.account);
+	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auctionFactoryDetails = useSelector((state) => state.auctionFactory.contractDetails);
 
@@ -70,8 +71,16 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 
 	const handleAuctionStart = async () => {
 		setLoading(true);
-		const contract = await createContractInstance(auctionFactoryDetails);
-		await createAuction(contract, startingPrice, duration, id, user.account);
+		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
+		const marketplace = await createContractInstance(marketplaceDetails);
+		await createAuction(
+			auctionFactoryContract,
+			marketplace,
+			startingPrice,
+			duration,
+			id,
+			user.account,
+		);
 		setTimeout(() => {
 			setLoading(false);
 			setAuctionStarted(true);

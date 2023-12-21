@@ -36,6 +36,11 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
 
+	// Check if any auctions have ended on page load
+	useEffect(() => {
+		checkIfEndTimeReached(id);
+	}, []);
+
 	// Listen for auction events
 	useEffect(() => {
 		const loadAuctionEventListeners = async () => {
@@ -132,6 +137,19 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 			}, 1500);
 		} catch (error) {
 			console.error('Failed to place bid on auction.');
+		}
+	};
+
+	const checkIfEndTimeReached = async (id) => {
+		const auctionsRef = ref(realtimeDb, 'auctions');
+		const snapshot = await get(auctionsRef);
+		if (snapshot.exists()) {
+			const data = snapshot.val();
+			const auctions = Object.values(data);
+			const auction = auctions.find((auction) => auction.nftId === id);
+			if (auction.startTime * 1000 + auction.auctionDuration * 1000 < Date.now()) {
+				handleEndTimeReached();
+			}
 		}
 	};
 

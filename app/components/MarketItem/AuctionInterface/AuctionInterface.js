@@ -30,17 +30,6 @@ const AuctionInterface = ({
 	const [auctionComplete, setAuctionComplete] = useState(false);
 	const [auction, setAuction] = useState(null);
 
-	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
-
-	useEffect(() => {
-		const getOwner = async () => {
-			const marketplace = await createContractInstance(marketplaceDetails);
-			const owner = await marketplace.ownerOf(id);
-			console.log('Owner of NFT with ID: ', owner, id);
-		};
-		getOwner();
-	}, []);
-
 	useEffect(() => {
 		const runChecks = async () => {
 			const confirmationNeeded = await checkIfEndedConfirmationNeeded(id);
