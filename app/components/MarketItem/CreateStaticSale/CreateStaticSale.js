@@ -11,7 +11,7 @@ import { createContractInstance } from '@/store/blockchainInteractions';
 import Style from './CreateStaticSale.module.scss';
 import images from '../../../../assets/index';
 import { useSelector } from 'react-redux';
-import { toggleNFTListingStatus } from '@/pages/api/firebase';
+import { listNFT } from '@/pages/api/firebase';
 
 const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 	const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 			const marketplace = await createContractInstance(marketplaceDetails);
 			const tx = await marketplace.resellMarketItem(id, ethers.parseEther(newPrice), user.account);
 			const receipt = tx.wait();
-			if (receipt) toggleNFTListingStatus(user.account, id);
+			if (receipt) listNFT(user.account, id);
 
 			setTimeout(() => {
 				setLoading(false);

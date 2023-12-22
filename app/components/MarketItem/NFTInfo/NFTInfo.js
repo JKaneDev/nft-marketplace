@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import { createContractInstance, getSignerAddress } from '@/store/blockchainInteractions';
 import { db } from '../../../../firebaseConfig';
 import { doc, updateDoc } from 'firebase/firestore';
-import { toggleNFTListingStatus } from '@/pages/api/firebase';
+import { delistNFT } from '@/pages/api/firebase';
 
 const NFTInfo = ({ id, price, category, resetUserData }) => {
 	const [updatingPrice, setUpdatingPrice] = useState(false);
@@ -49,7 +49,7 @@ const NFTInfo = ({ id, price, category, resetUserData }) => {
 		const marketplace = await createContractInstance(marketplaceDetails);
 		const tx = await marketplace.delistMarketItem(id);
 		const receipt = tx.wait();
-		if (receipt) await toggleNFTListingStatus(user.account, id);
+		if (receipt) await delistNFT(user.account, id);
 		resetUserData();
 	};
 

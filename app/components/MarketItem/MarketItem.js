@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Style from './MarketItem.module.scss';
 import Image from 'next/image';
+import { ethers } from 'ethers';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import {
+	getSigner,
 	createAuction,
 	createContractInstance,
 	loadActiveAuctions,
@@ -23,6 +25,7 @@ import {
 	CreateStaticSale,
 } from '../componentindex';
 import SaleToggle from './SaleToggle';
+import Auction from '../../../abis/contracts/Auction.sol/Auction.json';
 
 const MarketItem = ({ id, name, image, price, category, isListed, resetUserData }) => {
 	const dispatch = useDispatch();
@@ -71,11 +74,15 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 		setAuctionActive(isAuctionActive);
 	};
 
+	/**
+	 * Checks if an auction for a given ID has ended.
+	 *
+	 * @param {string} id - The ID of the nft to check.
+	 */
 	const checkForPendingAuctionEnd = async (id) => {
 		const endedAuctionsEnd = ref(realtimeDb, `endedAuctions/${id}`);
 		const snapshot = await get(endedAuctionsEnd);
 		const isPendingEnd = snapshot.exists();
-		console.log('Is pending end', isPendingEnd, name);
 		setPendingEnded(isPendingEnd);
 	};
 

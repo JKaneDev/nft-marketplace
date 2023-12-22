@@ -134,7 +134,7 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
 
         idToMarketItem[tokenId].sold = false;
         idToMarketItem[tokenId].price = price;
-        idToMarketItem[tokenId].seller = payable(msg.sender);
+        idToMarketItem[tokenId].seller = payable(seller);
         idToMarketItem[tokenId].owner = payable(address(this));
 
         if (_itemsSold.current() > 0) {
@@ -270,6 +270,8 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     function handleAuctionEnd(uint256 tokenId, address winner) external override {
         // Transfer NFT to intended recipient
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
+
+        _itemsSold.increment();
 
         idToMarketItem[tokenId].owner = payable(winner);
         idToMarketItem[tokenId].sold = true;

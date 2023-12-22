@@ -72,7 +72,7 @@ export const updateFirebaseWithNFT = async (
 	}
 };
 
-export const toggleNFTListingStatus = async (seller, nftId) => {
+export const listNFT = async (seller, nftId) => {
 	try {
 		// Reference to the user's document
 		const userRef = doc(db, 'users', seller);
@@ -84,17 +84,20 @@ export const toggleNFTListingStatus = async (seller, nftId) => {
 
 			// Check if the NFT exists in the map
 			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
-				const currentIsListedStatus = userData.ownedNFTs[nftId].isListed;
-
 				// Path to the specific NFT
 				const nftPath = `ownedNFTs.${nftId}.isListed`;
 
-				// Update the isListed property of the specific NFT
-				await updateDoc(userRef, {
-					[nftPath]: !currentIsListedStatus,
-				});
+				// Check if the NFT is already listed
+				if (!userData.ownedNFTs[nftId].isListed) {
+					// Update the isListed property of the specific NFT
+					await updateDoc(userRef, {
+						[nftPath]: true,
+					});
 
-				console.log('NFT listing status toggled successfully');
+					console.log('NFT listed successfully');
+				} else {
+					console.log('NFT is already listed');
+				}
 			} else {
 				console.log('NFT does not exist in user data');
 			}
@@ -102,7 +105,44 @@ export const toggleNFTListingStatus = async (seller, nftId) => {
 			console.log('User document does not exist');
 		}
 	} catch (error) {
-		console.error('Error toggling NFT listing status:', error);
+		console.error('Error listing NFT:', error);
+	}
+};
+
+export const delistNFT = async (seller, nftId) => {
+	try {
+		// Reference to the user's document
+		const userRef = doc(db, 'users', seller);
+
+		// Get the current data of the user
+		const userDoc = await getDoc(userRef);
+		if (userDoc.exists()) {
+			const userData = userDoc.data();
+
+			// Check if the NFT exists in the map
+			if (userData.ownedNFTs && userData.ownedNFTs[nftId]) {
+				// Path to the specific NFT
+				const nftPath = `ownedNFTs.${nftId}.isListed`;
+
+				// Check if the NFT is already delisted
+				if (userData.ownedNFTs[nftId].isListed) {
+					// Update the isListed property of the specific NFT
+					await updateDoc(userRef, {
+						[nftPath]: false,
+					});
+
+					console.log('NFT delisted successfully');
+				} else {
+					console.log('NFT is already delisted');
+				}
+			} else {
+				console.log('NFT does not exist in user data');
+			}
+		} else {
+			console.log('User document does not exist');
+		}
+	} catch (error) {
+		console.error('Error delisting NFT:', error);
 	}
 };
 

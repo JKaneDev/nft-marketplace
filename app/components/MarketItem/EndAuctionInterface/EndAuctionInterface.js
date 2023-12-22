@@ -30,12 +30,20 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 	}, []);
 
 	useEffect(() => {
+		let cleanupFunc = () => {};
+
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				await listenForEndedAuctions(dispatch, auction.auctionAddress);
+				cleanupFunc = await listenForEndedAuctions(dispatch, auction.auctionAddress);
 			}
 		};
+
 		auctions ? loadAuctionEndedListener() : setTimeout(() => loadAuctionEndedListener(), 3000);
+
+		// Cleanup function is called when the component is unmounted
+		return () => {
+			cleanupFunc();
+		};
 	}, []);
 
 	useEffect(() => {
@@ -43,7 +51,6 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 			setTimeout(() => {
 				setAuctionActive(false);
 				resetUserData();
-				setAuctionEnded(true);
 			}, 3000);
 		}
 	}, [auctionComplete]);
@@ -66,8 +73,6 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 	const handleEndTimeReached = async () => {
 		try {
 			setLoading(true);
-
-			console.log('id', id, typeof id);
 
 			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
 

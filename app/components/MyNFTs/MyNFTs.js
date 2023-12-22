@@ -70,14 +70,21 @@ const MyNFTs = () => {
 
 	// LOAD AUCTION LISTENERS
 	useEffect(() => {
+		let cleanupFunc;
+
 		const loadAuctionFactoryFunctions = async () => {
 			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-			await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			cleanupFunc = await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 			await loadActiveAuctions(dispatch);
 		};
 
 		loadAuctionFactoryFunctions();
-	}, []);
+
+		// Cleanup function is called when the component is unmounted
+		return () => {
+			if (cleanupFunc) cleanupFunc();
+		};
+	}, [dispatch, auctionFactoryDetails]);
 
 	// GET IDS FROM ACTIVE AUCTIONS
 	useEffect(() => {

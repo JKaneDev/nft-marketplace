@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	endAuction,
 	listenForEndedAuctions,
-	createContractInstance,
+	confirmEndAuction,
 } from '@/store/blockchainInteractions';
 import { ref, get } from 'firebase/database';
 import { realtimeDb } from '@/firebaseConfig';
@@ -39,12 +39,19 @@ const AuctionInterface = ({
 	}, []);
 
 	useEffect(() => {
+		let cleanupFunc = () => {};
+
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				await listenForEndedAuctions(dispatch, auction.address);
+				cleanupFunc = await listenForEndedAuctions(dispatch, auction.address);
 			}
 		};
 		loadAuctionEndedListener();
+
+		// Cleanup function is called when the component is unmounted
+		return () => {
+			cleanupFunc();
+		};
 	}, [auction]);
 
 	useEffect(() => {
@@ -61,17 +68,16 @@ const AuctionInterface = ({
 		if (auctionComplete) {
 			setTimeout(() => {
 				setAuctionActive(false);
-				resetUserData();
 				setEndedConfirmationNeeded(false);
 			}, 3000);
 		}
 	}, [auctionComplete]);
 
-	const handleEndAuction = async () => {
+	const handleConfirmEndAuction = async () => {
 		try {
 			setLoading(true);
 
-			if (auction) await endAuction(auction.address);
+			if (auction) await confirmEndAuction(auction.address);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -113,7 +119,7 @@ const AuctionInterface = ({
 				<>
 					{endedConfirmationNeeded == true ? (
 						<div className={Style.card_auction_end}>
-							<button onClick={handleEndAuction}>End Auction</button>
+							<button onClick={handleConfirmEndAuction}>Confirm End</button>
 						</div>
 					) : (
 						<>

@@ -52,15 +52,29 @@ const CurrentAuction = () => {
 	const [bidding, setBidding] = useState(false);
 
 	useEffect(() => {
+		let cleanupFuncs = [];
+
 		const loadListeners = async () => {
-			const contract = await createContractInstance(auctionFactoryDetails);
-			await loadActiveAuctions(dispatch);
-			await listenForCreatedAuctions(dispatch, contract);
-			await listenForBidEvents(dispatch, currentAuction.auctionAddress, currentAuction.nftId);
+			if (auctionFactoryLoaded && currentAuction) {
+				const contract = await createContractInstance(auctionFactoryDetails);
+				await loadActiveAuctions(dispatch);
+				const cleanup1 = await listenForCreatedAuctions(dispatch, contract);
+				const cleanup2 = await listenForBidEvents(
+					dispatch,
+					currentAuction.auctionAddress,
+					currentAuction.nftId,
+				);
+				cleanupFuncs = [cleanup1, cleanup2];
+			}
 		};
 
-		if (auctionFactoryLoaded && currentAuction) loadListeners();
-	}, [dispatch]);
+		loadListeners();
+
+		// Cleanup functions are called when the component is unmounted
+		return () => {
+			cleanupFuncs.forEach((cleanup) => cleanup());
+		};
+	}, [dispatch, auctionFactoryLoaded, currentAuction]);
 
 	useEffect(() => {
 		if (auctions.length > 0) {

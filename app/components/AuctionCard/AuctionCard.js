@@ -43,16 +43,22 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 
 	// Listen for auction events
 	useEffect(() => {
+		let cleanupFuncs = [];
+
 		const loadAuctionEventListeners = async () => {
-			if (auctions.length > 0) {
-				const auction = auctions.find((auction) => auction.nftId === id);
-				if (auction) {
-					await listenForEndedAuctions(dispatch, auction.auctionAddress);
-					await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
-				}
-			}
+			// ...existing code...
+
+			const cleanup1 = await listenForEndedAuctions(dispatch, auction.auctionAddress);
+			const cleanup2 = await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
+			cleanupFuncs = [cleanup1, cleanup2];
 		};
+
 		loadAuctionEventListeners();
+
+		// Cleanup functions are called when the component is unmounted
+		return () => {
+			cleanupFuncs.forEach((cleanup) => cleanup());
+		};
 	}, []);
 
 	useEffect(() => {

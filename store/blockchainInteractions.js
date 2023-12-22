@@ -12,7 +12,8 @@ import { uploadImageToIpfs, uploadMetadata } from '@/pages/api/ipfs';
 import {
 	uploadImageToFirebase,
 	updateFirebaseWithNFT,
-	toggleNFTListingStatus,
+	listNFT,
+	delistNFT,
 	changeNftOwnershipInFirebase,
 	changePrice,
 } from '@/pages/api/firebase';
@@ -69,7 +70,7 @@ export const getSigner = async () => {
 
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
-	const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+	const address = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0';
 
 	try {
 		const signer = await getSigner();
@@ -89,7 +90,7 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
-	const address = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
+	const address = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82';
 
 	try {
 		const signer = await getSigner();
@@ -211,7 +212,7 @@ export const createAuction = async (
 		const receipt = await tx.wait();
 
 		if (receipt) {
-			await toggleNFTListingStatus(seller.toLowerCase(), nftId);
+			await listNFT(seller.toLowerCase(), nftId);
 		}
 
 		return receipt;
@@ -221,30 +222,41 @@ export const createAuction = async (
 };
 
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
-	auctionFactoryContract.on(
-		'AuctionCreated',
-		async (nftId, startingPrice, startTime, auctionDuration, seller, auctionAddress) => {
-			// Add auction to firebase
-			const auctionData = {
-				nftId: nftId.toString(),
-				startingPrice: ethers.formatEther(startingPrice).toString(),
-				startTime: startTime.toString(),
-				auctionDuration: auctionDuration.toString(),
-				sellerAddress: seller,
-				auctionAddress: auctionAddress,
-				currentBid: null,
-			};
+	const listener = async (
+		nftId,
+		startingPrice,
+		startTime,
+		auctionDuration,
+		seller,
+		auctionAddress,
+	) => {
+		// Add auction to firebase
+		const auctionData = {
+			nftId: nftId.toString(),
+			startingPrice: ethers.formatEther(startingPrice).toString(),
+			startTime: startTime.toString(),
+			auctionDuration: auctionDuration.toString(),
+			sellerAddress: seller,
+			auctionAddress: auctionAddress,
+			currentBid: null,
+		};
 
-			try {
-				dispatch(addAuction(auctionData));
+		try {
+			dispatch(addAuction(auctionData));
 
-				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-				await set(auctionRef, auctionData);
-			} catch (error) {
-				console.error('Error adding auction data to firebase: ', error);
-			}
-		},
-	);
+			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+			await set(auctionRef, auctionData);
+		} catch (error) {
+			console.error('Error adding auction data to firebase: ', error);
+		}
+	};
+
+	auctionFactoryContract.on('AuctionCreated', listener);
+
+	// Return a cleanup function that removes the listener
+	return () => {
+		auctionFactoryContract.off('AuctionCreated', listener);
+	};
 };
 
 export const loadActiveAuctions = async (dispatch) => {
@@ -280,7 +292,7 @@ export const purchaseNft = async (marketplace, id, user) => {
 		console.log('Transaction Successful!');
 
 		if (receipt) {
-			await toggleNFTListingStatus(seller.toLowerCase(), id);
+			await delistNFT(seller.toLowerCase(), id);
 			await changeNftOwnershipInFirebase(id, user);
 		}
 	} catch (error) {
@@ -295,6 +307,19 @@ export const endAuction = async (contractAddress) => {
 		await auctionContract.endAuction();
 	} catch (error) {
 		console.error('Error calling smart contract endAuction', error);
+	}
+	return;
+};
+
+export const confirmEndAuction = async (auctionAddress) => {
+	try {
+		const signer = await getSigner();
+		const auctionContract = new ethers.Contract(auctionAddress, Auction.abi, signer);
+		const tx = await auctionContract.confirmAuctionEnd();
+		const receipt = await tx.wait();
+		if (receipt) await auctionContract.endAuction();
+	} catch (error) {
+		console.error('Error calling smart contract confirmEndAuction', error);
 	}
 	return;
 };
@@ -327,7 +352,7 @@ export const callAuctionEndTimeReached = async (dispatch, nftId, auctionAddress)
 				},
 			});
 
-			await toggleNFTListingStatus(data.sellerAddress.toLowerCase(), nftId);
+			await delistNFT(data.sellerAddress.toLowerCase(), nftId);
 
 			console.log(`Auction with ID ${nftId} has been moved to ended auctions.`);
 		} else {
@@ -343,38 +368,43 @@ export const listenForEndedAuctions = async (dispatch, contractAddress) => {
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
 
-		auctionContract.on(
-			'AuctionEnded',
-			async (nftId, highestBidder, seller, nullAddress, highestBid) => {
-				// Reference to the auction in the 'auctions' node
-				const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-				const endedAuctionRef = ref(realtimeDb, `endedAuctions/${nftId}`);
+		const listener = async (nftId, highestBidder, seller, nullAddress, highestBid) => {
+			// Reference to the auction in the 'auctions' node
+			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
+			const endedAuctionRef = ref(realtimeDb, `endedAuctions/${nftId}`);
 
-				// Retrieve auction data
-				const auctionSnapshot = await get(auctionRef);
-				const endedAuctionSnapshot = await get(endedAuctionRef);
+			// Retrieve auction data
+			const auctionSnapshot = await get(auctionRef);
+			const endedAuctionSnapshot = await get(endedAuctionRef);
 
-				if (auctionSnapshot.exists()) {
-					// Remove auction from 'auctions' node
-					dispatch(removeAuction(nftId.toString()));
-					await remove(auctionRef);
-				} else if (endedAuctionSnapshot.exists()) {
-					// Remove auction from 'endedAuctions' node
-					await remove(endedAuctionRef);
-				} else {
-					console.log(`Auction data for ID ${nftId} not found.`);
-				}
+			if (auctionSnapshot.exists()) {
+				// Remove auction from 'auctions' node
+				dispatch(removeAuction(nftId.toString()));
+				await remove(auctionRef);
+			} else if (endedAuctionSnapshot.exists()) {
+				// Remove auction from 'endedAuctions' node
+				await remove(endedAuctionRef);
+				console.log(`Auction data for ID ${nftId} removed from endedAuctions`);
+			} else {
+				console.log(`Auction data for ID ${nftId} not found.`);
+			}
 
-				// Additional logic for NFT listing status and ownership change
-				await toggleNFTListingStatus(seller.toLowerCase(), nftId.toString());
+			// Additional logic for NFT listing status and ownership change
+			await delistNFT(seller.toLowerCase(), nftId.toString());
 
-				// If a bid was made on the auction, change ownership
-				if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
-					await changePrice(nftId, seller.toLowerCase(), ethers.formatEther(highestBid));
-					await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
-				}
-			},
-		);
+			// If a bid was made on the auction, change ownership
+			if (seller.toLowerCase() !== highestBidder.toLowerCase() && highestBidder !== nullAddress) {
+				await changePrice(nftId, seller.toLowerCase(), ethers.formatEther(highestBid));
+				await changeNftOwnershipInFirebase(nftId, highestBidder.toLowerCase());
+			}
+		};
+
+		auctionContract.on('AuctionEnded', listener);
+
+		// Return a cleanup function that removes the listener
+		return () => {
+			auctionContract.off('AuctionEnded', listener);
+		};
 	} catch (error) {
 		console.error('Error handling AuctionEnded event:', error);
 	}
@@ -396,7 +426,7 @@ export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
 		const signer = await getSigner();
 		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
 
-		auction.on('Bid', async (bidder, bidAmount) => {
+		const listener = async (bidder, bidAmount) => {
 			const bidData = {
 				bidder: bidder,
 				currentBid: ethers.formatEther(bidAmount),
@@ -413,7 +443,14 @@ export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
 				.catch((error) => {
 					console.error('Error updating current bid: ', error);
 				});
-		});
+		};
+
+		auction.on('Bid', listener);
+
+		// Return a cleanup function that removes the listener
+		return () => {
+			auction.off('Bid', listener);
+		};
 	} catch (error) {
 		console.error('Failed to update current bid in database', error);
 	}
