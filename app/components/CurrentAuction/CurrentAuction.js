@@ -80,7 +80,7 @@ const CurrentAuction = () => {
 		if (auctions.length > 0) {
 			setCurrentAuction(auctions[currentIndex]);
 		}
-	}, [currentIndex, auctions]);
+	}, [currentIndex]);
 
 	useEffect(() => {
 		if (currentAuction) {
@@ -276,9 +276,15 @@ const CurrentAuction = () => {
 										</div>
 									</div>
 								) : (
-									<button className={Style.auction_container_interact_btn} onClick={toggleBidding}>
-										Bid
-									</button>
+									<>
+										{user.account.toLowerCase() === currentAuction.sellerAddress.toLowerCase() ? (
+											<button className={Style.auction_container_interact_btn_disabled} disabled>
+												Your NFT
+											</button>
+										) : (
+											<button onClick={toggleBidding}>Bid</button>
+										)}
+									</>
 								)}
 							</div>
 						</div>

@@ -175,7 +175,7 @@ $font-color: #fefefe;
 	font-weight: 200;
 	letter-spacing: 0.1rem;
 	font-size: 16px;
-	padding: 0.5rem 1rem;
+	padding: 0.35rem 1rem;
 	width: 330px;
 	position: relative;
 
@@ -247,7 +247,7 @@ $font-color: #fefefe;
 	justify-content: center;
 	gap: 0.5rem;
 	position: relative;
-	width: 49%;
+	width: 46%;
 	transition: all 0.35s ease-in-out;
 
 	p:nth-of-type(1) {
@@ -284,8 +284,8 @@ $font-color: #fefefe;
 	width: 50%;
 	padding-bottom: 0.25rem;
 	position: absolute;
-	top: 2.5px;
-	right: -2.5px;
+	top: 0px;
+	right: 2.5px;
 
 	.interface_actions_bid {
 		display: flex;
@@ -311,6 +311,16 @@ $font-color: #fefefe;
 		letter-spacing: 0.1rem;
 		border-radius: 8px;
 		color: white;
+
+		&.disabled {
+			border: 2px solid $alt-bg-color;
+
+			&:hover {
+				cursor: not-allowed;
+				border: 2px solid $alt-bg-color;
+				background: $alt-bg-color;
+			}
+		}
 
 		&:hover {
 			background-color: $main-bg-color;

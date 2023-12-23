@@ -67,7 +67,7 @@ const Browse = () => {
 		};
 
 		fetchUsersNFTs();
-	}, [user, currentFilter]);
+	}, [user, currentFilter, endedAuctions]);
 
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
@@ -137,8 +137,8 @@ const Browse = () => {
 
 	// Load endedAuctions
 	useEffect(() => {
-		checkEndedAuctions();
-	}, [listedNFTs]);
+		if (unlistedNFTs.length > 0) checkEndedAuctions();
+	}, [unlistedNFTs]);
 
 	const handleCategoriesDropdownToggle = () => {
 		setIsCategoriesOpen(!isCategoriesOpen);
@@ -192,7 +192,9 @@ const Browse = () => {
 		if (snapshot.exists()) {
 			const data = snapshot.val();
 			const auctions = Object.values(data);
-			if (auctions) setEndedAuctions(auctions);
+			auctions.length > 0 ? setEndedAuctions(auctions) : setEndedAuctions([]);
+		} else {
+			setEndedAuctions([]);
 		}
 	};
 
@@ -235,7 +237,7 @@ const Browse = () => {
 
 		const searchResults = searchQuery ? fuse.search(searchQuery) : nfts;
 		return searchQuery ? searchResults.map((result) => result.item) : nfts;
-	}, [listedNFTs, unlistedNFTs, currentFilter, currentCategory, searchQuery]);
+	}, [listedNFTs, unlistedNFTs, endedAuctions, currentFilter, currentCategory, searchQuery]);
 
 	return (
 		<div className={Style.browse}>
@@ -314,6 +316,7 @@ const Browse = () => {
 								price={nft.price}
 								isListed={nft.isListed}
 								resetUserData={fetchUserData}
+								checkEndedAuctions={checkEndedAuctions}
 							/>
 						))
 					) : filteredNFTs && currentFilter === 'Marketplace' ? (
@@ -330,7 +333,14 @@ const Browse = () => {
 							/>
 						))
 					) : filteredNFTs && currentFilter === 'Pending End' ? (
-						filteredNFTs.map((nft) => <MarketItem key={nft.id} {...nft} />)
+						filteredNFTs.map((nft) => (
+							<MarketItem
+								key={nft.id}
+								resetUserData={fetchUserData}
+								checkEndedAuctions={checkEndedAuctions}
+								{...nft}
+							/>
+						))
 					) : (
 						<></>
 					)}

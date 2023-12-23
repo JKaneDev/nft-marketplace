@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Style from './MarketItem.module.scss';
 import Image from 'next/image';
-import { ethers } from 'ethers';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import {
-	getSigner,
 	createAuction,
 	createContractInstance,
 	loadActiveAuctions,
@@ -27,7 +25,16 @@ import {
 import SaleToggle from './SaleToggle';
 import Auction from '../../../abis/contracts/Auction.sol/Auction.json';
 
-const MarketItem = ({ id, name, image, price, category, isListed, resetUserData }) => {
+const MarketItem = ({
+	id,
+	name,
+	image,
+	price,
+	category,
+	isListed,
+	resetUserData,
+	checkEndedAuctions,
+}) => {
 	const dispatch = useDispatch();
 
 	const user = useSelector((state) => state.connection.account);
@@ -49,10 +56,11 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 	useEffect(() => {
 		checkForActiveAuction(id);
 		checkForPendingAuctionEnd(id);
-	}, []);
+	}, [id]);
 
 	useEffect(() => {
 		if (auctionStarted) {
+			setAuctionActive(true);
 			reloadAuctionData();
 		}
 	}, [auctionStarted]);
@@ -153,6 +161,8 @@ const MarketItem = ({ id, name, image, price, category, isListed, resetUserData 
 				<AuctionInterface
 					id={id}
 					resetUserData={resetUserData}
+					reloadAuctionData={reloadAuctionData}
+					checkEndedAuctions={checkEndedAuctions}
 					loading={loading}
 					setLoading={setLoading}
 					setAuctionActive={setAuctionActive}

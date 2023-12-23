@@ -299,11 +299,29 @@ describe('AuctionFactory', () => {
 				expect(await auctionInstance.ended()).to.equal(true);
 			});
 
+			it.only('should transfer NFT back to the seller if no bids, if time elapsed and if ended by non-participant', async () => {
+				await ethers.provider.send('evm_increaseTime', [3601]);
+				await ethers.provider.send('evm_mine');
+				const tx = await auctionInstance.connect(account2).confirmAuctionEnd();
+				const receipt = await tx.wait();
+				if (receipt) await auctionInstance.connect(account3).endAuction();
+				expect(await marketplace.ownerOf(tokenId)).to.equal(account1.address);
+			});
+
 			it('should transfer the NFT to the highest bidder on auction end', async () => {
 				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
 				const tx = await auctionInstance.connect(account1).endAuction();
 				const receipt = await tx.wait();
 				if (receipt) await marketplace.connect(account2).revokeApproval(tokenId);
+				expect(await marketplace.ownerOf(tokenId)).to.equal(account2.address);
+			});
+
+			it('should transfer ownership accordingly after non-participant ends auction after time elapsed', async () => {
+				await auctionInstance.connect(account2).bid({ value: ethers.parseEther('2') });
+				await ethers.provider.send('evm_increaseTime', [3601]);
+				await ethers.provider.send('evm_mine');
+				await auctionInstance.connect(account2).confirmAuctionEnd();
+				await auctionInstance.connect(account3).endAuction();
 				expect(await marketplace.ownerOf(tokenId)).to.equal(account2.address);
 			});
 

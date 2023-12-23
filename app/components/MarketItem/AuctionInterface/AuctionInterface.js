@@ -15,6 +15,7 @@ import { realtimeDb } from '@/firebaseConfig';
 const AuctionInterface = ({
 	id,
 	resetUserData,
+	checkEndedAuctions,
 	loading,
 	setLoading,
 	setAuctionActive,
@@ -26,6 +27,8 @@ const AuctionInterface = ({
 }) => {
 	const dispatch = useDispatch();
 
+	const user = useSelector((state) => state.connection.account);
+
 	const [endedConfirmationNeeded, setEndedConfirmationNeeded] = useState(false);
 	const [auctionComplete, setAuctionComplete] = useState(false);
 	const [auction, setAuction] = useState(null);
@@ -36,6 +39,8 @@ const AuctionInterface = ({
 			setEndedConfirmationNeeded(confirmationNeeded);
 		};
 		runChecks();
+
+		console.log('Ended confirmation needed: ', endedConfirmationNeeded);
 	}, []);
 
 	useEffect(() => {
@@ -55,7 +60,7 @@ const AuctionInterface = ({
 	}, [auction]);
 
 	useEffect(() => {
-		if (endedConfirmationNeeded) {
+		if (endedConfirmationNeeded == true) {
 			const getAuction = async () => {
 				const data = await getEndedAuctionData(id);
 				setAuction(data);
@@ -68,7 +73,8 @@ const AuctionInterface = ({
 		if (auctionComplete) {
 			setTimeout(() => {
 				setAuctionActive(false);
-				setEndedConfirmationNeeded(false);
+				resetUserData();
+				setLoading(false);
 			}, 3000);
 		}
 	}, [auctionComplete]);
@@ -77,12 +83,14 @@ const AuctionInterface = ({
 		try {
 			setLoading(true);
 
-			if (auction) await confirmEndAuction(auction.address);
+			if (user.account === auction.seller) {
+				await endAuction(auction.address);
+			} else {
+				await confirmEndAuction(auction.address);
+			}
 
-			setTimeout(() => {
-				setLoading(false);
-				setAuctionComplete(true);
-			}, 3000);
+			checkEndedAuctions();
+			setAuctionComplete(true);
 		} catch (error) {
 			console.error('Error ending auction', error);
 		}

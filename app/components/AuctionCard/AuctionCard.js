@@ -10,6 +10,8 @@ import { ethers } from 'ethers';
 // BLOCKCHAIN + BACKEND IMPORTS
 import { deleteField, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { ref, get } from 'firebase/database';
+import { realtimeDb } from '@/firebaseConfig';
 
 // INTERNAL IMPORTS
 import Style from './AuctionCard.module.scss';
@@ -22,7 +24,16 @@ import {
 	placeBid,
 } from '@/store/blockchainInteractions';
 
-const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData }) => {
+const AuctionCard = ({
+	id,
+	image,
+	name,
+	category,
+	price,
+	isListed,
+	resetUserData,
+	checkEndedAuctions,
+}) => {
 	const dispatch = useDispatch();
 
 	const [loading, setLoading] = useState(false);
@@ -46,8 +57,6 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 		let cleanupFuncs = [];
 
 		const loadAuctionEventListeners = async () => {
-			// ...existing code...
-
 			const cleanup1 = await listenForEndedAuctions(dispatch, auction.auctionAddress);
 			const cleanup2 = await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
 			cleanupFuncs = [cleanup1, cleanup2];
@@ -76,6 +85,7 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 	useEffect(() => {
 		if (auctionComplete) {
 			resetUserData();
+			checkEndedAuctions();
 		}
 	}, [auctionComplete]);
 
@@ -83,12 +93,11 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 		try {
 			setLoading(true);
 
-			setAuctionComplete(true);
-
 			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
 
 			setTimeout(() => {
 				setLoading(false);
+				setAuctionComplete(true);
 			}, 1500);
 		} catch (error) {
 			console.error('Error ending auction');
@@ -109,7 +118,6 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 			};
 
 			if (userRef) {
-				console.log('User Ref found: ', userRef);
 				console.log('Data object: ', nftData);
 				await updateDoc(userRef, {
 					[`watchlist.${id}`]: nftData,
@@ -207,10 +215,8 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 						<div className={Style.interface_actions}>
 							<div className={Style.interface_actions_bid}>
 								<p>{auction.currentBid ? 'Current Bid:' : 'Starting Price:'}</p>
-								<p>
-									{auction.currentBid ? auction.currentBid : auction.startingPrice}
-									ETH
-								</p>
+								<p>{auction.currentBid ? auction.currentBid : auction.startingPrice}</p>
+								<p>ETH</p>
 							</div>
 							{loading ? (
 								<RingLoader size={30} color={'#fff'} />
@@ -226,7 +232,15 @@ const AuctionCard = ({ id, image, name, category, price, isListed, resetUserData
 									</button>
 								</div>
 							) : (
-								<button onClick={handleSetBid}>Place Bid</button>
+								<>
+									{user.account.toLowerCase() === auction.sellerAddress.toLowerCase() ? (
+										<button className={Style.disabled} disabled>
+											Your NFT
+										</button>
+									) : (
+										<button onClick={handleSetBid}>Place Bid</button>
+									)}
+								</>
 							)}
 						</div>
 					</>
