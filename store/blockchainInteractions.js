@@ -24,6 +24,13 @@ import Auction from '../abis/contracts/Auction.sol/Auction.json';
 import { realtimeDb } from '../firebaseConfig';
 import { get, ref, set, remove, update } from 'firebase/database';
 
+/**
+ * Connects to the Ethereum blockchain using MetaMask and updates the state with the current account.
+ * Also listens for account changes and updates the state accordingly.
+ * @param {Function} dispatch - The dispatch function from Redux to update the state.
+ * @returns {string} - The current account address.
+ * @throws {Error} - If there is an error connecting to MetaMask.
+ */
 export const connectToEthereum = async (dispatch) => {
 	try {
 		if (typeof window.ethereum !== 'undefined') {
@@ -68,6 +75,13 @@ export const getSigner = async () => {
 	return signer;
 };
 
+/**
+ * Loads the marketplace contract and returns an instance of the contract.
+ *
+ * @param {function} dispatch - The dispatch function from Redux.
+ * @returns {Object} - An instance of the marketplace contract.
+ * @throws {Error} - If the marketplace contract is not deployed to the current network.
+ */
 export const loadMarketplaceContract = async (dispatch) => {
 	const abi = Marketplace.abi;
 	const address = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
@@ -81,13 +95,20 @@ export const loadMarketplaceContract = async (dispatch) => {
 
 		return marketplace;
 	} catch (error) {
-		console.log(
+		window.alert(
 			'Marketplace contract not deployed to the current network. Please select another with MetaMask.',
 		);
 		dispatch(setError(error.message));
 	}
 };
 
+/**
+ * Loads the Auction Factory contract and returns an instance of the contract.
+ *
+ * @param {function} dispatch - The dispatch function from Redux.
+ * @returns {Promise<Object>} - An instance of the Auction Factory contract.
+ * @throws {Error} - If the Auction Factory is not deployed to the current network.
+ */
 export const loadAuctionFactoryContract = async (dispatch) => {
 	const abi = AuctionFactory.abi;
 	const address = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
@@ -100,7 +121,7 @@ export const loadAuctionFactoryContract = async (dispatch) => {
 
 		return auctionFactory;
 	} catch (error) {
-		console.log('Auction Factory not deployed to the current network.');
+		window.alert('Auction Factory not deployed to the current network.');
 		dispatch(setError(error.message));
 	}
 };
@@ -130,7 +151,6 @@ const pinToIpfs = async (cid) => {
 };
 
 const uploadToFirebase = async (metadata, metadataToUpload, tokenId, seller) => {
-	console.log('Upload to firebase called');
 	const firebaseImageUrl = await uploadImageToFirebase(
 		metadata.image,
 		metadataToUpload.displayName,
@@ -140,12 +160,20 @@ const uploadToFirebase = async (metadata, metadataToUpload, tokenId, seller) => 
 	await updateFirebaseWithNFT(firebaseImageUrl, metadataToUpload, tokenId, seller);
 };
 
+/**
+ * Initiates the minting sequence for creating an NFT in a marketplace.
+ *
+ * @param {Object} metadata - The metadata of the NFT.
+ * @param {Object} marketplace - The marketplace contract instance.
+ * @param {number} royaltyPercentage - The royalty percentage for the NFT.
+ * @param {Object} user - The user object containing the user's account information.
+ * @returns {Promise<void>} - A promise that resolves when the minting sequence is completed.
+ */
 export const initiateMintSequence = async (metadata, marketplace, royaltyPercentage, user) => {
 	// Step 1: Check for input validation errors
 	const validationErrors = validateInput(metadata);
 
 	if (Object.keys(validationErrors).length === 0) {
-		console.log('initiate mint sequence called');
 		// Step 2: Upload Image to IPFS and get CID
 		const imageCID = await uploadImageToIpfs(metadata.image);
 
@@ -178,13 +206,24 @@ export const initiateMintSequence = async (metadata, marketplace, royaltyPercent
 			const tokenId = event.args[0];
 			await uploadToFirebase(metadata, metadataToUpload, tokenId, user.account);
 		}
-
-		console.log('Smart contract call successful');
 	} else {
 		window.alert('Invalid data - Please see console and try again');
 		console.error('Validation Errors: ', validationErrors);
 	}
 };
+
+/**
+ *
+ * Creates a new auction for an NFT in the marketplace.
+ * @param {Object} auctionFactoryContract - The auction factory contract instance.
+ * @param {Object} marketplace - The marketplace contract instance.
+ * @param {string} startingPrice - The starting price of the auction.
+ * @param {number} auctionDuration - The duration of the auction in minutes.
+ * @param {number} nftId - The ID of the NFT.
+ * @param {string} seller - The address of the seller.
+ * @returns {Promise} - A promise that resolves with the transaction receipt when the auction is created.
+ *
+ */
 
 export const createAuction = async (
 	auctionFactoryContract,
@@ -221,6 +260,13 @@ export const createAuction = async (
 	}
 };
 
+/**
+ * Listens for created auctions and adds them to the Firebase database.
+ *
+ * @param {Function} dispatch - The dispatch function from Redux.
+ * @param {Object} auctionFactoryContract - The auction factory contract instance.
+ * @returns {Function} - A cleanup function that removes the listener.
+ */
 export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract) => {
 	const listener = async (
 		nftId,
@@ -259,6 +305,13 @@ export const listenForCreatedAuctions = async (dispatch, auctionFactoryContract)
 	};
 };
 
+/**
+ * Loads active auctions from Firebase and dispatches the fetched auctions to the Redux store.
+ *
+ * @param {function} dispatch - The Redux dispatch function.
+ * @returns {Promise<void>} - A promise that resolves when the auctions are loaded and dispatched.
+ * @throws {Error} - If there is an error loading the active auctions.
+ */
 export const loadActiveAuctions = async (dispatch) => {
 	try {
 		// Reference to the auctions in Firebase
@@ -282,14 +335,20 @@ export const loadActiveAuctions = async (dispatch) => {
 	}
 };
 
+/**
+ * Purchase an NFT from the marketplace.
+ *
+ * @param {Object} marketplace - The marketplace contract instance.
+ * @param {string} id - The ID of the NFT to purchase.
+ * @param {string} user - The user making the purchase.
+ * @returns {Promise<void>} - A promise that resolves when the purchase is complete.
+ */
 export const purchaseNft = async (marketplace, id, user) => {
 	try {
 		const seller = await getSellerAddress(marketplace, id);
 		const price = await marketplace.getNFTPrice(id);
 		const tx = await marketplace.createMarketSale(id, { value: price });
 		const receipt = await tx.wait();
-
-		console.log('Transaction Successful!');
 
 		if (receipt) {
 			await delistNFT(seller.toLowerCase(), id);
@@ -300,6 +359,12 @@ export const purchaseNft = async (marketplace, id, user) => {
 	}
 };
 
+/**
+ * Ends an auction by calling the endAuction function of the specified smart contract.
+ *
+ * @param {string} contractAddress - The address of the smart contract.
+ * @returns {Promise<void>} - A promise that resolves when the auction is ended successfully.
+ */
 export const endAuction = async (contractAddress) => {
 	try {
 		const signer = await getSigner();
@@ -311,6 +376,15 @@ export const endAuction = async (contractAddress) => {
 	return;
 };
 
+/**
+ * Confirms the end of an auction by calling the smart contract's confirmAuctionEnd function,
+ * and if successful, ends the auction by calling the endAuction function. This allows users
+ * other than the seller to end the auction. Maintaining security but ensuring the seller
+ * does not have to be online to end the auction.
+ *
+ * @param {string} auctionAddress - The address of the auction contract.
+ * @returns {Promise<void>} - A promise that resolves when the auction is confirmed and ended successfully.
+ */
 export const confirmEndAuction = async (auctionAddress) => {
 	try {
 		const signer = await getSigner();
@@ -324,11 +398,18 @@ export const confirmEndAuction = async (auctionAddress) => {
 	return;
 };
 
-export const callAuctionEndTimeReached = async (dispatch, nftId, auctionAddress) => {
+/**
+ * Calls the function when the auction end time is reached.
+ * Removes the auction from the 'auctions' node, adds the auction data to the 'endedAuctions' node,
+ * and delists the NFT associated with the auction.
+ *
+ * @param {function} dispatch - The dispatch function to remove the auction from the state.
+ * @param {string} nftId - The ID of the NFT associated with the auction.
+ * @param {string} auctionAddress - The address of the auction contract.
+ * @returns {Promise<void>} - A promise that resolves when the auction is ended.
+ */
+export const callAuctionEndTimeReached = async (dispatch, nftId) => {
 	try {
-		const signer = await getSigner();
-		const auctionContract = new ethers.Contract(auctionAddress, Auction.abi, signer);
-
 		// Reference to the auction in the 'auctions' node
 		const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 
@@ -363,6 +444,13 @@ export const callAuctionEndTimeReached = async (dispatch, nftId, auctionAddress)
 	}
 };
 
+/**
+ * Listens for ended auctions and performs necessary actions based on the auction outcome.
+ * @param {Function} dispatch - The dispatch function from Redux for updating the state.
+ * @param {string} contractAddress - The address of the auction contract.
+ * @returns {Function} - A cleanup function that removes the listener.
+ * @throws {Error} - If there is an error handling the AuctionEnded event.
+ */
 export const listenForEndedAuctions = async (dispatch, contractAddress) => {
 	try {
 		const signer = await getSigner();
@@ -410,6 +498,13 @@ export const listenForEndedAuctions = async (dispatch, contractAddress) => {
 	}
 };
 
+/**
+ * Places a bid on an auction.
+ *
+ * @param {string} auctionAddress - The address of the auction contract.
+ * @param {string} amount - The amount of the bid in Ether.
+ * @returns {Promise<void>} - A promise that resolves when the bid is successfully placed.
+ */
 export const placeBid = async (auctionAddress, amount) => {
 	try {
 		const signer = await getSigner();
@@ -418,9 +513,17 @@ export const placeBid = async (auctionAddress, amount) => {
 	} catch (error) {
 		console.error('Error placing bid on auction', error);
 	}
-	return;
 };
 
+/**
+ * Listens for bid events on the blockchain and updates the bid data in the database.
+ *
+ * @param {Function} dispatch - The dispatch function from Redux to update the bid data in the store.
+ * @param {string} auctionAddress - The address of the auction contract on the blockchain.
+ * @param {string} nftId - The ID of the NFT associated with the auction.
+ * @returns {Function} - A cleanup function to remove the event listener.
+ * @throws {Error} - If there is an error updating the current bid in the database.
+ */
 export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
 	try {
 		const signer = await getSigner();
@@ -438,7 +541,7 @@ export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 			update(auctionRef, { currentBid: bidData.currentBid })
 				.then(() => {
-					console.log('DB updated with bid!');
+					console.log('DB updated with bid!', bidData.currentBid);
 				})
 				.catch((error) => {
 					console.error('Error updating current bid: ', error);
@@ -447,7 +550,6 @@ export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
 
 		auction.on('Bid', listener);
 
-		// Return a cleanup function that removes the listener
 		return () => {
 			auction.off('Bid', listener);
 		};

@@ -31,20 +31,12 @@ const auctionFactorySlice = createSlice({
 					auction.nftId === action.payload.nftId && auction.startTime === action.payload.startTime,
 			);
 
-			if (!auctionExists) {
-				state.auctions = [...state.auctions, action.payload];
-			} else {
-				console.log('Auction already exists in store');
-			}
+			if (!auctionExists) state.auctions = [...state.auctions, action.payload];
 		},
 		removeAuction: (state, action) => {
 			const auctionExists = state.auctions.some((auction) => auction.nftId === action.payload);
-			if (auctionExists) {
+			if (auctionExists)
 				state.auctions = state.auctions.filter((auction) => auction.nftId !== action.payload);
-				console.log('Auction removed from store');
-			} else {
-				console.log('Auction did not exist');
-			}
 		},
 		setAuctions: (state, action) => {
 			state.auctions = action.payload;

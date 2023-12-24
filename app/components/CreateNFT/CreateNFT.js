@@ -93,7 +93,6 @@ const CreateNFT = () => {
 		}
 
 		try {
-			console.log('Create nft called');
 			const marketplace = await createContractInstance(marketplaceDetails);
 			await initiateMintSequence(metadata, marketplace, nftData.royalties, user);
 

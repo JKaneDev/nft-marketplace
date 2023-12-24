@@ -1,7 +1,10 @@
 import { create } from 'ipfs-http-client';
 
 const auth =
-	'Basic ' + Buffer.from(process.env.INFURA_PROJECT_ID + ':' + process.env.INFURA_PROJECT_SECRET).toString('base64');
+	'Basic ' +
+	Buffer.from(process.env.INFURA_PROJECT_ID + ':' + process.env.INFURA_PROJECT_SECRET).toString(
+		'base64',
+	);
 
 const client = create({
 	host: 'ipfs.infura.io',
@@ -27,7 +30,7 @@ export const uploadImageToIpfs = async (imageFile) => {
 		}
 
 		const data = await response.json();
-		console.log('Image uploaded to IPFS: ', data);
+		console.log('Image uploaded to IPFS - CID: ', data);
 		return data.cid; // Assuming the server responds with the CID
 	} catch (error) {
 		console.error('Error uploading image to IPFS:', error);

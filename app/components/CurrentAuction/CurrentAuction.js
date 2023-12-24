@@ -137,11 +137,7 @@ const CurrentAuction = () => {
 		try {
 			setLoading(true);
 
-			await callAuctionEndTimeReached(
-				dispatch,
-				currentAuction.nftId,
-				currentAuction.auctionAddress,
-			);
+			await callAuctionEndTimeReached(dispatch, currentAuction.nftId);
 
 			setTimeout(() => {
 				setLoading(false);

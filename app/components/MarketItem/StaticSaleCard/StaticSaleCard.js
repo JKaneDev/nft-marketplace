@@ -71,7 +71,6 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 					[`watchlist.${id}`]: nftData,
 				});
 				setInWatchlist(true);
-				console.log(`Watchlist item ${name} added`);
 			} else {
 				console.log('Reference to user does not exist');
 			}
@@ -80,7 +79,6 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 				[`watchlist.${id}`]: deleteField(),
 			});
 			setInWatchlist(false);
-			console.log(`Watchlist item ${name} removed`);
 		}
 	};
 

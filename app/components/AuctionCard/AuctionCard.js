@@ -93,7 +93,7 @@ const AuctionCard = ({
 		try {
 			setLoading(true);
 
-			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
+			await callAuctionEndTimeReached(dispatch, id);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -118,12 +118,10 @@ const AuctionCard = ({
 			};
 
 			if (userRef) {
-				console.log('Data object: ', nftData);
 				await updateDoc(userRef, {
 					[`watchlist.${id}`]: nftData,
 				});
 				setInWatchlist(true);
-				console.log(`Watchlist item ${name} added`);
 			} else {
 				console.log('Reference to user does not exist');
 			}
@@ -132,7 +130,6 @@ const AuctionCard = ({
 				[`watchlist.${id}`]: deleteField(),
 			});
 			setInWatchlist(false);
-			console.log(`Watchlist item ${name} removed`);
 		}
 	};
 

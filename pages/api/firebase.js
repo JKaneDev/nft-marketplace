@@ -61,11 +61,7 @@ export const updateFirebaseWithNFT = async (
 			await updateDoc(userRef, {
 				[`ownedNFTs.${tokenId}`]: nftDataForFirebase,
 			});
-		} else {
-			console.log('Firebase user ref does not exist');
 		}
-
-		console.log('Firebase metadata upload success');
 	} catch (error) {
 		console.error('Error updating Firebase with NFT:', error);
 		throw error;
@@ -93,16 +89,8 @@ export const listNFT = async (seller, nftId) => {
 					await updateDoc(userRef, {
 						[nftPath]: true,
 					});
-
-					console.log('NFT listed successfully');
-				} else {
-					console.log('NFT is already listed');
 				}
-			} else {
-				console.log('NFT does not exist in user data');
 			}
-		} else {
-			console.log('User document does not exist');
 		}
 	} catch (error) {
 		console.error('Error listing NFT:', error);
@@ -130,16 +118,8 @@ export const delistNFT = async (seller, nftId) => {
 					await updateDoc(userRef, {
 						[nftPath]: false,
 					});
-
-					console.log('NFT delisted successfully');
-				} else {
-					console.log('NFT is already delisted');
 				}
-			} else {
-				console.log('NFT does not exist in user data');
 			}
-		} else {
-			console.log('User document does not exist');
 		}
 	} catch (error) {
 		console.error('Error delisting NFT:', error);
@@ -194,8 +174,6 @@ export const changePrice = async (nftId, seller, newPrice) => {
 		await updateDoc(userRef, {
 			[`ownedNFTs.${nftId}.price`]: newPrice,
 		});
-
-		console.log('NFT updated with new price: ', nftId, newPrice);
 	} catch (error) {
 		console.error('Error updating nft with new price: ', error);
 	}

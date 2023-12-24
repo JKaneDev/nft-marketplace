@@ -269,7 +269,6 @@ const Browse = () => {
 								key={index}
 								onClick={() => {
 									handleCategorySelect(category);
-									console.log(`${category} selected`);
 								}}
 								className={Style.browse_wrapper_category_menu_options}
 							>
@@ -288,7 +287,6 @@ const Browse = () => {
 								key={index}
 								onClick={() => {
 									handleFilterSelect(option);
-									console.log(`${option} selected`);
 								}}
 								className={Style.browse_wrapper_filter_menu_options}
 							>

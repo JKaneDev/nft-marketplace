@@ -35,7 +35,6 @@ const Navbar = () => {
 
 	const handleConnect = async () => {
 		try {
-			console.log('Handling Wallet Connect');
 			if (!isConnected) {
 				const account = await connectToEthereum(dispatch);
 				loadOrCreateAccount(account);
@@ -52,10 +51,8 @@ const Navbar = () => {
 		const docSnap = await getDoc(userRef);
 
 		if (docSnap.exists()) {
-			console.log('User already has profile in DB');
 			return docSnap.data();
 		} else {
-			console.log('No profile found - creating profile');
 			const newUser = {
 				walletAddress: walletAddress,
 				profilePicture: '',
@@ -191,11 +188,15 @@ const Navbar = () => {
 					</div>
 					{/* Connect Wallet */}
 					<button
-						className={`${Style.navbar_container_right_connect} ${isConnected ? Style.walletConnectedWrapper : ''}`}
+						className={`${Style.navbar_container_right_connect} ${
+							isConnected ? Style.walletConnectedWrapper : ''
+						}`}
 						onClick={handleConnect}
 					>
 						<FaPlug
-							className={`${Style.navbar_container_right_connect_icon} ${isConnected ? Style.walletConnectedIcon : ''}`}
+							className={`${Style.navbar_container_right_connect_icon} ${
+								isConnected ? Style.walletConnectedIcon : ''
+							}`}
 						/>
 					</button>
 				</div>

@@ -39,8 +39,6 @@ const AuctionInterface = ({
 			setEndedConfirmationNeeded(confirmationNeeded);
 		};
 		runChecks();
-
-		console.log('Ended confirmation needed: ', endedConfirmationNeeded);
 	}, []);
 
 	useEffect(() => {

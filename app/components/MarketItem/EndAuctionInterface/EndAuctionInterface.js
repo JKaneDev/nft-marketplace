@@ -74,7 +74,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		try {
 			setLoading(true);
 
-			await callAuctionEndTimeReached(dispatch, id, auction.auctionAddress);
+			await callAuctionEndTimeReached(dispatch, id);
 
 			setTimeout(() => {
 				setLoading(false);

@@ -278,7 +278,6 @@ const MyNFTs = () => {
 								key={index}
 								onClick={() => {
 									handleCategorySelect(category);
-									console.log(`${category} selected`);
 								}}
 								className={Style.main_profile_search_btns}
 							>
@@ -298,7 +297,6 @@ const MyNFTs = () => {
 								key={index}
 								onClick={() => {
 									handleFilterSelect(option);
-									console.log(`${option} selected`);
 								}}
 								className={Style.main_profile_search_btns}
 							>
