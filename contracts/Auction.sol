@@ -37,10 +37,13 @@ contract Auction is ReentrancyGuard {
                 auctionEndTime = block.timestamp + auctionDuration;
         }
 
-        function getHighestBidder() public view returns (address) {
-                return highestBidder;
-        }
-
+        /**
+         * @dev Allows a user to withdraw their funds from the auction.
+         * The user can only withdraw funds after the auction has ended and if they are not the highest bidder.
+         * If the withdrawal is successful, the user's pending returns will be set to zero.
+         * If the withdrawal fails, the user's pending returns will be set back to the original amount.
+         * @return A boolean indicating whether the withdrawal was successful or not.
+         **/
         function withdraw() public returns (bool) {
                 require(ended == true, 'User can only withdraw funds after auction has ended');
                 require(msg.sender != highestBidder, 'highestBidder cannot withdraw funds');
@@ -61,6 +64,15 @@ contract Auction is ReentrancyGuard {
                 return true;
         }
 
+        /**
+         * @dev Allows a user to place a bid on the auction.
+         * The bid must be greater than the starting price, not placed by the seller,
+         * not placed by the current highest bidder, and the auction must not have ended.
+         * If the bidder has a previous bid, it will be refunded before placing the new bid.
+         * If the new bid becomes the highest bid, the previous highest bidder's bid amount
+         * will be added to their pending returns.
+         * Emits a `Bid` event with the bidder's address, bid amount, and the auction contract address.
+         */
         function bid() public payable nonReentrant {
                 require(ended == false && durationElapsed == false, 'Auction has ended');
                 require(seller != msg.sender, 'Seller cannot bid on their own auction');
@@ -98,11 +110,25 @@ contract Auction is ReentrancyGuard {
                 emit Bid(msg.sender, msg.value, address(this));
         }
 
+        /**
+         * @dev Confirms the end of the auction.
+         *      Checks if the current block timestamp is greater than or equal to the auction end time.
+         *      Sets the `durationElapsed` flag to true if the auction has ended.
+         *      Throws an error if the auction has not ended yet.
+         */
         function confirmAuctionEnd() public {
                 require(block.timestamp >= auctionEndTime, "Auction has not ended yet");
                 durationElapsed = true;
         }
 
+        /**
+         * @dev Ends the auction and distributes the funds to the appropriate parties.
+         * Can only be called by the seller, the marketplace contract, or when the duration has elapsed.
+         * If a bid was made, the sale amount is transferred to the seller, royalty amount to the original NFT owner,
+         * marketplace fee to the marketplace contract, and a refund is sent to the penultimate bidder.
+         * If no bid was made, the auction is simply ended.
+         * Emits an AuctionEnded event.
+         **/
         function endAuction() public nonReentrant {
                 require(durationElapsed || msg.sender == seller || msg.sender == marketplaceAddress, 'Cannot end auction if not seller or if end time has not been reached');
 

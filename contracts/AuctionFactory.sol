@@ -39,6 +39,13 @@ contract AuctionFactory {
                 bool active;
         }
 
+        /**
+         * @dev Creates a new auction for an NFT.
+         * @param startingPrice The starting price of the auction.
+         * @param auctionDuration The duration of the auction in seconds.
+         * @param nftId The ID of the NFT being auctioned.
+         * @param seller The address of the seller.
+         **/
         function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
                 require(seller != address(0), 'Invalid seller address');
                 require(startingPrice > 0, 'Starting price must be at least 1 wei');
@@ -66,12 +73,20 @@ contract AuctionFactory {
                 emit AuctionCreated(nftId, startingPrice, currentTimestamp, auctionDuration, seller, address(newAuction));
         }
 
+        /**
+         * @dev Changes the active status of an auction for a specific NFT.
+         * @param nftId The ID of the NFT.
+         */
         function changeActiveStatus(uint256 nftId) public {
                 auctions[nftId].active = false;
                 removeActiveAuction(nftId);
                 _endedAuctions.increment();
         }
 
+        /**
+         * @dev Removes an active auction for a specific NFT.
+         * @param nftId The ID of the NFT for which the auction is to be removed.
+         */
         function removeActiveAuction(uint256 nftId) internal {
                 for (uint256 i = 0; i < _activeAuctionIds.length; i++) {
                         if (_activeAuctionIds[i] == nftId) {
@@ -82,6 +97,10 @@ contract AuctionFactory {
                 }
         }
 
+        /**
+         * @dev Returns an array of active auction IDs.
+         * @return array of uint256 representing the active auction IDs.
+         */
         function getActiveAuctionIds() public view returns (uint256[] memory) {
                 return _activeAuctionIds;
         }

@@ -299,7 +299,7 @@ describe('AuctionFactory', () => {
 				expect(await auctionInstance.ended()).to.equal(true);
 			});
 
-			it.only('should transfer NFT back to the seller if no bids, if time elapsed and if ended by non-participant', async () => {
+			it('should transfer NFT back to the seller if no bids, if time elapsed and if ended by non-participant', async () => {
 				await ethers.provider.send('evm_increaseTime', [3601]);
 				await ethers.provider.send('evm_mine');
 				const tx = await auctionInstance.connect(account2).confirmAuctionEnd();

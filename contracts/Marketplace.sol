@@ -59,24 +59,57 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
     
     fallback() external payable {}
 
+    function setAuctionFactoryAddress(address auctionFactoryAddress) public {
+        auctionFactory = auctionFactoryAddress;
+    }
+
+    /**
+     * @dev Updates the listing price for creating a new listing in the marketplace.
+     * @param _listingPrice The new listing price to be set.
+     * @notice Only the contract owner can update the listing price.
+     */
     function updateListingPrice(uint256 _listingPrice) public payable onlyOwner {
         listingPrice = _listingPrice;
     }
 
+    /**
+     * @dev Retrieves the price of an NFT based on its token ID.
+     * @param tokenId The ID of the NFT.
+     * @return price The price of the NFT.
+     **/
     function getNFTPrice(uint256 tokenId) public view returns (uint256 price) {
         MarketItem memory item = idToMarketItem[tokenId];
         return item.price;
     }
 
+    /**
+     * @dev Retrieves the royalty data for a given token ID.
+     * @param tokenId The ID of the token.
+     * @return royaltyPercentage and the original owner's address.
+     */
     function getRoyaltyData(uint256 tokenId) external view override returns (uint256, address payable) {
         MarketItem memory nft = idToMarketItem[tokenId];
         return (nft.royaltyPercentage, nft.originalOwner);
     }
 
+    /**
+     * @dev Retrieves the address of the seller for a given token ID.
+     * @param tokenId The ID of the token.
+     * @return The address of the seller.
+     */
     function getSellerAddress(uint256 tokenId) public view returns (address) {
         return idToMarketItem[tokenId].seller;
     }
 
+    /**
+     * @dev Updates the price of an NFT in the marketplace.
+     * @param tokenId The ID of the NFT.
+     * @param price The new price for the NFT.
+     * Requirements:
+     * - The NFT must exist in the marketplace.
+     * - The caller must be the owner of the NFT.
+     * - The price must be greater than zero.
+     */
     function updateNFTPrice(uint256 tokenId, uint256 price) public {
         require(idToMarketItem[tokenId].owner != address(0), "NFT does not exist in marketplace");
         require(idToMarketItem[tokenId].seller == msg.sender, "Caller is not the owner");
@@ -86,6 +119,13 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         idToMarketItem[tokenId].price = price;
     }
 
+    /**
+     * @dev Creates a new token with the given token URI, royalty percentage, and price.
+     * @param tokenURI The URI of the token metadata.
+     * @param royaltyPercentage The percentage of royalty to be paid to the token creator.
+     * @param price The price of the token in wei.
+     * @return newTokenId of the newly created token.
+     */
     function createToken(string memory tokenURI, uint256 royaltyPercentage, uint256 price) public payable returns (uint256) {
         _tokenIds.increment();
 
@@ -100,7 +140,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return newTokenId;
     }
 
-    // NFT is held in escrow in the marketplace
+    /**
+     * @dev Creates a new market item for a given token.
+     * @param tokenId The ID of the token to create a market item for.
+     * @param royaltyPercentage The percentage of royalty to be paid to the original owner of the token.
+     * @param price The price of the market item.
+     * @notice The price must be greater than 0 and must be paid in full.
+     * @notice The function transfers the token to the marketplace contract.
+     * @notice Emits a `MarketItemCreated` event.
+     */
     function createMarketItem(uint256 tokenId, uint256 royaltyPercentage, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be paid in full");
@@ -128,7 +176,15 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         );
     }
 
-    // Allows the user to relist an item they own in the marketplace
+    /**
+     * @dev Resells a market item by updating its price, seller, and ownership.
+     * Only the owner of the NFT or the auction factory can relist the NFT.
+     * If the item was previously sold, the count of sold items is decremented.
+     * The NFT is transferred from the seller to the marketplace contract.
+     * @param tokenId The ID of the NFT being resold.
+     * @param price The new price of the NFT.
+     * @param seller The address of the seller.
+     */
     function resellMarketItem(uint256 tokenId, uint256 price, address seller) external payable override {
         require(idToMarketItem[tokenId].owner == msg.sender || msg.sender == auctionFactory, "Only owner can relist NFT");
 
@@ -144,6 +200,13 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         _transfer(seller, address(this), tokenId);
     }
 
+    /**
+     * @dev Allows the seller to delist a market item.
+     * @param tokenId The ID of the token to be delisted.
+     * @notice Only the token seller can delist the item.
+     * @notice The NFT will be transferred back to the seller.
+     * @notice The market item will be marked as sold.
+     */
     function delistMarketItem(uint256 tokenId) public {
         require(msg.sender == idToMarketItem[tokenId].seller, 'Only token seller can delist');
 
@@ -156,6 +219,17 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         _itemsSold.increment();
     }
 
+    /**
+     * @dev Creates a market sale for a given token ID.
+     * @param tokenId The ID of the token being sold.
+     * @notice The seller cannot purchase their own NFT.
+     * @notice The ownership of the token is transferred to the buyer upon successful purchase.
+     * @notice The listing price is transferred to the contract owner as a fee.
+     * @notice The purchase price is transferred to the seller.
+     * @notice This function increments the count of items sold.
+     * @notice This function requires the caller to send the exact asking price in Ether.
+     * @notice Reverts if the caller does not send the correct amount of Ether.
+     */
     function createMarketSale(uint256 tokenId) public payable {
         uint256 price = idToMarketItem[tokenId].price;
 
@@ -173,6 +247,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         payable(idToMarketItem[tokenId].seller).transfer(msg.value);
     }
 
+    /**
+     * @dev Fetches all the unsold market items from the marketplace.
+     * @return MarketItem structs array representing the unsold items.
+     **/
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint256 itemCount = _tokenIds.current();
         uint256 unsoldItemCount = _tokenIds.current() - _itemsSold.current();
@@ -192,7 +270,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return items;
     }
 
-    // Fetch all my NFTs
+    /**
+     * @dev Fetches the NFTs owned by the caller.
+     * @return MarketItem structs array representing the caller's NFTs.
+     **/
     function fetchMyNFT() public view returns(MarketItem[] memory) {
         uint256 totalCount = _tokenIds.current();
         uint256 itemCount = 0;
@@ -224,7 +305,10 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return items;
     }
 
-    // Fetch NFTs for individual user
+    /**
+     * @dev Fetches the list of items listed by the user.
+     * @return MarketItem structs array representing the user's listed items.
+     **/
     function fetchItemsListed() public view returns (MarketItem[] memory) {
         uint256 totalCount = _tokenIds.current();
         uint256 itemCount = 0;
@@ -253,20 +337,35 @@ contract Marketplace is ERC721URIStorage, ReentrancyGuard, IMarketplace {
         return items;
     }
 
-    function setAuctionFactoryAddress(address auctionFactoryAddress) public {
-        auctionFactory = auctionFactoryAddress;
-    }
+    
 
+    /**
+     * @dev Gives approval to another address to transfer the specified token.
+     * Only the owner of the token can give approval.
+     * @param approvee The address to be approved for token transfer.
+     * @param tokenId The ID of the token to be approved for transfer.
+     */
     function giveApproval(address approvee, uint256 tokenId) external {
         require(msg.sender == ownerOf(tokenId), 'Only the owner can give approval');
         approve(approvee, tokenId);
     }
 
+    /**
+     * @dev Revoke the approval for a specific token.
+     * Only the owner of the token can revoke the approval.
+     * @param tokenId The ID of the token to revoke approval for.
+     */
     function revokeApproval(uint256 tokenId) external override {
         require(msg.sender == ownerOf(tokenId), 'Only the owner can revoke approval');
         approve(address(0), tokenId);
     }
 
+    /**
+     * @dev Allows the marketplace to handle the end of an auction by transferring 
+     * the NFT to the winner and updating the market item status.
+     * @param tokenId The ID of the NFT being auctioned.
+     * @param winner The address of the winner who will receive the NFT.
+     */
     function handleAuctionEnd(uint256 tokenId, address winner) external override {
         // Transfer NFT to intended recipient
         IERC721(address(this)).safeTransferFrom(address(this), winner, tokenId);
