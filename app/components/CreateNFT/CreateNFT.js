@@ -77,11 +77,19 @@ const CreateNFT = () => {
 		});
 	};
 
+	/**
+	 * Creates a new NFT by minting it on the blockchain.
+	 * Prompts connection to MetaMask if not already connected.
+	 * Disallows mint call while minting.
+	 * Triggers component re-render when minting is complete.
+	 * @param {Object} metadata - The metadata of the NFT.
+	 * @returns {Promise<void>} - A promise that resolves when the NFT creation is complete.
+	 */
 	const createNft = async (metadata) => {
 		setLoading(true);
 		// Call disallowed unless valid MetaMask connection
 		if (!isConnected) {
-			await connectToEthereum(dispatch);
+			connectToEthereum(dispatch);
 			window.alert('Check MetaMask connection and call Mint again.');
 			return;
 		}

@@ -58,8 +58,8 @@ const CurrentAuction = () => {
 			if (auctionFactoryLoaded && currentAuction) {
 				const contract = await createContractInstance(auctionFactoryDetails);
 				await loadActiveAuctions(dispatch);
-				const cleanup1 = await listenForCreatedAuctions(dispatch, contract);
-				const cleanup2 = await listenForBidEvents(
+				const cleanup1 = listenForCreatedAuctions(dispatch, contract);
+				const cleanup2 = listenForBidEvents(
 					dispatch,
 					currentAuction.auctionAddress,
 					currentAuction.nftId,
@@ -70,24 +70,29 @@ const CurrentAuction = () => {
 
 		loadListeners();
 
-		// Cleanup functions are called when the component is unmounted
 		return () => {
 			cleanupFuncs.forEach((cleanup) => cleanup());
 		};
 	}, [dispatch, auctionFactoryLoaded, currentAuction]);
 
+	/* Displays new auction data when user navigates through auctions */
 	useEffect(() => {
 		if (auctions.length > 0) {
 			setCurrentAuction(auctions[currentIndex]);
 		}
 	}, [currentIndex]);
 
+	/* Fetches NFT for current auction */
 	useEffect(() => {
 		if (currentAuction) {
 			getUserData(currentAuction.nftId);
 		}
 	}, [currentAuction]);
 
+	/**
+	 * Toggles to the previous auction in the list.
+	 * Disallows negative index values.
+	 */
 	const togglePreviousAuction = () => {
 		setCurrentIndex((prevIndex) => {
 			const newIndex = (prevIndex - 1 + auctions.length) % auctions.length;
@@ -95,6 +100,10 @@ const CurrentAuction = () => {
 		});
 	};
 
+	/**
+	 * Toggles to the next auction in the list.
+	 * Disallows negative index values.
+	 */
 	const toggleNextAuction = () => {
 		setCurrentIndex((prevIndex) => {
 			const newIndex = (prevIndex + 1) % auctions.length;
@@ -102,6 +111,12 @@ const CurrentAuction = () => {
 		});
 	};
 
+	/**
+	 * Retrieves user data for a given NFT ID.
+	 * Sets data needed for JSX to state.
+	 * @param {string} nftId - The ID of the NFT.
+	 * @returns {Promise<void>} - A promise that resolves when the user data is retrieved.
+	 */
 	const getUserData = async (nftId) => {
 		try {
 			setLoading(true);
@@ -133,6 +148,13 @@ const CurrentAuction = () => {
 		}
 	};
 
+	/**
+	 * Handles the event when the end time of the current auction is reached.
+	 * This function updates the loading state, calls the API to mark the auction as ended,
+	 * and then sets a timeout to update the loading state again and either toggle to the next auction
+	 * or set the current auction to null if there are no more auctions.
+	 * @returns {Promise<void>} A promise that resolves when the function completes.
+	 */
 	const handleEndTimeReached = async () => {
 		try {
 			setLoading(true);
@@ -150,6 +172,13 @@ const CurrentAuction = () => {
 		}
 	};
 
+	/**
+	 * Handles the auction bid by placing a bid on the current auction.
+	 * If the user is the owner of the NFT being auctioned, a window alert is displayed.
+	 * Sets the loading state to true while placing the bid and then sets it to false after 1500ms.
+	 * Finally, toggles the bidding state.
+	 * @returns {Promise<void>} A promise that resolves when the bid is successfully placed or rejects if there is an error.
+	 */
 	const handleAuctionBid = async () => {
 		try {
 			if (user.account === sellerAccount) {

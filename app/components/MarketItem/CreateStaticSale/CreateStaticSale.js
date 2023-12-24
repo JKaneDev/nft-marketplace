@@ -20,6 +20,14 @@ const CreateStaticSale = ({ id, price, category, resetUserData }) => {
 	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
+	/**
+	 * Handles the reselling of a market item. Toggles listing status in firebase.
+	 * Triggers component rerender.
+	 * @async
+	 * @function handleResellMarketItem
+	 * @returns {Promise<void>} Resolves when the reselling process is complete.
+	 * @throws {Error} If an error occurs during the reselling process.
+	 */
 	const handleResellMarketItem = async () => {
 		try {
 			setLoading(true);

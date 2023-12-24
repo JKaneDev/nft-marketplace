@@ -68,30 +68,35 @@ const MyNFTs = () => {
 		};
 	}, []);
 
-	// LOAD AUCTION LISTENERS
+	/**
+	 * Loads the auction factory functions by creating a contract instance, listening for created auctions,
+	 * and loading active auctions.
+	 */
 	useEffect(() => {
 		let cleanupFunc;
 
 		const loadAuctionFactoryFunctions = async () => {
 			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-			cleanupFunc = await listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			cleanupFunc = listenForCreatedAuctions(dispatch, auctionFactoryContract);
 			await loadActiveAuctions(dispatch);
 		};
 
 		loadAuctionFactoryFunctions();
 
-		// Cleanup function is called when the component is unmounted
 		return () => {
 			if (cleanupFunc) cleanupFunc();
 		};
 	}, [dispatch, auctionFactoryDetails]);
 
-	// GET IDS FROM ACTIVE AUCTIONS
 	useEffect(() => {
 		const auctionIds = auctions.map((auction) => auction.nftId);
 		setActiveAuctions(auctionIds);
 	}, []);
 
+	/**
+	 * Fetches user data from the database and updates the state with the retrieved data.
+	 * @returns {Promise<void>} A promise that resolves when the user data has been fetched and updated.
+	 */
 	const fetchUserData = async () => {
 		try {
 			if (user) {
@@ -153,6 +158,14 @@ const MyNFTs = () => {
 		setSearchQuery(e.target.value);
 	};
 
+	/**
+	 * Returns a filtered list of NFTs based on the provided user data, filter options, and search query.
+	 * @param {Object} userData - The user data containing owned NFTs and watchlist.
+	 * @param {string} currentCategory - The current category filter.
+	 * @param {string} currentFilter - The current filter option.
+	 * @param {string} searchQuery - The search query for fuzzy search.
+	 * @returns {Array} - The filtered list of NFTs.
+	 */
 	const filteredNFTs = useMemo(() => {
 		if (!userData || !userData.ownedNFTs) return [];
 

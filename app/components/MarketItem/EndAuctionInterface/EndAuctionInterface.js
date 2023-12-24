@@ -29,18 +29,21 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		checkIfEndTimeReached(id);
 	}, []);
 
+	/**
+	 * Loads the auction factory functions by creating a contract instance, listening for created auctions,
+	 * and loading active auctions.
+	 */
 	useEffect(() => {
 		let cleanupFunc = () => {};
 
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				cleanupFunc = await listenForEndedAuctions(dispatch, auction.auctionAddress);
+				cleanupFunc = listenForEndedAuctions(dispatch, auction.auctionAddress);
 			}
 		};
 
 		auctions ? loadAuctionEndedListener() : setTimeout(() => loadAuctionEndedListener(), 3000);
 
-		// Cleanup function is called when the component is unmounted
 		return () => {
 			cleanupFunc();
 		};
@@ -55,6 +58,12 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		}
 	}, [auctionComplete]);
 
+	/**
+	 * Handles the end of an auction by calling the endAuction function and updating the state accordingly.
+	 * Sets the loading state to true, ends the auction, and then sets the loading state to false and marks
+	 * the auction as complete after a delay.
+	 * @throws {Error} If there is an error ending the auction.
+	 */
 	const handleEndAuction = async () => {
 		try {
 			setLoading(true);
@@ -70,6 +79,13 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		}
 	};
 
+	/**
+	 * Handles the event when the auction end time is reached.
+	 * This function calls the 'callAuctionEndTimeReached' function with the nft ID,
+	 * sets the loading state to true, and then sets a timeout to set the loading state to false
+	 * @returns {Promise<void>} A promise that resolves when the auction end time is handled successfully.
+	 * @throws {Error} If there is an error ending the auction.
+	 */
 	const handleEndTimeReached = async () => {
 		try {
 			setLoading(true);
@@ -85,6 +101,13 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 		}
 	};
 
+	/**
+	 * Checks if the end time of an auction has been reached for a given ID.
+	 * If the end time has been reached, it calls the handleEndTimeReached function,
+	 * which confirms the auction end and allows any user to end the auction.
+	 * @param {string} id - The ID of the auction to check.
+	 * @returns {Promise<void>} - A promise that resolves when the check is complete.
+	 */
 	const checkIfEndTimeReached = async (id) => {
 		const auctionsRef = ref(realtimeDb, 'auctions');
 		const snapshot = await get(auctionsRef);

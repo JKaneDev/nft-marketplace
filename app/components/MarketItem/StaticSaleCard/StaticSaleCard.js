@@ -22,6 +22,9 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 	const [inWatchlist, setInWatchlist] = useState(false);
 	const [purchaseComplete, setPurchaseComplete] = useState(false);
 
+	/*
+	 * Checks if the NFT is in the user's watchlist.
+	 */
 	useEffect(() => {
 		const checkWatchlistStatus = async () => {
 			const userRef = doc(db, 'users', user.account);
@@ -34,12 +37,19 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 		checkWatchlistStatus();
 	}, []);
 
+	// Triggers component re-render when purchase is complete
 	useEffect(() => {
 		if (purchaseComplete) {
 			resetUserData();
 		}
 	}, [purchaseComplete]);
 
+	/**
+	 * Handles the purchase of an NFT.
+	 * Sets the purchasing state to true, creates a contract instance, and purchases the NFT.
+	 * Sets the purchasing state to false, sets the purchase complete state to true,
+	 * and toggles the watchlist if necessary.
+	 */
 	const handleNftPurchase = async () => {
 		setPurchasing(true);
 		const marketplace = await createContractInstance(marketplaceDetails);
@@ -53,6 +63,11 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 		}, 1500);
 	};
 
+	/**
+	 * Toggles the item in the user's watchlist.
+	 * If the item is not in the watchlist, it adds it.
+	 * If the item is already in the watchlist, it removes it.
+	 */
 	const handleWatchlistToggle = async () => {
 		const userRef = doc(db, 'users', user.account);
 

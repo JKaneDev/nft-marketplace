@@ -6,8 +6,6 @@ import Style from './Contact.module.scss';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
 
 const Contact = () => {
-	const handleEmailSend = () => {};
-
 	return (
 		<div className={Style.main}>
 			<h1>Contact Us</h1>
@@ -29,16 +27,28 @@ const Contact = () => {
 						<h3>Socials</h3>
 						<div className={Style.main_container_info_wrapper_socials}>
 							<div className={Style.main_container_info_wrapper_socials_icons}>
-								<FaFacebookF size={18} className={Style.main_container_info_wrapper_socials_icons_icon} />
+								<FaFacebookF
+									size={18}
+									className={Style.main_container_info_wrapper_socials_icons_icon}
+								/>
 							</div>
 							<div className={Style.main_container_info_wrapper_socials_icons}>
-								<FaInstagram size={18} className={Style.main_container_info_wrapper_socials_icons_icon} />
+								<FaInstagram
+									size={18}
+									className={Style.main_container_info_wrapper_socials_icons_icon}
+								/>
 							</div>
 							<div className={Style.main_container_info_wrapper_socials_icons}>
-								<FaLinkedinIn size={18} className={Style.main_container_info_wrapper_socials_icons_icon} />
+								<FaLinkedinIn
+									size={18}
+									className={Style.main_container_info_wrapper_socials_icons_icon}
+								/>
 							</div>
 							<div className={Style.main_container_info_wrapper_socials_icons}>
-								<FaTwitter size={18} className={Style.main_container_info_wrapper_socials_icons_icon} />
+								<FaTwitter
+									size={18}
+									className={Style.main_container_info_wrapper_socials_icons_icon}
+								/>
 							</div>
 						</div>
 					</div>

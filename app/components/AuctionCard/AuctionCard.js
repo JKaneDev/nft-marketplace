@@ -89,6 +89,13 @@ const AuctionCard = ({
 		}
 	}, [auctionComplete]);
 
+	/**
+	 * Handles the logic when the auction end time is reached.
+	 * Initiates loading screen, calls the 'callAuctionEndTimeReached',
+	 * Sets the loading state to false and triggers re-render.
+	 * @returns {Promise<void>} A promise that resolves when the auction end time is reached.
+	 * @throws {Error} If there is an error ending the auction.
+	 */
 	const handleEndTimeReached = async () => {
 		try {
 			setLoading(true);
@@ -104,6 +111,12 @@ const AuctionCard = ({
 		}
 	};
 
+	/**
+	 * Toggles the watchlist status of an auction.
+	 * If the auction is not in the watchlist, it adds it.
+	 * If the auction is already in the watchlist, it removes it.
+	 * @returns {Promise<void>} A promise that resolves when the watchlist status is updated.
+	 */
 	const handleWatchlistToggle = async () => {
 		const userRef = doc(db, 'users', user.account);
 
@@ -137,6 +150,13 @@ const AuctionCard = ({
 		setBidding(!bidding);
 	};
 
+	/**
+	 * Handles the process of placing a bid on an auction.
+	 * @async
+	 * @function handleAuctionBid
+	 * @returns {Promise<void>}
+	 * @throws {Error} If failed to place bid on auction.
+	 */
 	const handleAuctionBid = async () => {
 		try {
 			setLoading(true);
@@ -151,6 +171,12 @@ const AuctionCard = ({
 		}
 	};
 
+	/**
+	 * Checks if the end time of an auction has been reached for a given ID.
+	 * If the end time has been reached, it calls the handleEndTimeReached function.
+	 * @param {string} id - The ID of the auction to check.
+	 * @returns {Promise<void>} - A promise that resolves when the check is complete.
+	 */
 	const checkIfEndTimeReached = async (id) => {
 		const auctionsRef = ref(realtimeDb, 'auctions');
 		const snapshot = await get(auctionsRef);

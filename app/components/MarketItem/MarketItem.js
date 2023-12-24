@@ -53,11 +53,13 @@ const MarketItem = ({
 	const [auctionStarted, setAuctionStarted] = useState(false);
 	const [pendingEnded, setPendingEnded] = useState(false);
 
+	/* Check to determine which sub-component to render */
 	useEffect(() => {
 		checkForActiveAuction(id);
 		checkForPendingAuctionEnd(id);
 	}, [id]);
 
+	/* Trigger component re-render when auction starts */
 	useEffect(() => {
 		if (auctionStarted) {
 			setAuctionActive(true);
@@ -65,6 +67,7 @@ const MarketItem = ({
 		}
 	}, [auctionStarted]);
 
+	/* Re-load auctions and NFTs when auction starts or ends */
 	const reloadAuctionData = async () => {
 		await loadActiveAuctions(dispatch);
 		checkForActiveAuction(id);
@@ -84,7 +87,6 @@ const MarketItem = ({
 
 	/**
 	 * Checks if an auction for a given ID has ended.
-	 *
 	 * @param {string} id - The ID of the nft to check.
 	 */
 	const checkForPendingAuctionEnd = async (id) => {
@@ -94,6 +96,11 @@ const MarketItem = ({
 		setPendingEnded(isPendingEnd);
 	};
 
+	/**
+	 * Handles the start of an auction.
+	 * Sets loading state to true, creates contract instances, and calls createAuction function.
+	 * Sets loading state to false and marks the auction as started.
+	 */
 	const handleAuctionStart = async () => {
 		setLoading(true);
 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);

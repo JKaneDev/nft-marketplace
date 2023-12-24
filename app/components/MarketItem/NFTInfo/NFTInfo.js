@@ -25,6 +25,12 @@ const NFTInfo = ({ id, price, category, resetUserData }) => {
 	const user = useSelector((state) => state.connection.account);
 	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 
+	/**
+	 * Updates the listing price of an NFT in the marketplace and
+	 * updates the price in the user's owned NFTs in Firebase.
+	 * @param {Event} e - The event object.
+	 * @returns {Promise<void>} - A promise that resolves once the listing price is updated.
+	 */
 	const updateListingPrice = async (e) => {
 		setLoading(true);
 		// Update in smart contract
@@ -45,6 +51,11 @@ const NFTInfo = ({ id, price, category, resetUserData }) => {
 		togglePriceUpdate();
 	};
 
+	/**
+	 * Handles the delisting of an NFT from the marketplace.
+	 * Triggers delisting in firebase.
+	 * @returns {Promise<void>} A promise that resolves when the NFT is successfully delisted.
+	 */
 	const handleDelistNft = async () => {
 		const marketplace = await createContractInstance(marketplaceDetails);
 		const tx = await marketplace.delistMarketItem(id);
