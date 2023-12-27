@@ -1,27 +1,29 @@
-const { ethers } = require('ethers');
+const { ethers } = require('hardhat');
 const Marketplace = require('../abis/contracts/Marketplace.sol/Marketplace.json');
 const AuctionFactory = require('../abis/contracts/AuctionFactory.sol/AuctionFactory.json');
 
 async function main() {
-	const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/');
-	const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+	const [deployer] = await ethers.getSigners();
+	console.log('Deploying contracts with the account:', deployer.address);
 
-	const marketplace = new ethers.ContractFactory(Marketplace.abi, Marketplace.bytecode, wallet);
-	const marketplaceContract = await marketplace.deploy();
-	await marketplaceContract.waitForDeployment();
+	console.log('Deployment costs: ', ethers.formatEther('483932874016889700'));
 
-	const marketplaceAddress = await marketplaceContract.getAddress();
+	const MarketplaceContract = await ethers.getContractFactory('Marketplace');
+	const marketplace = await MarketplaceContract.deploy();
+	await marketplace.waitForDeployment();
 
-	const auctionFactory = new ethers.ContractFactory(AuctionFactory.abi, AuctionFactory.bytecode, wallet);
-	const auctionFactoryContract = await auctionFactory.deploy(marketplaceAddress);
-	await auctionFactoryContract.waitForDeployment();
+	const marketplaceAddress = await marketplace.getAddress();
 
-	const auctionFactoryAddress = await auctionFactoryContract.getAddress();
+	const AuctionFactoryContract = await ethers.getContractFactory('AuctionFactory');
+	const auctionFactory = await AuctionFactoryContract.deploy(marketplaceAddress);
+	await auctionFactory.waitForDeployment();
 
-	await marketplaceContract.setAuctionFactoryAddress(auctionFactoryAddress);
+	const auctionFactoryAddress = await auctionFactory.getAddress();
 
-	console.log(`marketplaceContract deployed to address: ${await marketplaceContract.getAddress()}`);
-	console.log(`auctionFactoryContract deployed to address: ${await auctionFactoryContract.getAddress()}`);
+	await marketplace.setAuctionFactoryAddress(auctionFactoryAddress);
+
+	console.log(`marketplaceContract deployed to address: ${await marketplace.getAddress()}`);
+	console.log(`auctionFactoryContract deployed to address: ${await auctionFactory.getAddress()}`);
 }
 
 main()
