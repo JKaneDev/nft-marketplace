@@ -256,7 +256,9 @@ const AuctionCard = ({
 								</div>
 							) : (
 								<>
-									{user && user.account.toLowerCase() === auction.sellerAddress.toLowerCase() ? (
+									{user &&
+									auction &&
+									user.account.toLowerCase() === auction.sellerAddress.toLowerCase() ? (
 										<button className={Style.disabled} disabled>
 											Your NFT
 										</button>

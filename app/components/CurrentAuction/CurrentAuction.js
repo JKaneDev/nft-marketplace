@@ -205,7 +205,7 @@ const CurrentAuction = () => {
 	return (
 		<div className={Style.auction}>
 			<div className={Style.auction_container}>
-				{loading ? (
+				{loading || !currentAuction ? (
 					<RingLoader size={60} color='#fff' className={Style.loader} />
 				) : (
 					<>
@@ -303,6 +303,7 @@ const CurrentAuction = () => {
 								) : (
 									<>
 										{user &&
+										currentAuction &&
 										user.account.toLowerCase() === currentAuction.sellerAddress.toLowerCase() ? (
 											<button className={Style.auction_container_interact_btn_disabled} disabled>
 												Your NFT
