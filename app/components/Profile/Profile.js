@@ -59,10 +59,10 @@ const Profile = () => {
 	const handleEditProfile = async () => {
 		try {
 			if (selectedImage) {
-				await uploadImageToStorage(selectedImage);
+				uploadImageToStorage(selectedImage);
 			}
 
-			const userRef = doc(db, 'users', profileData.walletAddress);
+			const userRef = doc(db, 'users', user.account);
 			await updateDoc(userRef, profileData);
 			alert('Profile updated');
 		} catch (error) {
@@ -115,7 +115,7 @@ const Profile = () => {
 	// SAVE URL TO FIRESTORE FOR USE IN OTHER COMPONENTS AND PAGES
 	function saveProfilePictureURLToFirestore(downloadURL) {
 		try {
-			const userRef = doc(db, 'users', profileData.walletAddress);
+			const userRef = doc(db, 'users', user.account);
 			updateDoc(userRef, {
 				profilePicture: downloadURL,
 			}).then(() => {
@@ -135,13 +135,18 @@ const Profile = () => {
 			<div className={Style.profile_header}>
 				<h1>Edit Profile</h1>
 				<p>
-					Set your name, profile picture and other information so that other platform user's can interact with you. Or
-					just leave it blank, we respect your desire for anonymity!
+					Set your name, profile picture and other information so that other platform user's can
+					interact with you. Or just leave it blank, we respect your desire for anonymity!
 				</p>
 			</div>
 			<div className={Style.profile_edit}>
 				<div className={Style.profile_edit_wrapper} onClick={triggerFileInput}>
-					<input type='file' id='fileInput' style={{ display: 'none' }} onChange={handleImageUpload} />
+					<input
+						type='file'
+						id='fileInput'
+						style={{ display: 'none' }}
+						onChange={handleImageUpload}
+					/>
 					{/* SHOW SELECTED IMAGE IF AVAILABLE */}
 					{selectedImage ? (
 						<img src={selectedImage} alt='selected profile pic' />
@@ -150,7 +155,11 @@ const Profile = () => {
 						<img src={profileData.profilePicture} alt='selected profile pic' />
 					) : (
 						// SHOW PLACEHOLDER IMAGE IF NO OTHER IMAGES AVAILABLE
-						<Image src={images.placeholder} alt='user profile picture' className={Style.profile_edit_wrapper_image} />
+						<Image
+							src={images.placeholder}
+							alt='user profile picture'
+							className={Style.profile_edit_wrapper_image}
+						/>
 					)}
 				</div>
 
@@ -178,7 +187,12 @@ const Profile = () => {
 						</div>
 						<div className={Style.profile_edit_info_wrapper_field}>
 							<p>Description</p>
-							<textarea value={profileData.description} name='description' type='text' onChange={handleDataChange} />
+							<textarea
+								value={profileData.description}
+								name='description'
+								type='text'
+								onChange={handleDataChange}
+							/>
 						</div>
 						<div className={Style.profile_edit_info_wrapper_field}>
 							<p>Website</p>

@@ -36,7 +36,8 @@ const Navbar = () => {
 	const handleConnect = async () => {
 		try {
 			if (!isConnected) {
-				const account = connectToEthereum(dispatch);
+				const account = await connectToEthereum(dispatch);
+				console.log('Account: ', account);
 				loadOrCreateAccount(account);
 			} else {
 				dispatch(disconnect());
