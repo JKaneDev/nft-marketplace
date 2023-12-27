@@ -302,7 +302,8 @@ const CurrentAuction = () => {
 									</div>
 								) : (
 									<>
-										{user.account.toLowerCase() === currentAuction.sellerAddress.toLowerCase() ? (
+										{user &&
+										user.account.toLowerCase() === currentAuction.sellerAddress.toLowerCase() ? (
 											<button className={Style.auction_container_interact_btn_disabled} disabled>
 												Your NFT
 											</button>

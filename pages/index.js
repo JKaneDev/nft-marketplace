@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import Style from '../styles/homepage.module.scss';
 import { Hero, Connect, CurrentAuction } from '../app/components/componentindex';
 import Layout from '../app/layout';
