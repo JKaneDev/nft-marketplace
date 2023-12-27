@@ -8,13 +8,7 @@ import azuki1 from './azuki-1.png';
 import azuki2 from './azuki-2.png';
 import azuki3 from './azuki-3.png';
 import pudgy1 from './pudgy-1.png';
-import userMutant from './user-mutant-ape.png';
-import userPunk from './user-punks.png';
-import userAzuki from './user-azuki.png';
-import logo from './logo.png';
-import OpenSea from './OpenSea.svg';
 import addIcon from './add-icon.svg';
-import hero from './marketplace-hero.png';
 import metamask from './metamask.png';
 import buy from './cart.png';
 import sell from './money.png';
@@ -28,13 +22,8 @@ import founder1 from './model-1.jpg';
 import founder2 from './model-2.jpg';
 import founder3 from './model-3.jpg';
 import founder4 from './model-4.jpg';
-import Hero from './hero-image.png';
 
 export default {
-	userMutant,
-	userPunk,
-	userAzuki,
-	Hero,
 	founder1,
 	founder2,
 	founder3,
@@ -52,9 +41,7 @@ export default {
 	azuki2,
 	azuki3,
 	pudgy1,
-	logo,
 	addIcon,
-	hero,
 	metamask,
 	filter,
 	buy,
