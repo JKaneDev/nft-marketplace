@@ -43,7 +43,7 @@ const AuctionInterface = ({
 			setEndedConfirmationNeeded(confirmationNeeded);
 		};
 		runChecks();
-	}, []);
+	}, [id]);
 
 	/**
 	 * Loads the auction ended listener.
@@ -78,10 +78,11 @@ const AuctionInterface = ({
 	useEffect(() => {
 		if (auctionComplete) {
 			setTimeout(() => {
+				checkEndedAuctions();
 				setAuctionActive(false);
 				resetUserData();
 				setLoading(false);
-			}, 3000);
+			}, 6000);
 		}
 	}, [auctionComplete]);
 
@@ -104,7 +105,6 @@ const AuctionInterface = ({
 				await confirmEndAuction(auction.address);
 			}
 
-			checkEndedAuctions();
 			setAuctionComplete(true);
 		} catch (error) {
 			console.error('Error ending auction', error);

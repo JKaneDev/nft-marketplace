@@ -351,6 +351,7 @@ export const purchaseNft = async (marketplace, id, user) => {
 		const receipt = await tx.wait();
 
 		if (receipt) {
+			await changePrice(id, seller.toLowerCase(), ethers.formatEther(price));
 			await delistNFT(seller.toLowerCase(), id);
 			await changeNftOwnershipInFirebase(id, user);
 		}
@@ -405,7 +406,6 @@ export const confirmEndAuction = async (auctionAddress) => {
  *
  * @param {function} dispatch - The dispatch function to remove the auction from the state.
  * @param {string} nftId - The ID of the NFT associated with the auction.
- * @param {string} auctionAddress - The address of the auction contract.
  * @returns {Promise<void>} - A promise that resolves when the auction is ended.
  */
 export const callAuctionEndTimeReached = async (dispatch, nftId) => {
@@ -511,6 +511,7 @@ export const placeBid = async (auctionAddress, amount) => {
 		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
 		await auction.bid({ value: ethers.parseEther(amount) });
 	} catch (error) {
+		window.alert('You are already the highest bidder');
 		console.error('Error placing bid on auction', error);
 	}
 };

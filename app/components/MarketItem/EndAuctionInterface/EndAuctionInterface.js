@@ -27,7 +27,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 
 	useEffect(() => {
 		checkIfEndTimeReached(id);
-	}, []);
+	}, [id]);
 
 	/**
 	 * Loads the auction factory functions by creating a contract instance, listening for created auctions,
@@ -38,7 +38,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				cleanupFunc = listenForEndedAuctions(dispatch, auction.auctionAddress);
+				cleanupFunc = await listenForEndedAuctions(dispatch, auction.auctionAddress);
 			}
 		};
 
@@ -54,7 +54,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 			setTimeout(() => {
 				setAuctionActive(false);
 				resetUserData();
-			}, 3000);
+			}, 7000);
 		}
 	}, [auctionComplete]);
 

@@ -58,8 +58,8 @@ const CurrentAuction = () => {
 			if (auctionFactoryLoaded && currentAuction) {
 				const contract = await createContractInstance(auctionFactoryDetails);
 				await loadActiveAuctions(dispatch);
-				const cleanup1 = listenForCreatedAuctions(dispatch, contract);
-				const cleanup2 = listenForBidEvents(
+				const cleanup1 = await listenForCreatedAuctions(dispatch, contract);
+				const cleanup2 = await listenForBidEvents(
 					dispatch,
 					currentAuction.auctionAddress,
 					currentAuction.nftId,

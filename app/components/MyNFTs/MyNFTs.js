@@ -4,7 +4,8 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import Image from 'next/image';
 
 // BLOCKCHAIN + BACKEND IMPORTS
-import { db } from '../../../firebaseConfig';
+import { db, realtimeDb } from '../../../firebaseConfig';
+import { get, ref } from 'firebase/database';
 import { doc, getDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
 
@@ -43,6 +44,7 @@ const MyNFTs = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [userData, setUserData] = useState(null);
 	const [activeAuctions, setActiveAuctions] = useState([]);
+	const [endedAuctions, setEndedAuctions] = useState([]);
 	const dropdownRef = useRef(null);
 
 	const user = useSelector((state) => state.connection.account);
@@ -52,7 +54,7 @@ const MyNFTs = () => {
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
 		fetchUserData();
-	}, []);
+	}, [user]);
 
 	// HANDLE CATEGORY AND FILTER MENU TOGGLES
 	useEffect(() => {
@@ -77,7 +79,7 @@ const MyNFTs = () => {
 
 		const loadAuctionFactoryFunctions = async () => {
 			const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-			cleanupFunc = listenForCreatedAuctions(dispatch, auctionFactoryContract);
+			cleanupFunc = await listenForCreatedAuctions(dispatch, auctionFactoryContract);
 			await loadActiveAuctions(dispatch);
 		};
 
@@ -91,7 +93,7 @@ const MyNFTs = () => {
 	useEffect(() => {
 		const auctionIds = auctions.map((auction) => auction.nftId);
 		setActiveAuctions(auctionIds);
-	}, []);
+	}, [auctions]);
 
 	/**
 	 * Fetches user data from the database and updates the state with the retrieved data.
@@ -156,6 +158,18 @@ const MyNFTs = () => {
 
 	const handleSearchQuery = (e) => {
 		setSearchQuery(e.target.value);
+	};
+
+	const checkEndedAuctions = async () => {
+		const auctionsRef = ref(realtimeDb, 'endedAuctions');
+		const snapshot = await get(auctionsRef);
+		if (snapshot.exists()) {
+			const data = snapshot.val();
+			const auctions = Object.values(data);
+			auctions.length > 0 ? setEndedAuctions(auctions) : setEndedAuctions([]);
+		} else {
+			setEndedAuctions([]);
+		}
 	};
 
 	/**
@@ -329,7 +343,14 @@ const MyNFTs = () => {
 					{filteredNFTs &&
 						filteredNFTs.map((nft) => {
 							if (currentFilter === 'Currently Owned' || currentFilter === 'Currently Listed') {
-								return <MarketItem key={nft.id} {...nft} resetUserData={fetchUserData} />;
+								return (
+									<MarketItem
+										key={nft.id}
+										resetUserData={fetchUserData}
+										checkEndedAuctions={checkEndedAuctions}
+										{...nft}
+									/>
+								);
 							} else if (currentFilter === 'Watchlist') {
 								const isAtAuction = activeAuctions.includes(nft.id);
 								return isAtAuction ? (

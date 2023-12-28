@@ -43,7 +43,6 @@ const AuctionCard = ({
 	const [auctionComplete, setAuctionComplete] = useState(false);
 
 	const user = useSelector((state) => state.connection.account);
-	const marketplaceDetails = useSelector((state) => state.marketplace.contractDetails);
 	const auctions = useSelector((state) => state.auctionFactory.auctions);
 	const auction = auctions.length > 0 ? auctions.find((auction) => auction.nftId === id) : {};
 
@@ -105,7 +104,7 @@ const AuctionCard = ({
 			setTimeout(() => {
 				setLoading(false);
 				setAuctionComplete(true);
-			}, 1500);
+			}, 5000);
 		} catch (error) {
 			console.error('Error ending auction');
 		}
@@ -237,7 +236,7 @@ const AuctionCard = ({
 						</div>
 						<div className={Style.interface_actions}>
 							<div className={Style.interface_actions_bid}>
-								<p>{auction.currentBid ? 'Current Bid:' : 'Starting Price:'}</p>
+								<p>{auction.currentBid ? 'Current Bid:' : 'Price:'}</p>
 								<p>{auction.currentBid ? auction.currentBid : auction.startingPrice}</p>
 								<p>ETH</p>
 							</div>

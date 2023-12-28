@@ -23,7 +23,6 @@ import {
 	CreateStaticSale,
 } from '../componentindex';
 import SaleToggle from './SaleToggle';
-import Auction from '../../../abis/contracts/Auction.sol/Auction.json';
 
 const MarketItem = ({
 	id,

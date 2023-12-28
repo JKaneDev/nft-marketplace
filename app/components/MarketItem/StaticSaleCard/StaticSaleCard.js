@@ -35,7 +35,7 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 			}
 		};
 		checkWatchlistStatus();
-	}, []);
+	}, [user]);
 
 	// Triggers component re-render when purchase is complete
 	useEffect(() => {
@@ -60,7 +60,7 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 			if (inWatchlist) {
 				handleWatchlistToggle();
 			}
-		}, 1500);
+		}, 3000);
 	};
 
 	/**

@@ -22,7 +22,6 @@ import { MdRestartAlt } from 'react-icons/md';
 import { RiFilterLine } from 'react-icons/ri';
 import { AuctionCard, MarketItem, StaticSaleCard } from '../../componentindex';
 import { get, ref } from 'firebase/database';
-import { setAuctions } from '@/store/auctionFactorySlices';
 
 const Browse = () => {
 	const dispatch = useDispatch();
@@ -72,7 +71,7 @@ const Browse = () => {
 	// FETCH USER DATA VIA FIRESTORE USING WALLET ADDRESS (ON PAGE LOAD)
 	useEffect(() => {
 		fetchUserData();
-	}, []);
+	}, [user]);
 
 	const fetchUserData = async () => {
 		try {
