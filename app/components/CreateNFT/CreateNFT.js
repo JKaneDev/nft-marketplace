@@ -89,7 +89,7 @@ const CreateNFT = () => {
 		setLoading(true);
 		// Call disallowed unless valid MetaMask connection
 		if (!isConnected) {
-			connectToEthereum(dispatch);
+			await connectToEthereum(dispatch);
 			window.alert('Check MetaMask connection and call Mint again.');
 			return;
 		}
