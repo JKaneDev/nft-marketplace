@@ -68,9 +68,9 @@ const MarketItem = ({
 
 	/* Re-load auctions and NFTs when auction starts or ends */
 	const reloadAuctionData = async () => {
+		resetUserData();
 		await loadActiveAuctions(dispatch);
 		checkForActiveAuction(id);
-		resetUserData();
 	};
 
 	const handleShowAuctionInfo = (e) => {
@@ -103,9 +103,7 @@ const MarketItem = ({
 	const handleAuctionStart = async () => {
 		setLoading(true);
 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
-		console.log('Auction Factory Contract: ', auctionFactoryContract);
 		const marketplace = await createContractInstance(marketplaceDetails);
-		console.log('Marketplace Contract: ', marketplace);
 		await createAuction(
 			auctionFactoryContract,
 			marketplace,

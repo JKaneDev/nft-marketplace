@@ -48,7 +48,9 @@ contract AuctionFactory {
          **/
         function createAuction(uint256 startingPrice, uint256 auctionDuration, uint256 nftId, address seller) public {
                 require(seller != address(0), 'Invalid seller address');
+                console.log('Seller: ', seller);
                 require(startingPrice > 0, 'Starting price must be at least 1 wei');
+                console.log('Starting price: ', startingPrice);
 
                 uint256 currentTimestamp = block.timestamp;
 

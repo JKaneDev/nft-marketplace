@@ -89,6 +89,8 @@ export const listNFT = async (seller, nftId) => {
 					await updateDoc(userRef, {
 						[nftPath]: true,
 					});
+
+					console.log('NFT Listed');
 				}
 			}
 		}

@@ -249,11 +249,17 @@ export const createAuction = async (
 
 		await marketplace.giveApproval(marketplaceAddress, nftId);
 
+		const overrides = {
+			// The maximum units of gas for the transaction to use
+			gasLimit: 12000000,
+		};
+
 		const tx = await auctionFactoryContract.createAuction(
 			startingPriceWei,
 			auctionDurationInSeconds,
 			nftId,
 			seller,
+			overrides,
 		);
 
 		const receipt = await tx.wait();
@@ -526,7 +532,6 @@ export const placeBid = async (auctionAddress, amount) => {
 
 		dispatch(bid(bidData));
 	} catch (error) {
-		window.alert('You are already the highest bidder');
 		console.error('Error placing bid on auction', error);
 	}
 };
