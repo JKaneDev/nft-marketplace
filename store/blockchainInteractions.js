@@ -239,6 +239,14 @@ export const createAuction = async (
 
 		const marketplaceAddress = await marketplace.getAddress();
 
+		console.log('Info before contract call: ', {
+			marketplaceAddress,
+			startingPriceWei,
+			auctionDurationInSeconds,
+			nftId,
+			seller,
+		});
+
 		await marketplace.giveApproval(marketplaceAddress, nftId);
 
 		const tx = await auctionFactoryContract.createAuction(
@@ -249,6 +257,7 @@ export const createAuction = async (
 		);
 
 		const receipt = await tx.wait();
+		console.log('Create Auction Receipt: ', receipt);
 
 		if (receipt) {
 			await listNFT(seller.toLowerCase(), nftId);
@@ -510,6 +519,12 @@ export const placeBid = async (auctionAddress, amount) => {
 		const signer = await getSigner();
 		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
 		await auction.bid({ value: ethers.parseEther(amount) });
+		const bidData = {
+			currentBid: amount,
+			address: auctionAddress,
+		};
+
+		dispatch(bid(bidData));
 	} catch (error) {
 		window.alert('You are already the highest bidder');
 		console.error('Error placing bid on auction', error);
@@ -525,20 +540,12 @@ export const placeBid = async (auctionAddress, amount) => {
  * @returns {Function} - A cleanup function to remove the event listener.
  * @throws {Error} - If there is an error updating the current bid in the database.
  */
-export const listenForBidEvents = async (dispatch, auctionAddress, nftId) => {
+export const listenForBidEvents = async (auctionAddress, nftId) => {
 	try {
 		const signer = await getSigner();
 		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
 
 		const listener = async (bidder, bidAmount) => {
-			const bidData = {
-				bidder: bidder,
-				currentBid: ethers.formatEther(bidAmount),
-				address: auctionAddress,
-			};
-
-			dispatch(bid(bidData));
-
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
 			update(auctionRef, { currentBid: bidData.currentBid })
 				.then(() => {

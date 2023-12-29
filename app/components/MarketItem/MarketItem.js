@@ -103,7 +103,9 @@ const MarketItem = ({
 	const handleAuctionStart = async () => {
 		setLoading(true);
 		const auctionFactoryContract = await createContractInstance(auctionFactoryDetails);
+		console.log('Auction Factory Contract: ', auctionFactoryContract);
 		const marketplace = await createContractInstance(marketplaceDetails);
+		console.log('Marketplace Contract: ', marketplace);
 		await createAuction(
 			auctionFactoryContract,
 			marketplace,

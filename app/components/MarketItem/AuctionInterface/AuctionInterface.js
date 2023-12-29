@@ -82,7 +82,7 @@ const AuctionInterface = ({
 				setAuctionActive(false);
 				resetUserData();
 				setLoading(false);
-			}, 6000);
+			}, 3000);
 		}
 	}, [auctionComplete]);
 

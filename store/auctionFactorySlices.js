@@ -42,7 +42,7 @@ const auctionFactorySlice = createSlice({
 			state.auctions = action.payload;
 		},
 		bid: (state, action) => {
-			const { bidder, currentBid, address } = action.payload;
+			const { currentBid, address } = action.payload;
 			const updatedAuctions = state.auctions.map((auction) => {
 				if (auction.auctionAddress === address) {
 					return { ...auction, currentBid };

@@ -57,7 +57,7 @@ const AuctionCard = ({
 
 		const loadAuctionEventListeners = async () => {
 			const cleanup1 = await listenForEndedAuctions(dispatch, auction.auctionAddress);
-			const cleanup2 = await listenForBidEvents(dispatch, auction.auctionAddress, auction.nftId);
+			const cleanup2 = await listenForBidEvents(auction.auctionAddress, auction.nftId);
 			cleanupFuncs = [cleanup1, cleanup2];
 		};
 

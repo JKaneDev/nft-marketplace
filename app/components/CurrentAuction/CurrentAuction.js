@@ -60,7 +60,6 @@ const CurrentAuction = () => {
 				await loadActiveAuctions(dispatch);
 				const cleanup1 = await listenForCreatedAuctions(dispatch, contract);
 				const cleanup2 = await listenForBidEvents(
-					dispatch,
 					currentAuction.auctionAddress,
 					currentAuction.nftId,
 				);
