@@ -107,6 +107,7 @@ const CreateNFT = () => {
 			setTimeout(() => {
 				setLoading(false);
 				resetNftData();
+				window.alert('Your NFT is now in your collection!');
 			}, 3000);
 		} catch (error) {
 			console.error('Error in createNFT: ', error);
