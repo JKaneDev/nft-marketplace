@@ -20,6 +20,12 @@ $font-color: #fefefe;
 	transition: all 0.35s ease-in-out;
 	position: relative;
 	background-color: $main-bg-color;
+	z-index: 1001;
+	transition: all 0.35s ease-in-out;
+
+	&:hover {
+		transform: translateY(-2.5%);
+	}
 
 	.toggle {
 		position: absolute;
@@ -59,10 +65,6 @@ $font-color: #fefefe;
 			height: 16px;
 			width: 16px;
 		}
-	}
-
-	&:hover {
-		transform: scale(1.05);
 	}
 
 	.card_img {

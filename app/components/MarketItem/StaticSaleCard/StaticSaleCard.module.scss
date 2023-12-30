@@ -16,6 +16,11 @@ $font-color: #fefefe;
 	border-top-right-radius: 14px;
 	height: 425px;
 	width: 335px;
+	transition: all 0.35s ease-in-out;
+
+	&:hover {
+		transform: translateY(-2.5%);
+	}
 
 	.card_img {
 		height: 330px;
