@@ -3,14 +3,17 @@ import Style from './AuctionInterface.module.scss';
 import { FaInfoCircle, FaGavel } from 'react-icons/fa';
 import { RingLoader } from 'react-spinners';
 import { useDispatch, useSelector } from 'react-redux';
+import { ethers } from 'ethers';
 
 import {
+	getSigner,
 	endAuction,
 	listenForEndedAuctions,
 	confirmEndAuction,
 } from '@/store/blockchainInteractions';
 import { ref, get } from 'firebase/database';
 import { realtimeDb } from '@/firebaseConfig';
+import Auction from '../../../../abis/contracts/Auction.sol/Auction.json';
 
 const AuctionInterface = ({
 	id,
@@ -55,7 +58,9 @@ const AuctionInterface = ({
 
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				cleanupFunc = listenForEndedAuctions(dispatch, auction.address);
+				const signer = await getSigner();
+				const contract = new ethers.Contract(auction.address, Auction.abi, signer);
+				cleanupFunc = await listenForEndedAuctions(dispatch, contract);
 			}
 		};
 		loadAuctionEndedListener();
@@ -78,9 +83,9 @@ const AuctionInterface = ({
 	useEffect(() => {
 		if (auctionComplete) {
 			setTimeout(() => {
-				checkEndedAuctions();
 				setAuctionActive(false);
 				resetUserData();
+				checkEndedAuctions();
 				setLoading(false);
 			}, 3000);
 		}

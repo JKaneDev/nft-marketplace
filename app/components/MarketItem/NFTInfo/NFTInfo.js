@@ -61,7 +61,6 @@ const NFTInfo = ({ id, price, category, resetUserData }) => {
 		const tx = await marketplace.delistMarketItem(id);
 		const receipt = tx.wait();
 		if (receipt) await delistNFT(user.account, id);
-		window.alert('Please refresh to confirm delisting.');
 		resetUserData();
 	};
 

@@ -239,18 +239,9 @@ export const createAuction = async (
 
 		const marketplaceAddress = await marketplace.getAddress();
 
-		console.log('Info before contract call: ', {
-			marketplaceAddress,
-			startingPriceWei,
-			auctionDurationInSeconds,
-			nftId,
-			seller,
-		});
-
 		await marketplace.giveApproval(marketplaceAddress, nftId);
 
 		const overrides = {
-			// The maximum units of gas for the transaction to use
 			gasLimit: 12000000,
 		};
 
@@ -263,7 +254,7 @@ export const createAuction = async (
 		);
 
 		const receipt = await tx.wait();
-		console.log('Create Auction Receipt: ', receipt);
+		console.log('Auction Created Successfully');
 
 		if (receipt) {
 			await listNFT(seller.toLowerCase(), nftId);
@@ -385,7 +376,9 @@ export const endAuction = async (contractAddress) => {
 	try {
 		const signer = await getSigner();
 		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
-		await auctionContract.endAuction();
+		const tx = await auctionContract.endAuction();
+		const receipt = await tx.wait();
+		console.log('Auction Ended Successfully');
 	} catch (error) {
 		console.error('Error calling smart contract endAuction', error);
 	}
@@ -407,7 +400,10 @@ export const confirmEndAuction = async (auctionAddress) => {
 		const auctionContract = new ethers.Contract(auctionAddress, Auction.abi, signer);
 		const tx = await auctionContract.confirmAuctionEnd();
 		const receipt = await tx.wait();
-		if (receipt) await auctionContract.endAuction();
+		if (receipt) {
+			const tx = await auctionContract.endAuction();
+			await tx.wait();
+		}
 	} catch (error) {
 		console.error('Error calling smart contract confirmEndAuction', error);
 	}
@@ -462,15 +458,12 @@ export const callAuctionEndTimeReached = async (dispatch, nftId) => {
 /**
  * Listens for ended auctions and performs necessary actions based on the auction outcome.
  * @param {Function} dispatch - The dispatch function from Redux for updating the state.
- * @param {string} contractAddress - The address of the auction contract.
+ * @param {string} contract - the auction contract instance for the specific nft
  * @returns {Function} - A cleanup function that removes the listener.
  * @throws {Error} - If there is an error handling the AuctionEnded event.
  */
-export const listenForEndedAuctions = async (dispatch, contractAddress) => {
+export const listenForEndedAuctions = async (dispatch, contract) => {
 	try {
-		const signer = await getSigner();
-		const auctionContract = new ethers.Contract(contractAddress, Auction.abi, signer);
-
 		const listener = async (nftId, highestBidder, seller, nullAddress, highestBid) => {
 			// Reference to the auction in the 'auctions' node
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
@@ -483,7 +476,9 @@ export const listenForEndedAuctions = async (dispatch, contractAddress) => {
 			if (auctionSnapshot.exists()) {
 				// Remove auction from 'auctions' node
 				dispatch(removeAuction(nftId.toString()));
+
 				await remove(auctionRef);
+				console.log(`Auction data for ID ${nftId} removed from auctions`);
 			} else if (endedAuctionSnapshot.exists()) {
 				// Remove auction from 'endedAuctions' node
 				await remove(endedAuctionRef);
@@ -502,11 +497,11 @@ export const listenForEndedAuctions = async (dispatch, contractAddress) => {
 			}
 		};
 
-		auctionContract.on('AuctionEnded', listener);
+		contract.on('AuctionEnded', listener);
 
 		// Return a cleanup function that removes the listener
 		return () => {
-			auctionContract.off('AuctionEnded', listener);
+			contract.off('AuctionEnded', listener);
 		};
 	} catch (error) {
 		console.error('Error handling AuctionEnded event:', error);
@@ -520,17 +515,16 @@ export const listenForEndedAuctions = async (dispatch, contractAddress) => {
  * @param {string} amount - The amount of the bid in Ether.
  * @returns {Promise<void>} - A promise that resolves when the bid is successfully placed.
  */
-export const placeBid = async (auctionAddress, amount) => {
+export const placeBid = async (dispatch, address, amount) => {
 	try {
 		const signer = await getSigner();
-		const auction = new ethers.Contract(auctionAddress, Auction.abi, signer);
-		await auction.bid({ value: ethers.parseEther(amount) });
-		const bidData = {
-			currentBid: amount,
-			address: auctionAddress,
-		};
+		const contract = new ethers.Contract(address, Auction.abi, signer);
+		const newBid = amount;
 
-		dispatch(bid(bidData));
+		const tx = await contract.bid({ value: ethers.parseEther(amount) });
+		const receipt = await tx.wait();
+
+		dispatch(bid({ newBid, address }));
 	} catch (error) {
 		console.error('Error placing bid on auction', error);
 	}
@@ -552,9 +546,9 @@ export const listenForBidEvents = async (auctionAddress, nftId) => {
 
 		const listener = async (bidder, bidAmount) => {
 			const auctionRef = ref(realtimeDb, `auctions/${nftId}`);
-			update(auctionRef, { currentBid: bidData.currentBid })
+			update(auctionRef, { currentBid: ethers.formatEther(bidAmount) })
 				.then(() => {
-					console.log('DB updated with bid!', bidData.currentBid);
+					console.log('DB updated with bid!', ethers.formatEther(bidAmount));
 				})
 				.catch((error) => {
 					console.error('Error updating current bid: ', error);

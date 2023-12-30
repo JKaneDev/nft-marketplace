@@ -41,7 +41,6 @@ const StaticSaleCard = ({ id, name, image, category, price, isListed, resetUserD
 	useEffect(() => {
 		if (purchaseComplete) {
 			resetUserData();
-			window.alert('Please refresh to confirm purchase');
 		}
 	}, [purchaseComplete]);
 

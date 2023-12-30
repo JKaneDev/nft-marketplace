@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { RingLoader } from 'react-spinners';
 import { useSelector, useDispatch } from 'react-redux';
+import { ethers } from 'ethers';
 
 // BLOCKCHAIN + BACKEND + REDUX IMPORTS
 import { ref, get } from 'firebase/database';
@@ -13,7 +14,9 @@ import {
 	endAuction,
 	listenForEndedAuctions,
 	callAuctionEndTimeReached,
+	getSigner,
 } from '@/store/blockchainInteractions';
+import Auction from '../../../../abis/contracts/Auction.sol/Auction.json';
 import { AuctionTimer } from '../../componentindex';
 
 const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
@@ -38,7 +41,9 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 
 		const loadAuctionEndedListener = async () => {
 			if (auction) {
-				cleanupFunc = await listenForEndedAuctions(dispatch, auction.auctionAddress);
+				const signer = await getSigner();
+				const contract = new ethers.Contract(auction.auctionAddress, Auction.abi, signer);
+				cleanupFunc = await listenForEndedAuctions(dispatch, contract);
 			}
 		};
 
@@ -54,7 +59,7 @@ const EndAuctionInterface = ({ id, setAuctionActive, resetUserData }) => {
 			setTimeout(() => {
 				setAuctionActive(false);
 				resetUserData();
-			}, 7000);
+			}, 10000);
 		}
 	}, [auctionComplete]);
 

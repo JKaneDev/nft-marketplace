@@ -148,7 +148,7 @@ const Watchlist = () => {
 							? filteredWatchlist.map((nft) => {
 									const isAtAuction = activeAuctions.includes(nft.id);
 									return isAtAuction ? (
-										<AuctionCard key={nft.id} {...nft} />
+										<AuctionCard key={nft.id} {...nft} resetUserData={getWatchlist} />
 									) : (
 										<StaticSaleCard key={nft.id} {...nft} resetUserData={getWatchlist} />
 									);
@@ -156,7 +156,7 @@ const Watchlist = () => {
 							: watchlist.map((nft) => {
 									const isAtAuction = activeAuctions.includes(nft.id);
 									return isAtAuction ? (
-										<AuctionCard key={nft.id} {...nft} />
+										<AuctionCard key={nft.id} {...nft} resetUserData={getWatchlist} />
 									) : (
 										<StaticSaleCard key={nft.id} {...nft} resetUserData={getWatchlist} />
 									);

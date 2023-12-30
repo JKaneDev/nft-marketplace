@@ -120,6 +120,8 @@ export const delistNFT = async (seller, nftId) => {
 					await updateDoc(userRef, {
 						[nftPath]: false,
 					});
+
+					console.log('NFT Delisted');
 				}
 			}
 		}

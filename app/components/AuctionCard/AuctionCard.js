@@ -14,10 +14,12 @@ import { ref, get } from 'firebase/database';
 import { realtimeDb } from '@/firebaseConfig';
 
 // INTERNAL IMPORTS
+import Auction from '../../../abis/contracts/Auction.sol/Auction.json';
 import Style from './AuctionCard.module.scss';
 import images from '../../../assets/index';
 import { AuctionTimer } from '../componentindex';
 import {
+	getSigner,
 	callAuctionEndTimeReached,
 	listenForBidEvents,
 	listenForEndedAuctions,
@@ -56,7 +58,9 @@ const AuctionCard = ({
 		let cleanupFuncs = [];
 
 		const loadAuctionEventListeners = async () => {
-			const cleanup1 = await listenForEndedAuctions(dispatch, auction.auctionAddress);
+			const signer = await getSigner();
+			const contract = new ethers.Contract(auction.auctionAddress, Auction.abi, signer);
+			const cleanup1 = await listenForEndedAuctions(dispatch, contract);
 			const cleanup2 = await listenForBidEvents(auction.auctionAddress, auction.nftId);
 			cleanupFuncs = [cleanup1, cleanup2];
 		};
@@ -159,7 +163,8 @@ const AuctionCard = ({
 	const handleAuctionBid = async () => {
 		try {
 			setLoading(true);
-			await placeBid(auction.auctionAddress, bidAmount);
+
+			await placeBid(dispatch, auction.auctionAddress, bidAmount);
 
 			setTimeout(() => {
 				setLoading(false);

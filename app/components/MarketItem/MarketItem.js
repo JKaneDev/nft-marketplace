@@ -63,6 +63,7 @@ const MarketItem = ({
 		if (auctionStarted) {
 			setAuctionActive(true);
 			reloadAuctionData();
+			setLoading(false);
 		}
 	}, [auctionStarted]);
 
@@ -113,7 +114,6 @@ const MarketItem = ({
 			user.account,
 		);
 		setTimeout(() => {
-			setLoading(false);
 			setAuctionStarted(true);
 		}, 3000);
 	};

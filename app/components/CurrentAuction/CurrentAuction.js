@@ -186,7 +186,7 @@ const CurrentAuction = () => {
 			}
 
 			setLoading(true);
-			await placeBid(currentAuction.auctionAddress, bidAmount);
+			await placeBid(dispatch, currentAuction.auctionAddress, bidAmount);
 
 			setTimeout(() => {
 				setLoading(false);
@@ -253,9 +253,13 @@ const CurrentAuction = () => {
 						</div>
 						<div className={Style.auction_container_bid}>
 							<div className={Style.auction_container_bid_wrapper}>
-								<p>{currentAuction && currentAuction.currentBid ? 'Current Bid:' : 'No Bids'}</p>
 								<p>
-									{currentAuction && currentAuction.currentBid ? currentAuction.currentBid : '0'}
+									{currentAuction && currentAuction.currentBid ? 'Current Bid:' : 'Starting Price:'}
+								</p>
+								<p>
+									{currentAuction && currentAuction.currentBid
+										? currentAuction.currentBid
+										: currentAuction.startingPrice}
 								</p>
 								<Image
 									src={images.eth}
